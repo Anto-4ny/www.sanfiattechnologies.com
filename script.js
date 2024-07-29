@@ -1,7 +1,7 @@
 // Initialize Firebase
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 
 // Firebase configuration
@@ -65,7 +65,7 @@ registrationForm.addEventListener('submit', async (event) => {
             paymentConfirmation: paymentConfirmation,
             referrals: 0,
             views: 0,
-            createdAt: new Date() // or use serverTimestamp() from Firestore
+            createdAt: new Date()
         });
 
         welcomeMessage.textContent = `Welcome, ${name}!`;
@@ -89,7 +89,7 @@ loginForm.addEventListener('submit', async (event) => {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        const userDoc = await doc(db, "users", user.uid).get();
+        const userDoc = await getDoc(doc(db, "users", user.uid));
         const userData = userDoc.data();
 
         welcomeMessage.textContent = `Welcome back, ${userData.name}!`;
@@ -101,4 +101,20 @@ loginForm.addEventListener('submit', async (event) => {
         alert("Login failed. Please try again.");
     }
 });
-          
+
+// Redirect to login if not authenticated
+const checkAuthStatus = () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is signed in, show dashboard
+            window.location.href = "dashboard.html";
+        } else {
+            // User is not signed in, show registration/login
+            window.location.href = "index.html";
+        }
+    });
+};
+
+// Call this function on page load to ensure authentication
+checkAuthStatus();
+      
