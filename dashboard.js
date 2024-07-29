@@ -58,4 +58,33 @@ document.getElementById('upload-button').addEventListener('click', async () => {
         alert("Please select a file to upload.");
     }
 });
-            
+
+document.getElementById('upload-button').addEventListener('click', async () => {
+    const fileInput = document.getElementById('view-screenshot');
+    const file = fileInput.files[0];
+    if (file) {
+        // Check file type
+        const validFileTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!validFileTypes.includes(file.type)) {
+            alert("Please upload a valid image file (JPEG, PNG, GIF).");
+            return;
+        }
+
+        // Check file size (limit to 5MB)
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert("File size must be less than 5MB.");
+            return;
+        }
+
+        try {
+            // Upload and further processing
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            alert("Error uploading file. Please try again.");
+        }
+    } else {
+        alert("Please select a file to upload.");
+    }
+});
+
