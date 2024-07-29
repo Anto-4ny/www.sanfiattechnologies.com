@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Antocap Teknologies Referral Program</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Antocap Teknologies Referral Program Dashboard</h1>
+        <nav>
+            <a href="#register">Register</a>
+            <a href="#dashboard">Dashboard</a>
+        </nav>
+    </header>
+    <main>
+        <section id="dashboard">
+            <h2>Your Dashboard</h2>
+            <div id="user-info">
+                <p>Name: <span id="user-name"></span></p>
+                <p>Email: <span id="user-email"></span></p>
+                <p>Referrals: <span id="referral-count"></span></p>
+                <p>Total Views: <span id="total-views"></span></p>
+                <p>Total Earnings: <span id="total-earnings"></span> Ksh</p>
+            </div>
+            <div id="upload-section">
+                <h3>Upload Screenshot of Views</h3>
+                <input type="file" id="view-screenshot" accept="image/*">
+                <button id="upload-button">Upload</button>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 ELE MAX. All rights reserved.</p>
+    </footer>
+    <script src="dashboard.js"></script>
+</body>
+</html>
+                                  
