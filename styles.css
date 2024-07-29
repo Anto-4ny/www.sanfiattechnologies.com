@@ -56,3 +56,13 @@ button {
 button:hover {
     background-color: #555;
 }
+#auth-section p, #auth-section a {
+        text-align: center;
+            margin-top: 10px;
+            }
+
+            a {
+                color: #333;
+                    text-decoration: none;
+              }
+}

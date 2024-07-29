@@ -3,11 +3,17 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
-const firebaseConfig = {
-  // Your Firebase configuration
-};
-
+import { getAnalytics } from "firebase/analytics";
+    const firebaseConfig = {
+      apiKey: "AIzaSyB7t1wWHhPYBitqKC4SJ8lqP1WMLDefCxo",
+        authDomain: "antocap-referrals.firebaseapp.com",
+          projectId: "antocap-referrals",
+            storageBucket: "antocap-referrals.appspot.com",
+              messagingSenderId: "1071760453747",
+                appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
+                  measurementId: "G-EPLJB8MTRH"
+                  };
+const analytics = getAnalytics(app);
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth();
