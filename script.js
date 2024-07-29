@@ -1,18 +1,18 @@
-// Initialize Firebase
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { getAnalytics } from "firebase/analytics";
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
 
-// Firebase configuration
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB7t1wWHhPYBitqKC4SJ8lqP1WMLDefCxo",
-  authDomain: "antocap-referrals.firebaseapp.com",
-  projectId: "antocap-referrals",
-  storageBucket: "antocap-referrals.appspot.com",
-  messagingSenderId: "1071760453747",
-  appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
-  measurementId: "G-EPLJB8MTRH"
+    apiKey: "AIzaSyB7t1wWHhPYBitqKC4SJ8lqP1WMLDefCxo",
+    authDomain: "antocap-referrals.firebaseapp.com",
+    projectId: "antocap-referrals",
+    storageBucket: "antocap-referrals.appspot.com",
+    messagingSenderId: "1071760453747",
+    appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
+    measurementId: "G-EPLJB8MTRH"
 };
 
 // Initialize Firebase
@@ -21,7 +21,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const analytics = getAnalytics(app);
 
-// Form elements
+// Form Elements
 const registrationForm = document.getElementById('registration-form');
 const loginForm = document.getElementById('login-form');
 const registrationContainer = document.getElementById('registration-form-container');
@@ -59,7 +59,7 @@ registrationForm.addEventListener('submit', async (event) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        await setDoc(doc(db, "users", user.uid), {
+        await setDoc(doc(db, 'users', user.uid), {
             name: name,
             email: email,
             paymentConfirmation: paymentConfirmation,
@@ -89,7 +89,8 @@ loginForm.addEventListener('submit', async (event) => {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        const userDoc = await getDoc(doc(db, "users", user.uid));
+        // Fetch user data
+        const userDoc = await doc(db, 'users', user.uid).get();
         const userData = userDoc.data();
 
         welcomeMessage.textContent = `Welcome back, ${userData.name}!`;
@@ -101,20 +102,4 @@ loginForm.addEventListener('submit', async (event) => {
         alert("Login failed. Please try again.");
     }
 });
-
-// Redirect to login if not authenticated
-const checkAuthStatus = () => {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // User is signed in, show dashboard
-            window.location.href = "dashboard.html";
-        } else {
-            // User is not signed in, show registration/login
-            window.location.href = "index.html";
-        }
-    });
-};
-
-// Call this function on page load to ensure authentication
-checkAuthStatus();
-      
+  
