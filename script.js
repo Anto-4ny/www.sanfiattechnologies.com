@@ -42,43 +42,52 @@ document.getElementById('show-register').addEventListener('click', () => {
   registrationContainer.style.display = 'block';
 });
 
+
 // Registration form submission
 registrationForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
+    event.preventDefault();
+  
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const paymentConfirmation = document.getElementById('payment-confirmation').value;
+  
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+  
+    try {
+      // Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+  
+      // Store user data in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        name: name,
+        email: email,
+        paymentConfirmation: paymentConfirmation,
+        referrals: 0,
+        views: 0,
+        createdAt: new Date()
+      });
+  
+      // Show welcome message
+      welcomeMessage.textContent = `Welcome, ${name}!`;
+      registrationContainer.style.display = 'none';
+      welcomeSection.style.display = 'block';
+    } catch (error) {
+      if (error.code === 'auth/email-already-in-use') {
+        alert("This email is already in use. Please use a different email or log in.");
+      } else {
+        console.error("Error during registration:", error);
+        alert("Registration failed. Please try again.");
+      }
+    }
+  });
+  
 
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirm-password').value;
-  const paymentConfirmation = document.getElementById('payment-confirmation').value;
-
-  if (password !== confirmPassword) {
-    alert("Passwords do not match!");
-    return;
-  }
-
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    await setDoc(doc(db, 'users', user.uid), {
-      name: name,
-      email: email,
-      paymentConfirmation: paymentConfirmation,
-      referrals: 0,
-      views: 0,
-      createdAt: new Date()
-    });
-
-    welcomeMessage.textContent = `Welcome, ${name}!`;
-    registrationContainer.style.display = 'none';
-    loginContainer.style.display = 'none';
-    welcomeSection.style.display = 'block';
-  } catch (error) {
-    console.error("Error during registration:", error);
-    alert("Registration failed. Please try again.");
-  }
-});
 
 // Login form submission
 loginForm.addEventListener('submit', async (event) => {
@@ -91,7 +100,6 @@ loginForm.addEventListener('submit', async (event) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Fetch user data
     const userDoc = await getDoc(doc(db, 'users', user.uid));
     if (userDoc.exists()) {
       const userData = userDoc.data();
@@ -122,7 +130,6 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById("total-earnings").textContent = (userData.views * 5).toFixed(2);
     }
   } else {
-    // Redirect to login or registration if user is not authenticated
     window.location.href = "/login.html";
   }
 });
@@ -133,15 +140,13 @@ document.getElementById('upload-button').addEventListener('click', async () => {
   const file = fileInput.files[0];
   
   if (file) {
-    // Check file type
     const validFileTypes = ['image/jpeg', 'image/png', 'image/gif'];
     if (!validFileTypes.includes(file.type)) {
       alert("Please upload a valid image file (JPEG, PNG, GIF).");
       return;
     }
 
-    // Check file size (limit to 5MB)
-    const maxSize = 5 * 1024 * 1024;
+    const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       alert("File size must be less than 5MB.");
       return;
@@ -153,13 +158,12 @@ document.getElementById('upload-button').addEventListener('click', async () => {
       await uploadBytes(storageRef, file);
       const fileURL = await getDownloadURL(storageRef);
 
-      // Save file URL and increment views (this is a placeholder, you'll need a real verification system)
       const userDoc = doc(db, "users", user.uid);
       const userSnap = await getDoc(userDoc);
       const userData = userSnap.data();
       
       await updateDoc(userDoc, {
-        views: userData.views + 1 // This should be replaced with actual view count verification
+        views: userData.views + 1 // Placeholder, replace with actual view count verification
       });
 
       alert("Screenshot uploaded successfully!");
