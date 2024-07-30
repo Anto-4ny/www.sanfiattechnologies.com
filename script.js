@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
 
@@ -88,6 +89,25 @@ const firebaseConfig = {
                                                                                                                                                                                                                                                                                 try {
                                                                                                                                                                                                                                                                                         const userCredential = await signInWithEmailAndPassword(auth, email, password);
                                                                                                                                                                                                                                                                                                 const user = userCredential.user;
+
+        // Fetch user data
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            welcomeMessage.textContent = `Welcome back, ${userData.name}!`;
+        } else {
+            console.error("No such user document!");
+        }
+
+        registrationContainer.style.display = 'none';
+        loginContainer.style.display = 'none';
+        welcomeSection.style.display = 'block';
+    } catch (error) {
+        console.error("Error during login:", error);
+        alert("Login failed. Please try again.");
+    }
+});
+            
 
                                                                                                                                                                                                                                                                                                         // Fetch user data
                                                                                                                                                                                                                                                                                                                 const userDoc = await getDoc(doc(db, 'users', user.uid));
