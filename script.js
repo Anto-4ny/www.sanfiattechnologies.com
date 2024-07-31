@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
 
@@ -43,14 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
       registrationContainer.style.display = 'block';
     });
   
-    
+
     // Registration form submission
     registrationForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const firstName = document.getElementById('first-name').value.trim();
         const lastName = document.getElementById('last-name').value.trim();
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
         const paymentConfirmation = document.getElementById('payment-confirmation').value;
@@ -73,6 +73,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            // Check if the email is already registered
+            const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+            if (signInMethods.length > 0) {
+                alert("This email is already in use. Please use a different email or log in.");
+                return;
+            }
+
+            // Register the user
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
@@ -86,19 +94,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 createdAt: new Date()
             });
 
-            welcomeMessage.textContent = `Welcome, ${firstName}!`;
-            registrationContainer.style.display = 'none';
-            welcomeSection.style.display = 'block';
+            document.getElementById('welcome-message').textContent = `Welcome, ${firstName}!`;
+            document.getElementById('registration-form-container').style.display = 'none';
+            document.getElementById('welcome-section').style.display = 'block';
         } catch (error) {
-            if (error.code === 'auth/email-already-in-use') {
-                alert("This email is already in use. Please use a different email or log in.");
-            } else {
-                console.error("Error during registration:", error);
-                alert("Registration failed. Please try again.");
-            }
+            console.error("Error during registration:", error);
+            alert("Registration failed. Please try again.");
         }
     });
 });
+  
               
   
     // Login form submission
