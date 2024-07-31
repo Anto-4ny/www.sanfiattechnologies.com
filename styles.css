@@ -79,16 +79,27 @@ button:hover {
 }
 
 .password-container {
-        position: relative;
-    }
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
 
-    .eye-icon {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-    }
+.password-container input {
+    width: 100%;
+    padding-right: 30px; /* Adjust this value to make space for the icon */
+    box-sizing: border-box;
+}
+
+.password-container .eye-icon {
+    position: absolute;
+    right: 10px; /* Adjust this value to position the icon properly */
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px; /* Adjust the size if necessary */
+    color: #333; /* Adjust the color if necessary */
+}
+
 
     #login-form-container, #welcome-section {
         display: none; /* Hide both containers initially */
