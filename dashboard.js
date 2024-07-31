@@ -63,27 +63,35 @@ onAuthStateChanged(auth, async (user) => {
       alert("User data not found. Please contact support.");
     }
   } else {
-    window.location.href = 'login.html'; // Redirect to login if not authenticated
+    window.location.href = 'index.html'; // Redirect to login if not authenticated
   }
 });
 
-// Handle screenshot upload
+
 document.getElementById('upload-button').addEventListener('click', async () => {
+  const viewsCountInput = document.getElementById('views-count');
+  const viewsCount = parseInt(viewsCountInput.value, 10);
   const fileInput = document.getElementById('view-screenshot');
   const file = fileInput.files[0];
-  
+  const statusMessage = document.getElementById('upload-status');
+
+  if (!viewsCount || isNaN(viewsCount)) {
+    statusMessage.textContent = "Please enter a valid number of views.";
+    return;
+  }
+
   if (file) {
     // Check file type
     const validFileTypes = ['image/jpeg', 'image/png', 'image/gif'];
     if (!validFileTypes.includes(file.type)) {
-      alert("Please upload a valid image file (JPEG, PNG, GIF).");
+      statusMessage.textContent = "Please upload a valid image file (JPEG, PNG, GIF).";
       return;
     }
 
     // Check file size (limit to 5MB)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      alert("File size must be less than 5MB.");
+      statusMessage.textContent = "File size must be less than 5MB.";
       return;
     }
 
@@ -93,21 +101,25 @@ document.getElementById('upload-button').addEventListener('click', async () => {
       await uploadBytes(storageRef, file);
       const fileURL = await getDownloadURL(storageRef);
 
-      // Save file URL and increment views
-      const userDoc = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userDoc);
-      const userData = userSnap.data();
-      
-      await updateDoc(userDoc, {
-        views: userData.views + 1 // This should be replaced with actual view count verification
+      // Send email with screenshot and views count
+      await fetch('https://your-backend-endpoint/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: user.email,
+          viewsCount: viewsCount,
+          fileURL: fileURL
+        })
       });
 
-      alert("Screenshot uploaded successfully!");
+      statusMessage.textContent = "Screenshot uploaded successfully! Awaiting validation.";
     } catch (error) {
       console.error("Error uploading file:", error);
-      alert("Error uploading file. Please try again.");
+      statusMessage.textContent = "Error uploading file. Please try again.";
     }
   } else {
-    alert("Please select a file to upload.");
+    statusMessage.textContent = "Please select a file to upload.";
   }
 });
