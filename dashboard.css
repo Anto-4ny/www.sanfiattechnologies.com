@@ -100,6 +100,62 @@ main {
     border-radius: 5px;
     margin: 5px;
 }
+#upload-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px 0;
+    max-width: 600px;
+    margin: auto;
+}
+
+#upload-section h3 {
+    margin-top: 0;
+    font-size: 1.5em;
+    color: #333;
+}
+
+#upload-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+#upload-section input[type="number"], 
+#upload-section input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+}
+
+#upload-section input[type="number"] {
+    margin-bottom: 15px; /* Space between number input and file input */
+}
+
+#upload-section button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+#upload-section button:hover {
+    background-color: #0056b3;
+}
+
+#upload-status {
+    color: #333;
+    font-size: 1em;
+    margin-top: 10px;
+}
+
 
 #copy-link-button:hover, #whatsapp-share-button:hover {
     background-color: #0056b3;
