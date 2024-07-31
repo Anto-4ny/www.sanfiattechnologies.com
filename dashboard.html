@@ -16,23 +16,33 @@
         </nav>
     </header>
     <main>
-  <section id="welcome-section" style="display: none;">
+        <section id="welcome-section">
             <h2 id="welcome-message"></h2>
         </section>
         <section id="dashboard-section">
-        <section id="dashboard">
-            <h2>Your Dashboard</h2>
-            <div id="user-info">
-                <p>Email: <span id="user-email"></span></p>
-                <p>Referrals: <span id="referral-count"></span></p>
-                <p>Total Views: <span id="total-views"></span></p>
-                <p>Total Earnings: <span id="total-earnings"></span> Ksh</p>
-            </div>
-            <div id="upload-section">
-                <h3>Upload Screenshot of Views</h3>
-                <input type="file" id="view-screenshot" accept="image/*">
-                <button id="upload-button">Upload</button>
-            </div>
+            <section id="dashboard">
+                <h2>Your Dashboard</h2>
+                <div id="user-info">
+                    <p>Email: <span id="user-email"></span></p>
+                    <p>Referrals: <span id="referral-count"></span></p>
+                    <p>Total Views: <span id="total-views"></span></p>
+                    <p>Total Earnings: <span id="total-earnings"></span> Ksh</p>
+                </div>
+                <div id="upload-section">
+                    <h3>Upload Screenshot of Views</h3>
+                    <input type="file" id="view-screenshot" accept="image/*">
+                    <button id="upload-button">Upload</button>
+                </div>
+                <div id="referral-link-section">
+                    <h3>Your Referral Link</h3>
+                    <p id="referral-link"></p>
+                    <button id="copy-link-button">Copy Link</button>
+                    <a id="whatsapp-share-button" href="#" target="_blank">
+                        <img src="images/whatsapp-icon.png" alt="Share on WhatsApp" style="width: 30px; vertical-align: middle;">
+                        Share on WhatsApp
+                    </a>
+                </div>
+            </section>
         </section>
     </main>
     <footer>
@@ -41,10 +51,8 @@
     <script src="dashboard.js"></script>
     <script type="module" src="script.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js"></script>
 </body>
 </html>
-                                  
