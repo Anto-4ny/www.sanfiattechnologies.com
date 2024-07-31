@@ -63,4 +63,43 @@ async function getOAuthToken() {
                                                                                                                                                                                                                                                                                                         app.listen(3000, () => {
                                                                                                                                                                                                                                                                                                             console.log('Server running on port 3000');
                                                                                                                                                                                                                                                                                                             });
-                                                                                                                                                                                                                                                                                                            
+
+     const express = require('express');
+const nodemailer = require('nodemailer');
+const bodyParser = require('body-parser');
+const app = express();
+
+app.use(bodyParser.json());
+
+// Configure Nodemailer
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'your-email@gmail.com',
+    pass: 'your-email-password'
+  }
+});
+
+app.post('/send-email', (req, res) => {
+  const { email, viewsCount, fileURL } = req.body;
+
+  const mailOptions = {
+    from: 'your-email@gmail.com',
+    to: 'your-email@gmail.com',
+    subject: 'New Screenshot Upload',
+    text: `User Email: ${email}\nNumber of Views: ${viewsCount}\nScreenshot URL: ${fileURL}`,
+    html: `<p>User Email: ${email}</p><p>Number of Views: ${viewsCount}</p><p>Screenshot URL: <a href="${fileURL}">${fileURL}</a></p><br><button onclick="acceptUpload('${fileURL}')">Accept</button><button onclick="rejectUpload('${fileURL}')">Reject</button>`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email:", error);
+      res.status(500).send('Error sending email.');
+    } else {
+      res.status(200).send('Email sent successfully.');
+    }
+  });
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+
