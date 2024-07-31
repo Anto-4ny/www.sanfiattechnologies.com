@@ -61,14 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Registration form submission
-    registrationForm.addEventListener('submit', async (event) => {
+        registrationForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const firstName = document.getElementById('first-name').value.trim();
         const lastName = document.getElementById('last-name').value.trim();
         const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
         const paymentConfirmation = document.getElementById('payment-confirmation').value;
 
         // Validate first and last names
