@@ -26,6 +26,10 @@ const analytics = getAnalytics(app);
 document.addEventListener('DOMContentLoaded', () => {
     // Form Elements
     const registrationForm = document.getElementById('registration-form');
+  const togglePassword = document.getElementById('toggle-password');
+    const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm-password');
     const loginForm = document.getElementById('login-form');
     const registrationContainer = document.getElementById('registration-form-container');
     const loginContainer = document.getElementById('login-form-container');
@@ -42,7 +46,19 @@ document.addEventListener('DOMContentLoaded', () => {
       loginContainer.style.display = 'none';
       registrationContainer.style.display = 'block';
     });
-  
+
+  // Toggle password visibility
+    togglePassword.addEventListener('click', () => {
+        const type = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = type;
+        togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+    });
+
+    toggleConfirmPassword.addEventListener('click', () => {
+        const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
+        confirmPasswordInput.type = type;
+        toggleConfirmPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+    });
 
     // Registration form submission
     registrationForm.addEventListener('submit', async (event) => {
@@ -64,6 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!namePattern.test(lastName)) {
             alert("Invalid last name. It must start with a capital letter and contain only letters.");
+            return;
+        }
+
+        // Validate password complexity
+        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
+        if (!passwordPattern.test(password)) {
+            alert("Password must be at least 6 characters long, contain both uppercase and lowercase letters, and at least one number. It should not contain special characters like asterisks.");
             return;
         }
 
