@@ -19,6 +19,7 @@ header {
 
 header img {
     width: 100px;
+    height: auto;
 }
 
 header h1 {
@@ -72,10 +73,24 @@ main {
 
 #copy-link-button, #whatsapp-share-button {
     cursor: pointer;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+#copy-link-button:hover, #whatsapp-share-button:hover {
+    background-color: #0056b3;
 }
 
 #whatsapp-share-button {
-    margin-top: 10px;
+    background-color: #25d366;
+}
+
+#whatsapp-share-button:hover {
+    background-color: #1da855;
 }
 
 /* Responsive Styles */
@@ -88,12 +103,15 @@ main {
     #user-info p, #upload-section, #referral-link-section {
         margin: 0;
         padding: 10px;
-        flex: 1;
     }
 }
 
 @media (max-width: 480px) {
     #user-info, #upload-section, #referral-link-section {
         width: 100%;
+    }
+
+    header h1 {
+        font-size: 1.2em;
     }
 }
