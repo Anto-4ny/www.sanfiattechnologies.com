@@ -77,7 +77,7 @@ button:hover {
               }
 }
 
-    .password-container {
+.password-container {
         position: relative;
     }
 
@@ -87,4 +87,12 @@ button:hover {
         top: 50%;
         transform: translateY(-50%);
         cursor: pointer;
+    }
+
+    #login-form-container, #welcome-section {
+        display: none; /* Hide both containers initially */
+    }
+
+    #welcome-section {
+        display: none; /* Show this section only after login */
     }
