@@ -11,9 +11,11 @@ body {
 }
 
 header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background-color: #f4f4f4;
     padding: 20px;
-    text-align: center;
     border-bottom: 1px solid #ddd;
 }
 
@@ -31,6 +33,7 @@ nav a {
     text-decoration: none;
     color: #333;
     padding: 10px;
+    font-size: 1em;
 }
 
 main {
@@ -46,16 +49,29 @@ main {
     text-align: center;
 }
 
-#user-info, #upload-section, #referral-link-section {
+#user-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.info-box {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin: 10px 0;
+    flex: 1 1 calc(50% - 40px);
+    max-width: calc(50% - 40px);
+    box-sizing: border-box;
 }
 
-#user-info p, #upload-section h3 {
-    margin: 0;
+#upload-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px 0;
 }
 
 #upload-section input {
@@ -64,6 +80,10 @@ main {
 }
 
 #referral-link-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
     text-align: center;
 }
 
@@ -95,19 +115,28 @@ main {
 
 /* Responsive Styles */
 @media (max-width: 768px) {
-    #user-info, #upload-section, #referral-link-section {
-        display: flex;
+    #user-info {
         flex-direction: column;
+        align-items: center;
     }
 
-    #user-info p, #upload-section, #referral-link-section {
-        margin: 0;
-        padding: 10px;
+    .info-box {
+        width: 90%;
+        max-width: 100%;
+    }
+
+    #upload-section, #referral-link-section {
+        width: 90%;
+        max-width: 100%;
     }
 }
 
 @media (max-width: 480px) {
-    #user-info, #upload-section, #referral-link-section {
+    #user-info {
+        flex-direction: column;
+    }
+
+    .info-box {
         width: 100%;
     }
 
