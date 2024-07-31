@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = "index.html";
       }
     });
-  });
+  
   
 // Handle screenshot upload
 document.getElementById('upload-button').addEventListener('click', async () => {
