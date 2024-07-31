@@ -13,7 +13,8 @@ header {
     align-items: center;
     justify-content: space-between;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background for readability */
+    background-color: blue;
+    color: white;
 }
 
 #logo {
