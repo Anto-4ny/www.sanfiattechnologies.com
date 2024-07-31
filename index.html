@@ -16,7 +16,6 @@
             <a href="dashboard.html">Dashboard</a>
         </nav>
     </header>
-    
     <main>
         <section id="auth-section">
     <div id="registration-form-container">
@@ -32,10 +31,16 @@
             <input type="email" id="email" placeholder="Enter your email" required>
             
             <label for="password">Password:</label>
-            <input type="password" id="password" placeholder="Enter your password" required>
+            <div class="password-container">
+                <input type="password" id="password" placeholder="Enter your password" required>
+                <i id="toggle-password" class="eye-icon">👁️</i>
+            </div>
             
             <label for="confirm-password">Confirm Password:</label>
-            <input type="password" id="confirm-password" placeholder="Confirm your password" required>
+            <div class="password-container">
+                <input type="password" id="confirm-password" placeholder="Confirm your password" required>
+                <i id="toggle-confirm-password" class="eye-icon">👁️</i>
+            </div>
             
             <label for="payment-confirmation">Payment Confirmation (200 Ksh):</label>
             <input type="text" id="payment-confirmation" placeholder="Enter payment confirmation" required>
@@ -44,10 +49,9 @@
         </form>
         <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
     </div>
-        </section>
-                
+</section>
 
-            <div id="login-form-container" style="display: none;">
+ <div id="login-form-container" style="display: none;">
                 <h2>Login</h2>
                 <form id="login-form">
                     <label for="login-email">Email:</label>
