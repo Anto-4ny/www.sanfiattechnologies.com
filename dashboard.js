@@ -38,9 +38,55 @@
       }
     } else {
       // Redirect to login or registration if user is not authenticated
-      window.location.href = "/login.html";
+      window.location.href = "index.html";
     }
   });
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Firebase initialization code
+    const auth = getAuth();
+    const db = getFirestore();
+
+    // Retrieve user data
+    const user = auth.currentUser;
+    if (user) {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            document.getElementById('user-email').textContent = userData.email;
+            document.getElementById('referral-count').textContent = userData.referrals;
+            document.getElementById('total-views').textContent = userData.views;
+            document.getElementById('total-earnings').textContent = userData.earnings;
+
+            const welcomeMessage = document.getElementById('welcome-message');
+            if (userData.referrals < 10) {
+                welcomeMessage.textContent = `Welcome to your dashboard! Keep adding referrals to start earning from status views.`;
+            } else {
+                welcomeMessage.textContent = `Congratulations! You have reached ${userData.referrals} referrals.`;
+            }
+
+            const referralLink = `https://yourwebsite.com/register?ref=${user.uid}`;
+            document.getElementById('referral-link').textContent = referralLink;
+
+            // Copy referral link functionality
+            document.getElementById('copy-link-button').addEventListener('click', () => {
+                navigator.clipboard.writeText(referralLink).then(() => {
+                    alert('Referral link copied to clipboard!');
+                });
+            });
+
+            // Update WhatsApp share link
+            const whatsappShareButton = document.getElementById('whatsapp-share-button');
+            whatsappShareButton.href = `https://api.whatsapp.com/send?text=Check%20out%20this%20referral%20link:%20${encodeURIComponent(referralLink)}`;
+        } else {
+            console.error("No such user document!");
+            alert("User data not found. Please contact support.");
+        }
+    } else {
+        window.location.href = 'login.html'; // Redirect to login if not authenticated
+    }
+});
+
 
   // Handle screenshot upload
   document.getElementById('upload-button').addEventListener('click', async () => {
