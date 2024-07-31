@@ -26,10 +26,14 @@ const analytics = getAnalytics(app);
 document.addEventListener('DOMContentLoaded', () => {
     // Form Elements
     const registrationForm = document.getElementById('registration-form');
-  const togglePassword = document.getElementById('toggle-password');
+    const togglePassword = document.getElementById('toggle-password');
     const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirm-password');
+    const paymentAmountInput = document.getElementById('payment-amount');
+    const payButton = document.getElementById('pay-button');
+    const paymentConfirmationInput = document.getElementById('payment-confirmation');
+  
     const loginForm = document.getElementById('login-form');
     const registrationContainer = document.getElementById('registration-form-container');
     const loginContainer = document.getElementById('login-form-container');
@@ -60,8 +64,39 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleConfirmPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
     });
 
+  // Handle payment button click
+    payButton.addEventListener('click', async () => {
+        const amount = parseInt(paymentAmountInput.value, 10);
+        if (isNaN(amount) || amount !== 200) {
+            alert("Please enter a valid amount of 200 Ksh.");
+            return;
+        }
+
+        try {
+            // Send payment request to the server
+            const response = await fetch('/api/request-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ amount: 200 })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Payment request sent. Please check your phone to complete the payment.');
+            } else {
+                alert('Payment request failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error sending payment request:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+
     // Registration form submission
-        registrationForm.addEventListener('submit', async (event) => {
+    registrationForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const firstName = document.getElementById('first-name').value.trim();
@@ -69,7 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('email').value.trim();
         const password = passwordInput.value;
         const confirmPassword = confirmPasswordInput.value;
-        const paymentConfirmation = document.getElementById('payment-confirmation').value;
+        const paymentConfirmation = paymentConfirmationInput.value.trim();
+      
 
         // Validate first and last names
         const namePattern = /^[A-Z][a-z]*$/;
@@ -95,7 +131,24 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        try {
+      try {
+            // Verify the payment confirmation code with the server
+            const response = await fetch('/api/verify-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ paymentConfirmation })
+            });
+
+            const result = await response.json();
+
+            if (!result.success) {
+                alert('Invalid payment confirmation code. Please ensure you have paid the correct amount and entered the correct code.');
+                return;
+            }
+
+        
             // Check if the email is already registered
             const signInMethods = await fetchSignInMethodsForEmail(auth, email);
             if (signInMethods.length > 0) {
