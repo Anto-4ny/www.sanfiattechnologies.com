@@ -43,46 +43,63 @@ document.addEventListener('DOMContentLoaded', () => {
       registrationContainer.style.display = 'block';
     });
   
+    
     // Registration form submission
     registrationForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-  
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirm-password').value;
-      const paymentConfirmation = document.getElementById('payment-confirmation').value;
-  
-      if (password !== confirmPassword) {
-        alert("Passwords do not match!");
-        return;
-      }
-  
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-  
-        await setDoc(doc(db, 'users', user.uid), {
-          name: name,
-          email: email,
-          paymentConfirmation: paymentConfirmation,
-          referrals: 0,
-          views: 0,
-          createdAt: new Date()
-        });
-  
-        welcomeMessage.textContent = `Welcome, ${name}!`;
-        registrationContainer.style.display = 'none';
-        welcomeSection.style.display = 'block';
-      } catch (error) {
-        if (error.code === 'auth/email-already-in-use') {
-          alert("This email is already in use. Please use a different email or log in.");
-        } else {
-          console.error("Error during registration:", error);
-          alert("Registration failed. Please try again.");
+        event.preventDefault();
+
+        const firstName = document.getElementById('first-name').value.trim();
+        const lastName = document.getElementById('last-name').value.trim();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        const paymentConfirmation = document.getElementById('payment-confirmation').value;
+
+        // Validate first and last names
+        const namePattern = /^[A-Z][a-z]*$/;
+        if (!namePattern.test(firstName)) {
+            alert("Invalid first name. It must start with a capital letter and contain only letters.");
+            return;
         }
-      }
+
+        if (!namePattern.test(lastName)) {
+            alert("Invalid last name. It must start with a capital letter and contain only letters.");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            await setDoc(doc(db, 'users', user.uid), {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                paymentConfirmation: paymentConfirmation,
+                referrals: 0,
+                views: 0,
+                createdAt: new Date()
+            });
+
+            welcomeMessage.textContent = `Welcome, ${firstName}!`;
+            registrationContainer.style.display = 'none';
+            welcomeSection.style.display = 'block';
+        } catch (error) {
+            if (error.code === 'auth/email-already-in-use') {
+                alert("This email is already in use. Please use a different email or log in.");
+            } else {
+                console.error("Error during registration:", error);
+                alert("Registration failed. Please try again.");
+            }
+        }
     });
+});
+              
   
     // Login form submission
     loginForm.addEventListener('submit', async (event) => {
