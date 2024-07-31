@@ -14,10 +14,11 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #f4f4f4;
+    background-color: blue;
     padding: 20px;
     border-bottom: 1px solid #ddd;
     position: fixed;
+    color: white;
 }
 
 header img {
