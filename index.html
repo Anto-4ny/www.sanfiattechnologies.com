@@ -42,15 +42,18 @@
                 <i id="toggle-confirm-password" class="eye-icon">👁️</i>
             </div>
             
-            <label for="payment-confirmation">Payment Confirmation (200 Ksh):</label>
-            <input type="text" id="payment-confirmation" placeholder="Enter payment confirmation" required>
+            <label for="payment-amount">Amount (Ksh):</label>
+            <input type="number" id="payment-amount" placeholder="Enter amount" required>
+            <button type="button" id="pay-button">Pay 200 Ksh via MPESA</button>
+            
+            <label for="payment-confirmation">Payment Confirmation Code:</label>
+            <input type="text" id="payment-confirmation" placeholder="Enter payment confirmation code" required>
             
             <button type="submit">Register</button>
         </form>
         <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
     </div>
 </section>
-
  <div id="login-form-container" style="display: none;">
                 <h2>Login</h2>
                 <form id="login-form">
