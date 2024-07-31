@@ -54,20 +54,28 @@
         <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
     </div>
 </section>
- <div id="login-form-container" style="display: none;">
-                <h2>Login</h2>
-                <form id="login-form">
-                    <label for="login-email">Email:</label>
-                    <input type="email" id="login-email" placeholder="Enter your email" required>
-                    
-                    <label for="login-password">Password:</label>
-                    <input type="password" id="login-password" placeholder="Enter your password" required>
-                    
-                    <button type="submit">Login</button>
-                </form>
-                <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+ <section id="auth-section">
+    <div id="login-form-container">
+        <h2>Login</h2>
+        <form id="login-form">
+            <label for="login-email">Email:</label>
+            <input type="email" id="login-email" placeholder="Enter your email" required>
+
+            <label for="login-password">Password:</label>
+            <div class="password-container">
+                <input type="password" id="login-password" placeholder="Enter your password" required>
+                <i id="toggle-login-password" class="eye-icon">👁️</i>
             </div>
-        </section>
+
+            <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="register.html" id="show-register">Register here</a></p>
+    </div>
+     <!-- Optionally include a section for welcome message if you want to toggle its visibility -->
+    <div id="welcome-section" style="display: none;">
+        <p id="welcome-message"></p>
+    </div>
+ </section>
     </main>
     <footer>
         <p>&copy; 2024 Referral. All rights reserved.</p>
