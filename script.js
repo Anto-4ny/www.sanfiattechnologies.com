@@ -33,8 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const paymentAmountInput = document.getElementById('payment-amount');
     const payButton = document.getElementById('pay-button');
     const paymentConfirmationInput = document.getElementById('payment-confirmation');
-  
+
     const loginForm = document.getElementById('login-form');
+    const toggleLoginPassword = document.getElementById('toggle-login-password');
+    const loginPasswordInput = document.getElementById('login-password');
     const registrationContainer = document.getElementById('registration-form-container');
     const loginContainer = document.getElementById('login-form-container');
     const welcomeSection = document.getElementById('welcome-section');
@@ -62,6 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
         confirmPasswordInput.type = type;
         toggleConfirmPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+    });
+
+  // Toggle login password visibility
+    toggleLoginPassword.addEventListener('click', () => {
+        const type = loginPasswordInput.type === 'password' ? 'text' : 'password';
+        loginPasswordInput.type = type;
+        toggleLoginPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
     });
 
   // Handle payment button click
@@ -180,34 +189,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
   
-              
-  
     // Login form submission
     loginForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-  
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
-  
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-  
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          welcomeMessage.textContent = `Welcome back, ${userData.name}!`;
-          registrationContainer.style.display = 'none';
-          loginContainer.style.display = 'none';
-          welcomeSection.style.display = 'block';
-        } else {
-          console.error("No such user document!");
+        event.preventDefault();
+
+        const email = document.getElementById('login-email').value.trim();
+        const password = loginPasswordInput.value;
+
+        try {
+            // Sign in with Firebase Authentication
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Fetch user document from Firestore
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                welcomeMessage.textContent = `Welcome back, ${userData.name}!`;
+                registrationContainer.style.display = 'none';
+                loginContainer.style.display = 'none';
+                welcomeSection.style.display = 'block';
+            } else {
+                console.error("No such user document!");
+                alert("User data not found. Please contact support.");
+            }
+        } catch (error) {
+            if (error.code === 'auth/wrong-password') {
+                alert("Incorrect password. Please try again.");
+            } else if (error.code === 'auth/user-not-found') {
+                alert("No account found with this email. Please register.");
+            } else {
+                console.error("Error during login:", error);
+                alert("Login failed. Please try again.");
+            }
         }
-      } catch (error) {
-        console.error("Error during login:", error);
-        alert("Login failed. Please try again.");
-      }
     });
+});
   
     // Handle user authentication state
     onAuthStateChanged(auth, async (user) => {
