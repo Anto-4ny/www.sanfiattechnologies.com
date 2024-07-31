@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
       registrationContainer.style.display = 'block';
     });
 
-  // Toggle password visibility
+    // Toggle password visibility
     togglePassword.addEventListener('click', () => {
         const type = passwordInput.type === 'password' ? 'text' : 'password';
         passwordInput.type = type;
@@ -66,14 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleConfirmPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
     });
 
-  // Toggle login password visibility
+    // Toggle login password visibility
     toggleLoginPassword.addEventListener('click', () => {
         const type = loginPasswordInput.type === 'password' ? 'text' : 'password';
         loginPasswordInput.type = type;
         toggleLoginPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
     });
 
-  // Handle payment button click
+    // Handle payment button click
     payButton.addEventListener('click', async () => {
         const amount = parseInt(paymentAmountInput.value, 10);
         if (isNaN(amount) || amount !== 200) {
@@ -115,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmPassword = confirmPasswordInput.value;
         const paymentConfirmation = paymentConfirmationInput.value.trim();
       
-
         // Validate first and last names
         const namePattern = /^[A-Z][a-z]*$/;
         if (!namePattern.test(firstName)) {
@@ -140,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-      try {
+        try {
             // Verify the payment confirmation code with the server
             const response = await fetch('/api/verify-payment', {
                 method: 'POST',
@@ -157,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-        
             // Check if the email is already registered
             const signInMethods = await fetchSignInMethodsForEmail(auth, email);
             if (signInMethods.length > 0) {
@@ -179,16 +177,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 createdAt: new Date()
             });
 
-            document.getElementById('welcome-message').textContent = `Welcome, ${firstName}!`;
-            document.getElementById('registration-form-container').style.display = 'none';
-            document.getElementById('welcome-section').style.display = 'block';
+            welcomeMessage.textContent = `Welcome, ${firstName}!`;
+            registrationContainer.style.display = 'none';
+            welcomeSection.style.display = 'block';
         } catch (error) {
             console.error("Error during registration:", error);
             alert("Registration failed. Please try again.");
         }
     });
-});
-  
+
     // Login form submission
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -205,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                welcomeMessage.textContent = `Welcome back, ${userData.name}!`;
+                welcomeMessage.textContent = `Welcome back, ${userData.firstName} ${userData.lastName}!`;
                 registrationContainer.style.display = 'none';
                 loginContainer.style.display = 'none';
                 welcomeSection.style.display = 'block';
@@ -224,24 +221,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-});
-  
+
     // Handle user authentication state
     onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userDoc = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userDoc);
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          document.getElementById("user-name").textContent = userData.name;
-          document.getElementById("user-email").textContent = userData.email;
-          document.getElementById("referral-count").textContent = userData.referrals;
-          document.getElementById("total-views").textContent = userData.views;
-          document.getElementById("total-earnings").textContent = (userData.views * 5).toFixed(2);
+        if (user) {
+            const userDoc = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userDoc);
+            if (userSnap.exists()) {
+                const userData = userSnap.data();
+                document.getElementById("user-name").textContent = `${userData.firstName} ${userData.lastName}`;
+                document.getElementById("user-email").textContent = userData.email;
+                document.getElementById("referral-count").textContent = userData.referrals;
+                document.getElementById("total-views").textContent = userData.views;
+                document.getElementById("total-earnings").textContent = (userData.views * 5).toFixed(2);
+            }
+        } else {
+            window.location.href = "index.html";
         }
-      } else {
-        window.location.href = "index.html";
-      }
     });
-  
-  
+});
+      
