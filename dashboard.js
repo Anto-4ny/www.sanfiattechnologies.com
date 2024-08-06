@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
-import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 
@@ -23,45 +23,68 @@ const db = getFirestore(app);
 const auth = getAuth();
 const storage = getStorage(app);
 
+// Function to create a new user document with first and last names
+const createUserDocument = async (user) => {
+  const userDoc = doc(db, "users", user.uid);
+  await setDoc(userDoc, {
+    firstName: "John", // Replace with actual data or user input
+    lastName: "Doe",   // Replace with actual data or user input
+    email: user.email,
+    referrals: 0,
+    views: 0
+  });
+};
+
+// Function to update user document with new first and last names
+const updateUserDocument = async (firstName, lastName) => {
+  const user = auth.currentUser;
+  const userDoc = doc(db, "users", user.uid);
+  await updateDoc(userDoc, {
+    firstName: firstName,
+    lastName: lastName
+  });
+};
+
 // Handle user authentication state
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const userDoc = doc(db, "users", user.uid);
     const userSnap = await getDoc(userDoc);
-    if (userSnap.exists()) {
-      const userData = userSnap.data();
-      // Display full name
-      document.getElementById("user-name").textContent = `${userData.firstName} ${userData.lastName}`;
-      document.getElementById("user-email").textContent = userData.email;
-      document.getElementById("referral-count").textContent = userData.referrals;
-      document.getElementById("total-views").textContent = userData.views;
-      document.getElementById("total-earnings").textContent = (userData.views * 5).toFixed(2);
-      
-      // Referral Link
-      const referralLink = `https://yourwebsite.com/register?ref=${user.uid}`;
-      document.getElementById('referral-link').textContent = referralLink;
+    
+    if (!userSnap.exists()) {
+      // Create user document if it does not exist
+      await createUserDocument(user);
+    }
 
-      // Copy referral link functionality
-      document.getElementById('copy-link-button').addEventListener('click', () => {
-        navigator.clipboard.writeText(referralLink).then(() => {
-          alert('Referral link copied to clipboard!');
-        });
+    const userData = userSnap.exists() ? userSnap.data() : (await getDoc(userDoc)).data();
+    
+    document.getElementById("user-name").textContent = `${userData.firstName} ${userData.lastName}`;
+    document.getElementById("user-email").textContent = userData.email;
+    document.getElementById("referral-count").textContent = userData.referrals;
+    document.getElementById("total-views").textContent = userData.views;
+    document.getElementById("total-earnings").textContent = (userData.views * 5).toFixed(2);
+    
+    // Referral Link
+    const referralLink = `https://yourwebsite.com/register?ref=${user.uid}`;
+    document.getElementById('referral-link').textContent = referralLink;
+
+    // Copy referral link functionality
+    document.getElementById('copy-link-button').addEventListener('click', () => {
+      navigator.clipboard.writeText(referralLink).then(() => {
+        alert('Referral link copied to clipboard!');
       });
+    });
 
-      // Update WhatsApp share link
-      const whatsappShareButton = document.getElementById('whatsapp-share-button');
-      whatsappShareButton.href = `https://api.whatsapp.com/send?text=Check%20out%20this%20referral%20link:%20${encodeURIComponent(referralLink)}`;
+    // Update WhatsApp share link
+    const whatsappShareButton = document.getElementById('whatsapp-share-button');
+    whatsappShareButton.href = `https://api.whatsapp.com/send?text=Check%20out%20this%20referral%20link:%20${encodeURIComponent(referralLink)}`;
 
-      // Welcome message
-      const welcomeMessage = document.getElementById('welcome-message');
-      if (userData.referrals < 10) {
-        welcomeMessage.textContent = `Welcome to your dashboard! Keep adding referrals to start earning from status views.`;
-      } else {
-        welcomeMessage.textContent = `Congratulations! You have reached ${userData.referrals} referrals.`;
-      }
+    // Welcome message
+    const welcomeMessage = document.getElementById('welcome-message');
+    if (userData.referrals < 10) {
+      welcomeMessage.textContent = `Welcome to your dashboard! Keep adding referrals to start earning from status views.`;
     } else {
-      console.error("No such user document!");
-      alert("User data not found. Please contact support.");
+      welcomeMessage.textContent = `Congratulations! You have reached ${userData.referrals} referrals.`;
     }
   } else {
     window.location.href = 'index.html'; // Redirect to login if not authenticated
@@ -123,4 +146,4 @@ document.getElementById('upload-button').addEventListener('click', async () => {
     statusMessage.textContent = "Please select a file to upload.";
   }
 });
-        
+                    
