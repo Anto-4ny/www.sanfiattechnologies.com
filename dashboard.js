@@ -30,7 +30,8 @@ onAuthStateChanged(auth, async (user) => {
     const userSnap = await getDoc(userDoc);
     if (userSnap.exists()) {
       const userData = userSnap.data();
-      document.getElementById("user-name").textContent = userData.name;
+      // Display full name
+      document.getElementById("user-name").textContent = `${userData.firstName} ${userData.lastName}`;
       document.getElementById("user-email").textContent = userData.email;
       document.getElementById("referral-count").textContent = userData.referrals;
       document.getElementById("total-views").textContent = userData.views;
@@ -66,7 +67,6 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = 'index.html'; // Redirect to login if not authenticated
   }
 });
-
 
 document.getElementById('upload-button').addEventListener('click', async () => {
   const viewsCountInput = document.getElementById('views-count');
@@ -123,3 +123,4 @@ document.getElementById('upload-button').addEventListener('click', async () => {
     statusMessage.textContent = "Please select a file to upload.";
   }
 });
+        
