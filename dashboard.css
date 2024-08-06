@@ -54,7 +54,7 @@ main {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    justify-content: center;
+    justify-content: left;
 }
 
 .info-box {
@@ -174,7 +174,7 @@ main {
 @media (max-width: 768px) {
     #user-info {
         flex-direction: column;
-        align-items: center;
+        align-items: left;
     }
 
     .info-box {
@@ -206,43 +206,43 @@ main {
     #upload-section {
         padding: 15px; /* Reduce padding on smaller screens */
         margin: 10px 0; /* Adjust margin for smaller screens */
-        max-width: 90%; /* Allow the section to be more flexible */
+        max-width: 90%; 
     }
 
     #upload-section h3 {
-        font-size: 1.3em; /* Slightly smaller font size for headers */
+        font-size: 1.3em; 
     }
 
     #upload-section input[type="number"], 
     #upload-section input[type="file"] {
-        padding: 8px; /* Slightly smaller padding for inputs */
+        padding: 8px; 
     }
 
     #upload-section button {
-        padding: 8px 12px; /* Adjust button padding */
-        font-size: 0.9em; /* Slightly smaller font size for buttons */
+        padding: 8px 12px; 
+        font-size: 0.9em; 
     }
 }
 
 @media (max-width: 480px) {
     #upload-section {
-        padding: 10px; /* Further reduce padding */
-        margin: 5px 0; /* Adjust margin for very small screens */
-        max-width: 100%; /* Ensure full width on very small screens */
+        padding: 10px; 
+        margin: 5px 0; 
+        max-width: 100%; 
     }
 
     #upload-section h3 {
-        font-size: 1.2em; /* Further reduce font size for headers */
+        font-size: 1.2em; 
     }
 
     #upload-section input[type="number"], 
     #upload-section input[type="file"] {
-        padding: 6px; /* Further reduce padding for inputs */
+        padding: 6px; 
     }
 
     #upload-section button {
-        padding: 6px 10px; /* Further adjust button padding */
-        font-size: 0.8em; /* Further reduce font size for buttons */
+        padding: 6px 10px; 
+        font-size: 0.8em; 
     }
 }
 
