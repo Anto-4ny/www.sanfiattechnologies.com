@@ -109,4 +109,5 @@ button:hover {
 
     #welcome-section {
         display: none; /* Show this section only after login */
+        color: white;
     }
