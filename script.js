@@ -1,24 +1,19 @@
-
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-@@ -18,226 +18,132 @@ const firebaseConfig = {
+    // Your Firebase configuration
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const auth = getAuth();
 const storage = getStorage(app);
 const analytics = getAnalytics(app);
 
@@ -32,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const paymentAmountInput = document.getElementById('payment-amount');
     const payButton = document.getElementById('pay-button');
     const paymentConfirmationInput = document.getElementById('payment-confirmation');
-
     const loginForm = document.getElementById('login-form');
     const toggleLoginPassword = document.getElementById('toggle-login-password');
     const loginPasswordInput = document.getElementById('login-password');
@@ -40,16 +34,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginContainer = document.getElementById('login-form-container');
     const welcomeSection = document.getElementById('welcome-section');
     const welcomeMessage = document.getElementById('welcome-message');
+    const whatsappShareButton = document.getElementById('whatsapp-share-button');
+    const uploadButton = document.getElementById('upload-button');
+    const viewsCountInput = document.getElementById('views-count');
+    const fileInput = document.getElementById('view-screenshot');
+    const statusMessage = document.getElementById('upload-status');
+    const copyLinkButton = document.getElementById('copy-link-button');
 
     // Toggle between registration and login forms
     document.getElementById('show-login').addEventListener('click', () => {
-      registrationContainer.style.display = 'none';
-      loginContainer.style.display = 'block';
+        registrationContainer.style.display = 'none';
+        loginContainer.style.display = 'block';
     });
 
     document.getElementById('show-register').addEventListener('click', () => {
-      loginContainer.style.display = 'none';
-      registrationContainer.style.display = 'block';
+        loginContainer.style.display = 'none';
+        registrationContainer.style.display = 'block';
     });
 
     // Toggle password visibility
@@ -64,17 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmPasswordInput.type = type;
         toggleConfirmPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
     });
-// Function to create a new user document with first and last names
-const createUserDocument = async (user) => {
-  const userDoc = doc(db, "users", user.uid);
-  await setDoc(userDoc, {
-    firstName: "John", // Replace with actual data or user input
-    lastName: "Doe",   // Replace with actual data or user input
-    email: user.email,
-    referrals: 0,
-    views: 0
-  });
-};
 
     // Toggle login password visibility
     toggleLoginPassword.addEventListener('click', () => {
@@ -82,15 +71,28 @@ const createUserDocument = async (user) => {
         loginPasswordInput.type = type;
         toggleLoginPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
     });
-// Function to update user document with new first and last names
-const updateUserDocument = async (firstName, lastName) => {
-  const user = auth.currentUser;
-  const userDoc = doc(db, "users", user.uid);
-  await updateDoc(userDoc, {
-    firstName: firstName,
-    lastName: lastName
-  });
-};
+
+    // Function to create a new user document with first and last names
+    const createUserDocument = async (user) => {
+        const userDoc = doc(db, "users", user.uid);
+        await setDoc(userDoc, {
+            firstName: "John", // Replace with actual data or user input
+            lastName: "Doe",   // Replace with actual data or user input
+            email: user.email,
+            referrals: 0,
+            views: 0
+        });
+    };
+
+    // Function to update user document with new first and last names
+    const updateUserDocument = async (firstName, lastName) => {
+        const user = auth.currentUser;
+        const userDoc = doc(db, "users", user.uid);
+        await updateDoc(userDoc, {
+            firstName: firstName,
+            lastName: lastName
+        });
+    };
 
     // Handle payment button click
     payButton.addEventListener('click', async () => {
@@ -101,7 +103,6 @@ const updateUserDocument = async (firstName, lastName) => {
         }
 
         try {
-            // Send payment request to the server
             const response = await fetch('/api/request-payment', {
                 method: 'POST',
                 headers: {
@@ -121,34 +122,6 @@ const updateUserDocument = async (firstName, lastName) => {
             console.error('Error sending payment request:', error);
             alert('An error occurred. Please try again.');
         }
-// Handle user authentication state
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userDoc = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userDoc);
-
-    if (!userSnap.exists()) {
-      // Create user document if it does not exist
-      await createUserDocument(user);
-    }
-
-    const userData = userSnap.exists() ? userSnap.data() : (await getDoc(userDoc)).data();
-
-    document.getElementById("user-name").textContent = `${userData.firstName} ${userData.lastName}`;
-    document.getElementById("user-email").textContent = userData.email;
-    document.getElementById("referral-count").textContent = userData.referrals;
-    document.getElementById("total-views").textContent = userData.views;
-    document.getElementById("total-earnings").textContent = (userData.views * 5).toFixed(2);
-
-    // Referral Link
-    const referralLink = `https://yourwebsite.com/register?ref=${user.uid}`;
-    document.getElementById('referral-link').textContent = referralLink;
-
-    // Copy referral link functionality
-    document.getElementById('copy-link-button').addEventListener('click', () => {
-      navigator.clipboard.writeText(referralLink).then(() => {
-        alert('Referral link copied to clipboard!');
-      });
     });
 
     // Registration form submission
@@ -228,13 +201,10 @@ onAuthStateChanged(auth, async (user) => {
             registrationContainer.style.display = 'none';
             welcomeSection.style.display = 'block';
         } catch (error) {
-            console.error("Error during registration:", error);
-            alert("Registration failed. Please try again.");
+            console.error('Error during registration:', error);
+            alert('Registration failed. Please try again.');
         }
     });
-    // Update WhatsApp share link
-    const whatsappShareButton = document.getElementById('whatsapp-share-button');
-    whatsappShareButton.href = `https://api.whatsapp.com/send?text=Check%20out%20this%20referral%20link:%20${encodeURIComponent(referralLink)}`;
 
     // Login form submission
     loginForm.addEventListener('submit', async (event) => {
@@ -244,116 +214,74 @@ onAuthStateChanged(auth, async (user) => {
         const password = loginPasswordInput.value;
 
         try {
-            // Sign in with Firebase Authentication
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            // Fetch user document from Firestore
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                welcomeMessage.textContent = `Welcome back, ${userData.firstName} ${userData.lastName}!`;
-                registrationContainer.style.display = 'none';
-                loginContainer.style.display = 'none';
-                welcomeSection.style.display = 'block';
-            } else {
-                console.error("No such user document!");
-                alert("User data not found. Please contact support.");
-            }
+            await signInWithEmailAndPassword(auth, email, password);
+            window.location.href = '/dashboard.html'; // Redirect to dashboard or another page
         } catch (error) {
-            if (error.code === 'auth/wrong-password') {
-                alert("Incorrect password. Please try again.");
-            } else if (error.code === 'auth/user-not-found') {
-                alert("No account found with this email. Please register.");
-            } else {
-                console.error("Error during login:", error);
-                alert("Login failed. Please try again.");
-            }
+            console.error('Error during login:', error);
+            alert('Login failed. Please check your credentials and try again.');
         }
     });
-    // Welcome message
-    const welcomeMessage = document.getElementById('welcome-message');
-    if (userData.referrals < 10) {
-      welcomeMessage.textContent = `Welcome to your dashboard! Keep adding referrals to start earning from status views.`;
-    } else {
-      welcomeMessage.textContent = `Congratulations! You have reached ${userData.referrals} referrals.`;
-    }
-  } else {
-    window.location.href = 'index.html'; // Redirect to login if not authenticated
-  }
-});
 
-    // Handle user authentication state
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
+    // File upload and views count
+    uploadButton.addEventListener('click', async () => {
+        const file = fileInput.files[0];
+        if (!file) {
+            alert("Please select a screenshot to upload.");
+            return;
+        }
+
+        try {
+            const storageRef = ref(storage, `screenshots/${file.name}`);
+            await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(storageRef);
+
+            // Assuming you want to save the download URL to Firestore
+            const user = auth.currentUser;
             const userDoc = doc(db, "users", user.uid);
-            const userSnap = await getDoc(userDoc);
-            if (userSnap.exists()) {
-                const userData = userSnap.data();
-                document.getElementById("user-name").textContent = `${userData.firstName} ${userData.lastName}`;
-                document.getElementById("user-email").textContent = userData.email;
-                document.getElementById("referral-count").textContent = userData.referrals;
-                document.getElementById("total-views").textContent = userData.views;
-                document.getElementById("total-earnings").textContent = (userData.views * 5).toFixed(2);
-            }
-        } else {
-            window.location.href = "index.html";
+            await updateDoc(userDoc, {
+                screenshotURL: downloadURL,
+                views: parseInt(viewsCountInput.value, 10)
+            });
+
+            statusMessage.textContent = 'Screenshot uploaded successfully!';
+        } catch (error) {
+            console.error('Error uploading screenshot:', error);
+            statusMessage.textContent = 'Failed to upload screenshot.';
         }
     });
-      document.getElementById('upload-button').addEventListener('click', async () => {
-  const viewsCountInput = document.getElementById('views-count');
-  const viewsCount = parseInt(viewsCountInput.value, 10);
-  const fileInput = document.getElementById('view-screenshot');
-  const file = fileInput.files[0];
-  const statusMessage = document.getElementById('upload-status');
 
-  if (!viewsCount || isNaN(viewsCount)) {
-    statusMessage.textContent = "Please enter a valid number of views.";
-    return;
-  }
+    // Copy referral link
+    copyLinkButton.addEventListener('click', () => {
+        const referralLink = `${window.location.origin}/referral?code=${auth.currentUser.uid}`;
+        navigator.clipboard.writeText(referralLink).then(() => {
+            alert('Referral link copied to clipboard!');
+        }).catch((error) => {
+            console.error('Error copying referral link:', error);
+            alert('Failed to copy referral link.');
+        });
+    });
 
-  if (file) {
-    // Check file type
-    const validFileTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!validFileTypes.includes(file.type)) {
-      statusMessage.textContent = "Please upload a valid image file (JPEG, PNG, GIF).";
-      return;
-    }
+    // WhatsApp share button
+    whatsappShareButton.addEventListener('click', () => {
+        const referralLink = `${window.location.origin}/referral?code=${auth.currentUser.uid}`;
+        const whatsappURL = `https://wa.me/?text=Check%20out%20this%20awesome%20site%20${encodeURIComponent(referralLink)}`;
+        window.open(whatsappURL, '_blank');
+    });
 
-    // Check file size (limit to 5MB)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      statusMessage.textContent = "File size must be less than 5MB.";
-      return;
-    }
-
-    try {
-      const user = auth.currentUser;
-      const storageRef = ref(storage, `screenshots/${user.uid}/${file.name}`);
-      await uploadBytes(storageRef, file);
-      const fileURL = await getDownloadURL(storageRef);
-
-      // Send email with screenshot and views count
-      await fetch('https://your-backend-endpoint/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: user.email,
-          viewsCount: viewsCount,
-          fileURL: fileURL
-        })
-      });
-
-      statusMessage.textContent = "Screenshot uploaded successfully! Awaiting validation.";
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      statusMessage.textContent = "Error uploading file. Please try again.";
-    }
-  } else {
-    statusMessage.textContent = "Please select a file to upload.";
-  }
+    // Authentication state change listener
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is signed in, show the welcome message and referral section
+            welcomeMessage.textContent = `Welcome back, ${user.displayName || 'User'}!`;
+            registrationContainer.style.display = 'none';
+            loginContainer.style.display = 'none';
+            welcomeSection.style.display = 'block';
+        } else {
+            // No user is signed in, show registration and login forms
+            registrationContainer.style.display = 'block';
+            loginContainer.style.display = 'none';
+            welcomeSection.style.display = 'none';
+        }
+    });
 });
-
-                  
+                          
