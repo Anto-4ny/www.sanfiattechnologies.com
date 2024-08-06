@@ -110,3 +110,7 @@ button:hover {
     #welcome-section {
         display: none; /* Show this section only after login */
     }
+.copyright-text {
+    color: white;
+}
+
