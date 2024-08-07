@@ -42,217 +42,206 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyLinkButton = document.getElementById('copy-link-button');
 
     // Toggle between registration and login forms
-    document.getElementById('show-login').addEventListener('click', () => {
+    document.getElementById('show-login').addEventListener('click', (event) => {
+        event.preventDefault();
         registrationContainer.style.display = 'none';
         loginContainer.style.display = 'block';
     });
 
-    document.getElementById('show-register').addEventListener('click', () => {
+    document.getElementById('show-register').addEventListener('click', (event) => {
+        event.preventDefault();
         loginContainer.style.display = 'none';
         registrationContainer.style.display = 'block';
     });
 
     // Toggle password visibility
-    togglePassword.addEventListener('click', () => {
-        const type = passwordInput.type === 'password' ? 'text' : 'password';
-        passwordInput.type = type;
-        togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-    });
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+        });
+    }
 
-    toggleConfirmPassword.addEventListener('click', () => {
-        const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
-        confirmPasswordInput.type = type;
-        toggleConfirmPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-    });
+    if (toggleConfirmPassword && confirmPasswordInput) {
+        toggleConfirmPassword.addEventListener('click', () => {
+            const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
+            confirmPasswordInput.type = type;
+            toggleConfirmPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+        });
+    }
 
     // Toggle login password visibility
-    toggleLoginPassword.addEventListener('click', () => {
-        const type = loginPasswordInput.type === 'password' ? 'text' : 'password';
-        loginPasswordInput.type = type;
-        toggleLoginPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-    });
-});
-
-
-
-
-    // Function to create a new user document with first and last names
-    const createUserDocument = async (user) => {
-        const userDoc = doc(db, "users", user.uid);
-        await setDoc(userDoc, {
-            firstName: "John", // Replace with actual data or user input
-            lastName: "Doe",   // Replace with actual data or user input
-            email: user.email,
-            referrals: 0,
-            views: 0
+    if (toggleLoginPassword && loginPasswordInput) {
+        toggleLoginPassword.addEventListener('click', () => {
+            const type = loginPasswordInput.type === 'password' ? 'text' : 'password';
+            loginPasswordInput.type = type;
+            toggleLoginPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
         });
-    };
-
-    // Function to update user document with new first and last names
-    const updateUserDocument = async (firstName, lastName) => {
-        const user = auth.currentUser;
-        const userDoc = doc(db, "users", user.uid);
-        await updateDoc(userDoc, {
-            firstName: firstName,
-            lastName: lastName
-        });
-    };
+    }
 
     // Handle payment button click
-    payButton.addEventListener('click', async () => {
-        const amount = parseInt(paymentAmountInput.value, 10);
-        if (isNaN(amount) || amount !== 200) {
-            alert("Please enter a valid amount of 200 Ksh.");
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/request-payment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ amount: 200 })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                alert('Payment request sent. Please check your phone to complete the payment.');
-            } else {
-                alert('Payment request failed. Please try again.');
+    if (payButton && paymentAmountInput) {
+        payButton.addEventListener('click', async () => {
+            const amount = parseInt(paymentAmountInput.value, 10);
+            if (isNaN(amount) || amount !== 200) {
+                alert("Please enter a valid amount of 200 Ksh.");
+                return;
             }
-        } catch (error) {
-            console.error('Error sending payment request:', error);
-            alert('An error occurred. Please try again.');
-        }
-    });
+
+            try {
+                const response = await fetch('/api/request-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ amount: 200 })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Payment request sent. Please check your phone to complete the payment.');
+                } else {
+                    alert('Payment request failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error sending payment request:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    }
 
     // Registration form submission
-    registrationForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+    if (registrationForm) {
+        registrationForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-        const firstName = document.getElementById('first-name').value.trim();
-        const lastName = document.getElementById('last-name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const password = passwordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-        const paymentConfirmation = paymentConfirmationInput.value.trim();
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const paymentConfirmation = paymentConfirmationInput.value.trim();
 
-        // Validate first and last names
-        const namePattern = /^[A-Z][a-z]*$/;
-        if (!namePattern.test(firstName)) {
-            alert("Invalid first name. It must start with a capital letter and contain only letters.");
-            return;
-        }
-
-        if (!namePattern.test(lastName)) {
-            alert("Invalid last name. It must start with a capital letter and contain only letters.");
-            return;
-        }
-
-        // Validate password complexity
-        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
-        if (!passwordPattern.test(password)) {
-            alert("Password must be at least 6 characters long, contain both uppercase and lowercase letters, and at least one number. It should not contain special characters like asterisks.");
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            alert("Passwords do not match!");
-            return;
-        }
-
-        try {
-            // Verify the payment confirmation code with the server
-            const response = await fetch('/api/verify-payment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ paymentConfirmation })
-            });
-
-            const result = await response.json();
-
-            if (!result.success) {
-                alert('Invalid payment confirmation code. Please ensure you have paid the correct amount and entered the correct code.');
+            // Validate first and last names
+            const namePattern = /^[A-Z][a-z]*$/;
+            if (!namePattern.test(firstName)) {
+                alert("Invalid first name. It must start with a capital letter and contain only letters.");
                 return;
             }
 
-            // Check if the email is already registered
-            const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-            if (signInMethods.length > 0) {
-                alert("This email is already in use. Please use a different email or log in.");
+            if (!namePattern.test(lastName)) {
+                alert("Invalid last name. It must start with a capital letter and contain only letters.");
                 return;
             }
 
-            // Register the user
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+            // Validate password complexity
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
+            if (!passwordPattern.test(password)) {
+                alert("Password must be at least 6 characters long, contain both uppercase and lowercase letters, and at least one number. It should not contain special characters like asterisks.");
+                return;
+            }
 
-            await setDoc(doc(db, 'users', user.uid), {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                paymentConfirmation: paymentConfirmation,
-                referrals: 0,
-                views: 0,
-                createdAt: new Date()
-            });
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
 
-            welcomeMessage.textContent = `Welcome, ${firstName}!`;
-            registrationContainer.style.display = 'none';
-            welcomeSection.style.display = 'block';
-        } catch (error) {
-            console.error('Error during registration:', error);
-            alert('Registration failed. Please try again.');
-        }
-    });
+            try {
+                // Verify the payment confirmation code with the server
+                const response = await fetch('/api/verify-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ paymentConfirmation })
+                });
+
+                const result = await response.json();
+                if (!result.success) {
+                    alert('Invalid payment confirmation code. Please ensure you have paid the correct amount and entered the correct code.');
+                    return;
+                }
+
+                // Check if the email is already registered
+                const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+                if (signInMethods.length > 0) {
+                    alert("This email is already in use. Please use a different email or log in.");
+                    return;
+                }
+
+                // Register the user
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                await setDoc(doc(db, 'users', user.uid), {
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    paymentConfirmation: paymentConfirmation,
+                    referrals: 0,
+                    views: 0,
+                    createdAt: new Date()
+                });
+
+                welcomeMessage.textContent = `Welcome, ${firstName}!`;
+                registrationContainer.style.display = 'none';
+                welcomeSection.style.display = 'block';
+            } catch (error) {
+                console.error('Error during registration:', error);
+                alert('Registration failed. Please try again.');
+            }
+        });
+    }
 
     // Login form submission
-    loginForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-        const email = document.getElementById('login-email').value.trim();
-        const password = loginPasswordInput.value;
+            const email = document.getElementById('login-email').value.trim();
+            const password = loginPasswordInput.value;
 
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = '/dashboard.html'; // Redirect to dashboard or another page
-        } catch (error) {
-            console.error('Error during login:', error);
-            alert('Login failed. Please check your credentials and try again.');
-        }
-    });
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = '/dashboard.html'; // Redirect to dashboard or another page
+            } catch (error) {
+                console.error('Error during login:', error);
+                alert('Login failed. Please check your credentials and try again.');
+            }
+        });
+    }
 
     // File upload and views count
-    uploadButton.addEventListener('click', async () => {
-        const file = fileInput.files[0];
-        if (!file) {
-            alert("Please select a screenshot to upload.");
-            return;
-        }
+    if (uploadButton && fileInput && statusMessage) {
+        uploadButton.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a screenshot to upload.");
+                return;
+            }
 
-        try {
-            const storageRef = ref(storage, `screenshots/${file.name}`);
-            await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(storageRef);
+            try {
+                const storageRef = ref(storage, `screenshots/${file.name}`);
+                await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(storageRef);
 
-            // Assuming you want to save the download URL to Firestore
-            const user = auth.currentUser;
-            const userDoc = doc(db, "users", user.uid);
-            await updateDoc(userDoc, {
-                screenshotURL: downloadURL,
-                views: parseInt(viewsCountInput.value, 10)
-            });
+                // Assuming you want to save the download URL to Firestore
+                const user = auth.currentUser;
+                const userDoc = doc(db, "users", user.uid);
+                await updateDoc(userDoc, {
+                    screenshotURL: downloadURL,
+                    views: parseInt(viewsCountInput.value, 10) || 0
+                });
 
-            statusMessage.textContent = 'Screenshot uploaded successfully!';
-        } catch (error) {
-            console.error('Error uploading screenshot:', error);
-            statusMessage.textContent = 'Failed to upload screenshot.';
-        }
-    });
+                statusMessage.textContent = 'Screenshot uploaded successfully!';
+            } catch (error) {
+                console.error('Error uploading screenshot:', error);
+                statusMessage.textContent = 'Failed to upload screenshot.';
+            }
+        });
+    }
+
 
     // Copy referral link
     copyLinkButton.addEventListener('click', () => {
