@@ -5,10 +5,17 @@ import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, si
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-    // Your Firebase configuration
+    apiKey: "AIzaSyB7t1wWHhPYBitqKC4SJ8lqP1WMLDefCxo",
+    authDomain: "antocap-referrals.firebaseapp.com",
+    projectId: "antocap-referrals",
+    storageBucket: "antocap-referrals.appspot.com",
+    messagingSenderId: "1071760453747",
+    appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
+    measurementId: "G-EPLJB8MTRH"
+  };
 };
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
