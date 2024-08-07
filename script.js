@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const toggleLoginPassword = document.getElementById('toggle-login-password');
     const loginPasswordInput = document.getElementById('login-password');
-    const registrationContainer = document.getElementById('registration-form-container');
-    const loginContainer = document.getElementById('login-form-container');
+    const registrationContainer = document.getElementById('auth-section-register');
+    const loginContainer = document.getElementById('auth-section-login');
     const welcomeSection = document.getElementById('welcome-section');
     const welcomeMessage = document.getElementById('welcome-message');
     const whatsappShareButton = document.getElementById('whatsapp-share-button');
@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleLoginPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
     });
 });
+
 
 
 
