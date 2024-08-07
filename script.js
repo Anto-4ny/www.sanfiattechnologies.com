@@ -5,16 +5,7 @@ import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, si
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyB7t1wWHhPYBitqKC4SJ8lqP1WMLDefCxo",
-    authDomain: "antocap-referrals.firebaseapp.com",
-    projectId: "antocap-referrals",
-    storageBucket: "antocap-referrals.appspot.com",
-    messagingSenderId: "1071760453747",
-    appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
-    measurementId: "G-EPLJB8MTRH"
-  };
-};
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -24,6 +15,23 @@ const storage = getStorage(app);
 const analytics = getAnalytics(app);
 
 document.addEventListener('DOMContentLoaded', () => {
+   const firebaseConfig = {
+    apiKey: "AIzaSyB7t1wWHhPYBitqKC4SJ8lqP1WMLDefCxo",
+    authDomain: "antocap-referrals.firebaseapp.com",
+    projectId: "antocap-referrals",
+    storageBucket: "antocap-referrals.appspot.com",
+    messagingSenderId: "1071760453747",
+    appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
+    measurementId: "G-EPLJB8MTRH"
+  };
+};
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(app);
+    const auth = firebase.auth(app);
+    const storage = firebase.storage(app);
+    const analytics = firebase.analytics(app);
+
     // Form Elements
     const registrationForm = document.getElementById('registration-form');
     const togglePassword = document.getElementById('toggle-password');
@@ -144,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Validate password complexity
             const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
             if (!passwordPattern.test(password)) {
-                alert("Password must be at least 6 characters long, contain both uppercase and lowercase letters, and at least one number. It should not contain special characters like asterisks.");
+                alert("Password must be at least 6 characters long, contain both uppercase and lowercase letters, and at least one number.");
                 return;
             }
 
@@ -170,17 +178,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Check if the email is already registered
-                const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+                const signInMethods = await auth.fetchSignInMethodsForEmail(email);
                 if (signInMethods.length > 0) {
                     alert("This email is already in use. Please use a different email or log in.");
                     return;
                 }
 
                 // Register the user
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
 
-                await setDoc(doc(db, 'users', user.uid), {
+                await db.collection('users').doc(user.uid).set({
                     firstName: firstName,
                     lastName: lastName,
                     email: email,
@@ -209,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = loginPasswordInput.value;
 
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+                await auth.signInWithEmailAndPassword(email, password);
                 window.location.href = '/dashboard.html'; // Redirect to dashboard or another page
             } catch (error) {
                 console.error('Error during login:', error);
@@ -228,14 +236,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const storageRef = ref(storage, `screenshots/${file.name}`);
-                await uploadBytes(storageRef, file);
-                const downloadURL = await getDownloadURL(storageRef);
+                const storageRef = storage.ref(`screenshots/${file.name}`);
+                await storageRef.put(file);
+                const downloadURL = await storageRef.getDownloadURL();
 
                 // Assuming you want to save the download URL to Firestore
                 const user = auth.currentUser;
-                const userDoc = doc(db, "users", user.uid);
-                await updateDoc(userDoc, {
+                const userDoc = db.collection("users").doc(user.uid);
+                await userDoc.update({
                     screenshotURL: downloadURL,
                     views: parseInt(viewsCountInput.value, 10) || 0
                 });
@@ -260,15 +268,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // WhatsApp share button
-    whatsappShareButton.addEventListener('click', (event) => {
-        event.preventDefault();
+    whatsappShareButton.addEventListener('click', () => {
         const referralLink = `${window.location.origin}/referral?code=${auth.currentUser.uid}`;
         const whatsappURL = `https://wa.me/?text=Check%20out%20this%20awesome%20site%20${encodeURIComponent(referralLink)}`;
         window.open(whatsappURL, '_blank');
     });
 
     // Authentication state change listener
-    onAuthStateChanged(auth, (user) => {
+    auth.onAuthStateChanged((user) => {
         if (user) {
             // User is signed in, show the welcome message and referral section
             welcomeMessage.textContent = `Welcome back, ${user.displayName || 'User'}!`;
@@ -283,4 +290,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 
