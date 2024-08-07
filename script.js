@@ -71,6 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
         loginPasswordInput.type = type;
         toggleLoginPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
     });
+});
+
+
 
     // Function to create a new user document with first and last names
     const createUserDocument = async (user) => {
