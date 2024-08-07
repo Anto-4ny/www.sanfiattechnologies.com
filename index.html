@@ -3,83 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sanfiat Technologies</title>
+    <title>Sanfiat Technologies</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="dashboard.css">
-    <link rel="icon" href="images/referralsicon.jpg" type="image/x-icon"> 
+    <link rel="icon" href="images/referralsicon.jpg" type="image/x-icon">
 </head>
 <body>
     <header>
-        <img src="images/referralslogo.jpg" alt="logo" id="logo">
+        <img src="images/referralslogo.jpg" alt="Sanfiat Technologies Logo" id="logo">
         <h1>Welcome to Sanfiat Technologies</h1>
         <nav>
-            
-            <a href="#"></a>
+            <!-- Add navigation links if needed -->
+            <a href="#">Home</a>
+            <a href="#">About Us</a>
+            <a href="#">Contact</a>
         </nav>
     </header>
     <main>
+        <!-- Registration Section -->
         <section id="auth-section-register">
-    <div id="registration-form-container">
-        <h2 style="color: white;">Register</h2>
-        <form id="registration-form">
-            <label for="first-name">First Name:</label>
-            <input type="text" id="first-name" placeholder="Enter your first name" required>
+            <div id="registration-form-container">
+                <h2 style="color: white;">Register</h2>
+                <form id="registration-form">
+                    <label for="first-name">First Name:</label>
+                    <input type="text" id="first-name" placeholder="Enter your first name" required>
 
-            <label for="last-name">Last Name:</label>
-            <input type="text" id="last-name" placeholder="Enter your last name" required>
-            
-            <label for="email">Email:</label>
-            <input type="email" id="email" placeholder="Enter your email" required>
-            
-            <label for="password">Password:</label>
-            <div class="password-container">
-                <input type="password" id="password" placeholder="Enter your password" required>
-                <i id="toggle-password" class="eye-icon">👁️</i>
+                    <label for="last-name">Last Name:</label>
+                    <input type="text" id="last-name" placeholder="Enter your last name" required>
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+
+                    <label for="password">Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                        <i id="toggle-password" class="eye-icon">👁️</i>
+                    </div>
+
+                    <label for="confirm-password">Confirm Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="confirm-password" placeholder="Confirm your password" required>
+                        <i id="toggle-confirm-password" class="eye-icon">👁️</i>
+                    </div>
+
+                    <label for="payment-amount">Amount (Ksh):</label>
+                    <input type="number" id="payment-amount" placeholder="Enter amount" required>
+
+                    <button type="button" id="pay-button">Pay 200 Ksh via MPESA</button>
+
+                    <label for="payment-confirmation">Payment Confirmation Code:</label>
+                    <input type="text" id="payment-confirmation" placeholder="Enter payment confirmation code" required>
+
+                    <button type="submit">Register</button>
+                </form>
+                <p style="color: white;">Already have an account? <a href="#" id="show-login" style="color: #25D366;">Login here</a></p>
             </div>
-            <label for="confirm-password">Confirm Password:</label>
-            <div class="password-container">
-                <input type="password" id="confirm-password" placeholder="Confirm your password" required>
-                <i id="toggle-confirm-password" class="eye-icon">👁️</i>
-              </div>
-            <label for="payment-amount">Amount (Ksh):</label>
-            <input type="number" id="payment-amount" placeholder="Enter amount" required>
-            <button type="button" id="pay-button">Pay 200 Ksh via MPESA</button>
-            
-            <label for="payment-confirmation">Payment Confirmation Code:</label>
-            <input type="text" id="payment-confirmation" placeholder="Enter payment confirmation code" required>
-            
-            <button type="submit">Register</button>
-        </form>
-        <p style="color: white;">Already have an account? <a href="#" id="show-login" style="color: #25D366;">Login here</a></p>
-    </div>
-</section>
-
-<section id="auth-section-login" style="display: none;">
-    <div id="login-form-container">
-        <h2 style="color: white;">Login</h2>
-        <form id="login-form">
-            <label for="login-email">Email:</label>
-            <input type="email" id="login-email" placeholder="Enter your email" required>
-
-            <label for="login-password">Password:</label>
-            <div class="password-container">
-                <input type="password" id="login-password" placeholder="Enter your password" required>
-                <i id="toggle-login-password" class="eye-icon">👁️</i>
-            </div>
-            <button type="submit">Login</button>
-        </form>
-        <p style="color: white;">Don't have an account? <a href="#" id="show-register" style="color: #25D366;">Register here</a></p>
-    </div>
-</section>
-
-     <!-- Optionally include a section for welcome message if you want to toggle its visibility -->
-    <div id="welcome-section" style="display: none;">
-        <p id="welcome-message">
-        <section id="welcome-section" style="color: white;">
-            <h2 id="welcome-message" style="color: white;"></h2>
         </section>
-        <section id="dashboard-section">
-            <section id="dashboard">
+
+        <!-- Login Section -->
+        <section id="auth-section-login" style="display: none;">
+            <div id="login-form-container">
+                <h2 style="color: white;">Login</h2>
+                <form id="login-form">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" placeholder="Enter your email" required>
+
+                    <label for="login-password">Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
+                        <i id="toggle-login-password" class="eye-icon">👁️</i>
+                    </div>
+
+                    <button type="submit">Login</button>
+                </form>
+                <p style="color: white;">Don't have an account? <a href="#" id="show-register" style="color: #25D366;">Register here</a></p>
+            </div>
+        </section>
+
+        <!-- Welcome Section -->
+        <section id="welcome-section" style="display: none;">
+            <h2 id="welcome-message" style="color: white;"></h2>
+            <div id="dashboard-section">
                 <h2 style="color: white;">Your Dashboard</h2>
                 <div id="user-info">
                     <div class="info-box">
@@ -98,7 +102,7 @@
                 <div id="upload-section">
                     <h3>Upload Screenshot of Views</h3>
                     <label for="views-count">Number of Views:</label>
-                    <input type="number" id="views-count" placeholder="Enter the number of views" required>
+                    <input type="number" id="views-count" placeholder="Enter the number of views" min="0" required>
                     <input type="file" id="view-screenshot" accept="image/*" required>
                     <button id="upload-button">Upload</button>
                     <p id="upload-status"></p>
@@ -112,21 +116,21 @@
                         Share on WhatsApp
                     </a>
                 </div>
-            </section>
+            </div>
         </section>
-        </p>
-    </div>
- </section>
     </main>
     <footer>
-        <p class="copyright-text">&copy; 2024 Referral. All rights reserved.</p>
+        <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
     </footer>
-        </section>
-        <script type="module" src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"></script>
-        <script type="module" src="https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js"></script>
-        <script type="module" src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js"></script>
-        <script type="module" src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js"></script>
-        <script type="module" src="script.js"></script>
- <script src="scripts.js"></script>
+
+    <!-- Firebase Scripts -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script type="module" src="script.js"></script>
+    <script src="scripts.js"></script>
 </body>
 </html>
