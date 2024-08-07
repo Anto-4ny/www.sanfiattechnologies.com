@@ -242,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     // Copy referral link
     copyLinkButton.addEventListener('click', () => {
         const referralLink = `${window.location.origin}/referral?code=${auth.currentUser.uid}`;
@@ -277,4 +276,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-                          
