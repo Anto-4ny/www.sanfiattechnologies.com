@@ -297,3 +297,20 @@ function showAlert(element, message, type) {
     }, 5000);
     }
             
+document.addEventListener("DOMContentLoaded", function() {
+    const showLoginButton = document.getElementById('show-login');
+    const showRegisterButton = document.getElementById('show-register');
+    const registerSection = document.getElementById('auth-section-register');
+    const loginSection = document.getElementById('auth-section-login');
+
+    showLoginButton.addEventListener('click', function() {
+        registerSection.style.display = 'none';
+        loginSection.style.display = 'block';
+    });
+
+    showRegisterButton.addEventListener('click', function() {
+        registerSection.style.display = 'block';
+        loginSection.style.display = 'none';
+    });
+});
+
