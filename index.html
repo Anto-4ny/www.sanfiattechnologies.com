@@ -104,9 +104,26 @@
                         <p>Amount Paid: <span id="amount-paid">0</span> Ksh</p>
                     </div>
                 </div>
-                <div id="upload-section">
-                    <!-- Upload section as before -->
-                </div>
+                <section id="upload-section">
+    <h2 style="color: white;">Upload Your Status Screenshot</h2>
+    <form id="upload-form">
+        <label for="views">Number of Views:</label>
+        <input type="number" id="views" placeholder="Enter number of views" required>
+        
+        <label for="screenshot">Screenshot:</label>
+        <div class="upload-container">
+            <div id="drop-zone" class="drop-zone" aria-label="Drop files here or click to upload">
+                <p>Drag and drop files here or click to upload.</p>
+                <input type="file" id="file-input" accept="image/*" aria-label="Choose screenshot" required />
+            </div>
+            <div id="file-preview" class="file-preview">
+                <!-- Preview of selected files will be shown here -->
+            </div>
+        </div>
+        <button type="submit" id="upload-button" aria-label="Upload screenshot">Upload Screenshot</button>
+    </form>
+                </section>
+                
                 <div id="referral-link-section">
                     <h3>Your Referral Link</h3>
                     <p id="referral-link"></p>
