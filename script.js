@@ -365,4 +365,89 @@ function getPackageAmount(packageType) {
     }
 }
 
+// Generate referral link for a given package
+function generateReferralLink(packageName) {
+    const baseUrl = window.location.href.split('?')[0];
+    return `${baseUrl}?package=${packageName}`;
+}
+
+// Set referral link and copy to clipboard functionality
+function setReferralLinks() {
+    const packageNames = ['basic', 'standard', 'premium', 'ultimate'];
+    packageNames.forEach(packageName => {
+        const referralLink = generateReferralLink(packageName);
+        document.getElementById(`${packageName}-referral-link`).textContent = referralLink;
+    });
+}
+
+// Copy referral link to clipboard
+function copyReferralLink(packageName) {
+    const referralLink = generateReferralLink(packageName);
+    navigator.clipboard.writeText(referralLink).then(() => {
+        alert('Referral link copied to clipboard!');
+    }, (err) => {
+        console.error('Failed to copy link: ', err);
+    });
+}
+
+// Initialize the referral links on page load
+window.onload = function() {
+    setReferralLinks();
+    
+    // Check if user is logged in
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // Show the welcome section and dashboard
+            document.getElementById('welcome-section').style.display = 'block';
+            document.getElementById('auth-section-register').style.display = 'none';
+            document.getElementById('auth-section-login').style.display = 'none';
+
+            // Fetch user data and update dashboard
+            const userId = user.uid;
+            const db = firebase.firestore();
+            const userDoc = db.collection('users').doc(userId);
+
+            userDoc.get().then(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('user-email').textContent = data.email;
+                    document.getElementById('referral-count').textContent = data.referrals || 0;
+                    document.getElementById('total-views').textContent = data.totalViews || 0;
+                    document.getElementById('total-earnings').textContent = data.totalEarnings || 0;
+                    document.getElementById('amount-paid').textContent = data.amountPaid || 0;
+                }
+            }).catch(error => {
+                console.error('Error fetching user data: ', error);
+            });
+        } else {
+            // User is not logged in
+            document.getElementById('welcome-section').style.display = 'none';
+            document.getElementById('auth-section-register').style.display = 'block';
+            document.getElementById('auth-section-login').style.display = 'block';
+        }
+    });
+};
+
+// Request payment
+function requestPayment(packageName) {
+    // Call your server to initiate payment request
+    fetch(`/api/request-payment`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ package: packageName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Payment request initiated. Please check your MPESA for further instructions.');
+        } else {
+            alert('Failed to initiate payment. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error initiating payment:', error);
+    });
+}
 
