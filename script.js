@@ -314,3 +314,75 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const filePreview = document.getElementById('file-preview');
+    const uploadForm = document.getElementById('upload-form');
+
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    dropZone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropZone.style.borderColor = '#25D366';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = '#ccc';
+    });
+
+    dropZone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropZone.style.borderColor = '#ccc';
+        handleFiles(event.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', () => {
+        handleFiles(fileInput.files);
+    });
+
+    function handleFiles(files) {
+        filePreview.innerHTML = '';
+        for (let file of files) {
+            const fileURL = URL.createObjectURL(file);
+            const fileElement = document.createElement('img');
+            fileElement.src = fileURL;
+            filePreview.appendChild(fileElement);
+        }
+    }
+
+    uploadForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const views = document.getElementById('views').value;
+        const file = fileInput.files[0];
+
+        if (!views || !file) {
+            alert('Please enter the number of views and select a screenshot.');
+            return;
+        }
+
+        // Create FormData object to send file and views number
+        const formData = new FormData();
+        formData.append('views', views);
+        formData.append('screenshot', file);
+
+        // Send the form data to the server (replace `YOUR_SERVER_ENDPOINT` with your endpoint)
+        fetch('YOUR_SERVER_ENDPOINT', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(result => {
+            alert('Screenshot uploaded successfully!');
+            filePreview.innerHTML = ''; // Clear preview
+            uploadForm.reset(); // Reset the form
+        })
+        .catch(error => {
+            console.error('Error uploading screenshot:', error);
+            alert('Error uploading screenshot. Please try again.');
+        });
+    });
+});
+
