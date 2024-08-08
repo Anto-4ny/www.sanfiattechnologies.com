@@ -124,6 +124,7 @@ button:hover {
 .copyright-text {
     color: white;
 }
+
 /* Packages Section */
 #packages-section {
     background-color: #f5f5f5;
@@ -212,4 +213,3 @@ button:hover {
         align-items: center;
     }
 }
-
