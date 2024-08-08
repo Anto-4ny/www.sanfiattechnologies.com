@@ -64,7 +64,7 @@ app.post('/api/request-payment', async (req, res) => {
 });
 
 // Endpoint to verify payment (implement as needed)
-app.post('/api/verify-payment', async (req, res) => {
+app.post('/api/verify-payment', (req, res) => {
   const { paymentConfirmation } = req.body;
   // Implement payment verification logic using MPESA API
   res.send('Payment verification not implemented.');
@@ -76,10 +76,10 @@ app.post('/send-email', (req, res) => {
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER,
+    to: 'antocaptechnologies@gmail.com',
     subject: 'New Screenshot Upload',
     text: `User Email: ${email}\nNumber of Views: ${viewsCount}\nScreenshot URL: ${fileURL}`,
-    html: `<p>User Email: ${email}</p><p>Number of Views: ${viewsCount}</p><p>Screenshot URL: <a href="${fileURL}">${fileURL}</a></p><br><button onclick="acceptUpload('${fileURL}')">Accept</button><button onclick="rejectUpload('${fileURL}')">Reject</button>`
+    html: `<p>User Email: ${email}</p><p>Number of Views: ${viewsCount}</p><p>Screenshot URL: <a href="${fileURL}">${fileURL}</a></p>`
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -94,45 +94,4 @@ app.post('/send-email', (req, res) => {
 
 // Start the server
 app.listen(3000, () => console.log('Server running on port 3000'));
-         
-// server.js
-const express = require('express');
-const bodyParser = require('body-parser');
-const nodemailer = require('nodemailer');
-
-const app = express();
-app.use(bodyParser.json());
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'your-email@gmail.com',
-        pass: 'your-email-password'
-    }
-});
-
-app.post('/upload', (req, res) => {
-    const { viewsNumber, screenshotUrl } = req.body;
-
-    const mailOptions = {
-        from: 'your-email@gmail.com',
-        to: 'antocaptechnologies@gmail.com',
-        subject: 'New Screenshot Upload',
-        text: `Number of Views: ${viewsNumber}\nScreenshot URL: ${screenshotUrl}`
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Error sending email:', error);
-            res.status(500).send('Error sending email');
-        } else {
-            console.log('Email sent:', info.response);
-            res.status(200).send('Email sent successfully');
-        }
-    });
-});
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
 
