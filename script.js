@@ -45,43 +45,47 @@ const fileInput = document.getElementById('view-screenshot');
 const statusMessage = document.getElementById('upload-status');
 const copyLinkButton = document.getElementById('copy-link-button');
 
+// Function to toggle between registration and login forms
+function toggleAuthSection(showLogin) {
+    if (showLogin) {
+        registrationContainer.style.display = 'none';
+        loginContainer.style.display = 'block';
+    } else {
+        loginContainer.style.display = 'none';
+        registrationContainer.style.display = 'block';
+    }
+}
+
 // Toggle between registration and login forms
 document.getElementById('show-login').addEventListener('click', (event) => {
     event.preventDefault();
-    registrationContainer.style.display = 'none';
-    loginContainer.style.display = 'block';
+    toggleAuthSection(true);
 });
 
 document.getElementById('show-register').addEventListener('click', (event) => {
     event.preventDefault();
-    loginContainer.style.display = 'none';
-    registrationContainer.style.display = 'block';
+    toggleAuthSection(false);
 });
 
 // Toggle password visibility
-if (togglePassword && passwordInput) {
-    togglePassword.addEventListener('click', () => {
-        const type = passwordInput.type === 'password' ? 'text' : 'password';
-        passwordInput.type = type;
-        togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+function togglePasswordVisibility(input, toggle) {
+    toggle.addEventListener('click', () => {
+        const type = input.type === 'password' ? 'text' : 'password';
+        input.type = type;
+        toggle.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
     });
+}
+
+if (togglePassword && passwordInput) {
+    togglePasswordVisibility(passwordInput, togglePassword);
 }
 
 if (toggleConfirmPassword && confirmPasswordInput) {
-    toggleConfirmPassword.addEventListener('click', () => {
-        const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
-        confirmPasswordInput.type = type;
-        toggleConfirmPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-    });
+    togglePasswordVisibility(confirmPasswordInput, toggleConfirmPassword);
 }
 
-// Toggle login password visibility
 if (toggleLoginPassword && loginPasswordInput) {
-    toggleLoginPassword.addEventListener('click', () => {
-        const type = loginPasswordInput.type === 'password' ? 'text' : 'password';
-        loginPasswordInput.type = type;
-        toggleLoginPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-    });
+    togglePasswordVisibility(loginPasswordInput, toggleLoginPassword);
 }
 
 // Handle payment button click
@@ -252,7 +256,7 @@ if (uploadButton && fileInput && statusMessage) {
 
 // Copy referral link
 copyLinkButton.addEventListener('click', () => {
-    const referralLink = `${window.location.origin}/referral?code=${auth.currentUser.uid}`;
+    const referralLink = `${window.location.origin}/referral?code=${auth.currentUser?.uid}`;
     navigator.clipboard.writeText(referralLink).then(() => {
         alert('Referral link copied to clipboard!');
     }).catch((error) => {
@@ -263,7 +267,7 @@ copyLinkButton.addEventListener('click', () => {
 
 // WhatsApp share button
 whatsappShareButton.addEventListener('click', () => {
-    const referralLink = `${window.location.origin}/referral?code=${auth.currentUser.uid}`;
+    const referralLink = `${window.location.origin}/referral?code=${auth.currentUser?.uid}`;
     const whatsappURL = `https://wa.me/?text=Check%20out%20this%20awesome%20site%20${encodeURIComponent(referralLink)}`;
     window.open(whatsappURL, '_blank');
 });
@@ -283,3 +287,4 @@ onAuthStateChanged(auth, (user) => {
         welcomeSection.style.display = 'none';
     }
 });
+        
