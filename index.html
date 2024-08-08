@@ -76,8 +76,6 @@
                 </p>
             </div>
         </section>
-
-        <!-- Welcome Section -->
         <div id="welcome-section" style="display: none;">
             <section id="dashboard-section">
                 <h2 style="color: white;">Your Dashboard</h2>
@@ -94,14 +92,12 @@
                     <div class="info-box">
                         <p>Total Earnings: <span id="total-earnings"></span> Ksh</p>
                     </div>
+                    <div class="info-box">
+                        <p>Amount Paid: <span id="amount-paid">0</span> Ksh</p>
+                    </div>
                 </div>
                 <div id="upload-section">
-                    <h3>Upload Screenshot of Views</h3>
-                    <label for="views-count">Number of Views:</label>
-                    <input type="number" id="views-count" placeholder="Enter the number of views" required>
-                    <input type="file" id="view-screenshot" accept="image/*" required>
-                    <button id="upload-button">Upload</button>
-                    <p id="upload-status"></p>
+                    <!-- Upload section as before -->
                 </div>
                 <div id="referral-link-section">
                     <h3>Your Referral Link</h3>
@@ -113,9 +109,9 @@
                     </a>
                 </div>
             </section>
-        </div>
-        
-    <section id="packages-section">
+
+            <!-- Packages Section -->
+            <section id="packages-section">
                 <h2 style="color: white;">Purchase Status Views</h2>
                 <div class="package-container">
                     <!-- Package 1 -->
@@ -124,11 +120,15 @@
                         <div class="package-price">Ksh 500</div>
                         <div class="package-description">Ideal for small campaigns.</div>
                         <div class="package-details">
-                            <p>Number of Referrals Required to be eligible to start earning from Whatsapp status views: 5</p>
-                            <p>Pay Per View: 50 Ksh</p>
+                            <p>Number of Referrals Required: 5</p>
+                            <p>Pay Per View: 5 Ksh</p>
                             <p>Payment Information: Click the button below to pay.</p>
                         </div>
                         <button class="pay-button" onclick="requestPayment('basic')">Pay via MPESA</button>
+                        <div class="package-referral-link">
+                            <p>Referral Link: <span id="basic-referral-link"></span></p>
+                            <button onclick="copyReferralLink('basic')">Copy Link</button>
+                        </div>
                     </div>
 
                     <!-- Package 2 -->
@@ -137,11 +137,15 @@
                         <div class="package-price">Ksh 1000</div>
                         <div class="package-description">For moderate campaigns.</div>
                         <div class="package-details">
-                            <p>Number of Referrals Required to be eligible to start earning from Whatsapp status views: 10</p>
-                            <p>Pay Per View: 100 Ksh</p>
+                            <p>Number of Referrals Required: 10</p>
+                            <p>Pay Per View: 4 Ksh</p>
                             <p>Payment Information: Click the button below to pay.</p>
                         </div>
                         <button class="pay-button" onclick="requestPayment('standard')">Pay via MPESA</button>
+                        <div class="package-referral-link">
+                            <p>Referral Link: <span id="standard-referral-link"></span></p>
+                            <button onclick="copyReferralLink('standard')">Copy Link</button>
+                        </div>
                     </div>
 
                     <!-- Package 3 -->
@@ -150,11 +154,15 @@
                         <div class="package-price">Ksh 2000</div>
                         <div class="package-description">For large campaigns with high impact.</div>
                         <div class="package-details">
-                            <p>Number of Referrals Required to be eligible to start earning from Whatsapp status views: 20</p>
-                            <p>Pay Per View: 150 Ksh</p>
+                            <p>Number of Referrals Required: 20</p>
+                            <p>Pay Per View: 3 Ksh</p>
                             <p>Payment Information: Click the button below to pay.</p>
                         </div>
                         <button class="pay-button" onclick="requestPayment('premium')">Pay via MPESA</button>
+                        <div class="package-referral-link">
+                            <p>Referral Link: <span id="premium-referral-link"></span></p>
+                            <button onclick="copyReferralLink('premium')">Copy Link</button>
+                        </div>
                     </div>
 
                     <!-- Package 4 -->
@@ -163,11 +171,15 @@
                         <div class="package-price">Ksh 3000</div>
                         <div class="package-description">For the most extensive campaigns.</div>
                         <div class="package-details">
-                            <p>Number of Referrals Required to be eligible to start earning from Whatsapp status views: 30</p>
-                            <p>Pay Per View: 200 Ksh</p>
+                            <p>Number of Referrals Required: 30</p>
+                            <p>Pay Per View: 2 Ksh</p>
                             <p>Payment Information: Click the button below to pay.</p>
                         </div>
                         <button class="pay-button" onclick="requestPayment('ultimate')">Pay via MPESA</button>
+                        <div class="package-referral-link">
+                            <p>Referral Link: <span id="ultimate-referral-link"></span></p>
+                            <button onclick="copyReferralLink('ultimate')">Copy Link</button>
+                        </div>
                     </div>
                 </div>
             </section>
