@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore, doc, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
@@ -46,45 +46,46 @@ const statusMessage = document.getElementById('upload-status');
 const copyLinkButton = document.getElementById('copy-link-button');
 
 // Toggle between registration and login forms
+function toggleAuthState(state) {
+    if (state === 'login') {
+        registrationContainer.style.display = 'none';
+        loginContainer.style.display = 'block';
+    } else if (state === 'register') {
+        loginContainer.style.display = 'none';
+        registrationContainer.style.display = 'block';
+    } else if (state === 'loggedIn') {
+        registrationContainer.style.display = 'none';
+        loginContainer.style.display = 'none';
+        welcomeSection.style.display = 'block';
+    }
+}
+
 document.getElementById('show-login').addEventListener('click', (event) => {
     event.preventDefault();
     localStorage.setItem('auth-state', 'login');
-    registrationContainer.style.display = 'none';
-    loginContainer.style.display = 'block';
+    toggleAuthState('login');
 });
 
 document.getElementById('show-register').addEventListener('click', (event) => {
     event.preventDefault();
     localStorage.setItem('auth-state', 'register');
-    loginContainer.style.display = 'none';
-    registrationContainer.style.display = 'block';
+    toggleAuthState('register');
 });
 
 // Toggle password visibility
-if (togglePassword && passwordInput) {
-    togglePassword.addEventListener('click', () => {
-        const type = passwordInput.type === 'password' ? 'text' : 'password';
-        passwordInput.type = type;
-        togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-    });
+function togglePasswordVisibility(toggleButton, inputField) {
+    if (toggleButton && inputField) {
+        toggleButton.addEventListener('click', () => {
+            const type = inputField.type === 'password' ? 'text' : 'password';
+            inputField.type = type;
+            toggleButton.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+        });
+    }
 }
 
-if (toggleConfirmPassword && confirmPasswordInput) {
-    toggleConfirmPassword.addEventListener('click', () => {
-        const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
-        confirmPasswordInput.type = type;
-        toggleConfirmPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-    });
-}
-
-// Toggle login password visibility
-if (toggleLoginPassword && loginPasswordInput) {
-    toggleLoginPassword.addEventListener('click', () => {
-        const type = loginPasswordInput.type === 'password' ? 'text' : 'password';
-        loginPasswordInput.type = type;
-        toggleLoginPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-    });
-}
+togglePasswordVisibility(togglePassword, passwordInput);
+togglePasswordVisibility(toggleConfirmPassword, confirmPasswordInput);
+togglePasswordVisibility(toggleLoginPassword, loginPasswordInput);
 
 // Handle payment button click
 if (payButton && paymentAmountInput) {
@@ -98,9 +99,7 @@ if (payButton && paymentAmountInput) {
         try {
             const response = await fetch('/api/request-payment', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: 200 })
             });
 
@@ -129,8 +128,10 @@ if (registrationForm) {
         const confirmPassword = confirmPasswordInput.value;
         const paymentConfirmation = paymentConfirmationInput.value.trim();
 
-        // Validate first and last names
+        // Validate names and passwords
         const namePattern = /^[A-Z][a-z]*$/;
+        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
+
         if (!namePattern.test(firstName)) {
             showAlert(document.getElementById('first-name'), "Invalid first name. It must start with a capital letter and contain only letters.", 'error');
             return;
@@ -141,8 +142,6 @@ if (registrationForm) {
             return;
         }
 
-        // Validate password complexity
-        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
         if (!passwordPattern.test(password)) {
             showAlert(passwordInput, "Password must be at least 6 characters long, contain both uppercase and lowercase letters, and at least one number.", 'error');
             return;
@@ -154,12 +153,9 @@ if (registrationForm) {
         }
 
         try {
-            // Verify the payment confirmation code with the server
             const response = await fetch('/api/verify-payment', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ paymentConfirmation })
             });
 
@@ -169,14 +165,12 @@ if (registrationForm) {
                 return;
             }
 
-            // Check if the email is already registered
             const signInMethods = await getAuth().fetchSignInMethodsForEmail(email);
             if (signInMethods.length > 0) {
                 showAlert(emailInput, "This email is already in use. Please use a different email or log in.", 'error');
                 return;
             }
 
-            // Register the user
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
@@ -192,8 +186,7 @@ if (registrationForm) {
 
             welcomeMessage.textContent = `Welcome, ${firstName}!`;
             localStorage.setItem('auth-state', 'loggedIn');
-            registrationContainer.style.display = 'none';
-            welcomeSection.style.display = 'block';
+            toggleAuthState('loggedIn');
         } catch (error) {
             console.error('Error registering user:', error);
             showAlert(emailInput, 'Registration failed. Please try again.', 'error');
@@ -213,74 +206,97 @@ if (loginForm) {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Update the user data with a "loggedIn" status
             await updateDoc(doc(db, 'users', user.uid), {
                 lastLogin: new Date()
             });
 
             localStorage.setItem('auth-state', 'loggedIn');
-            loginContainer.style.display = 'none';
-            welcomeSection.style.display = 'block';
+            toggleAuthState('loggedIn');
         } catch (error) {
             console.error('Error logging in:', error);
-            showAlert(loginPasswordInput, 'Login failed. Please check your email and password.', 'error');
+            showAlert(loginPasswordInput, 'Login failed. Please check your credentials and try again.', 'error');
         }
     });
 }
 
-// Handle file uploads
-if (uploadButton && fileInput) {
-    uploadButton.addEventListener('click', async () => {
-        const file = fileInput.files[0];
-        if (!file) {
-            statusMessage.textContent = 'No file selected.';
+// File upload handling
+function handleFiles(files) {
+    const filePreview = document.getElementById('file-preview');
+    filePreview.innerHTML = '';
+
+    for (let file of files) {
+        const fileURL = URL.createObjectURL(file);
+        const fileElement = document.createElement('img');
+        fileElement.src = fileURL;
+        filePreview.appendChild(fileElement);
+    }
+}
+
+const fileInput2 = document.getElementById('file-input');
+const dropZone = document.getElementById('drop-zone');
+const uploadForm = document.getElementById('upload-form');
+
+if (dropZone) {
+    dropZone.addEventListener('click', () => fileInput2.click());
+    dropZone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropZone.style.borderColor = '#25D366';
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = '#ccc');
+    dropZone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropZone.style.borderColor = '#ccc';
+        handleFiles(event.dataTransfer.files);
+    });
+}
+
+if (fileInput2) {
+    fileInput2.addEventListener('change', () => handleFiles(fileInput2.files));
+}
+
+if (uploadForm) {
+    uploadForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const viewsNumber = viewsCountInput.value;
+        const screenshotFile = fileInput2.files[0];
+
+        if (!screenshotFile) {
+            showAlert(fileInput2, 'Please upload a screenshot.', 'error');
             return;
         }
 
         try {
-            const storageRef = ref(storage, `screenshots/${file.name}`);
-            await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(storageRef);
-            statusMessage.textContent = 'File uploaded successfully.';
+            const storageRef = ref(storage, 'screenshots/' + screenshotFile.name);
+            await uploadBytes(storageRef, screenshotFile);
+            const fileUrl = await getDownloadURL(storageRef);
 
-            // Update the user profile with the uploaded file URL
-            const user = auth.currentUser;
-            if (user) {
-                await updateDoc(doc(db, 'users', user.uid), {
-                    screenshotURL: downloadURL
-                });
-            }
+            const data = { viewsNumber, screenshotUrl: fileUrl };
+            await fetch('/api/upload-screenshot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            showAlert(fileInput2, 'Screenshot uploaded successfully!', 'success');
+            viewsCountInput.value = '';
+            fileInput2.value = '';
         } catch (error) {
-            console.error('Error uploading file:', error);
-            statusMessage.textContent = 'Failed to upload file.';
+            console.error('Error uploading screenshot:', error);
+            showAlert(fileInput2, 'An error occurred while uploading the screenshot.', 'error');
         }
     });
 }
-
-// Display the correct form based on auth state
-document.addEventListener('DOMContentLoaded', () => {
-    const authState = localStorage.getItem('auth-state');
-    if (authState === 'login') {
-        registrationContainer.style.display = 'none';
-        loginContainer.style.display = 'block';
-    } else if (authState === 'register') {
-        loginContainer.style.display = 'none';
-        registrationContainer.style.display = 'block';
-    } else if (authState === 'loggedIn') {
-        registrationContainer.style.display = 'none';
-        loginContainer.style.display = 'none';
-        welcomeSection.style.display = 'block';
-    }
-});
 
 // Copy referral link to clipboard
 if (copyLinkButton) {
     copyLinkButton.addEventListener('click', () => {
         const referralLink = window.location.href + '?ref=' + auth.currentUser.uid;
         navigator.clipboard.writeText(referralLink).then(() => {
-            alert('Referral link copied to clipboard.');
+            showAlert(copyLinkButton, 'Referral link copied to clipboard.', 'success');
         }).catch(err => {
             console.error('Failed to copy referral link:', err);
+            showAlert(copyLinkButton, 'Failed to copy referral link.', 'error');
         });
     });
 }
@@ -292,145 +308,12 @@ function showAlert(element, message, type) {
     alertBox.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
     element.parentElement.appendChild(alertBox);
 
-    setTimeout(() => {
-        alertBox.remove();
-    }, 5000);
-    }
-            
-document.addEventListener("DOMContentLoaded", function() {
-    const showLoginButton = document.getElementById('show-login');
-    const showRegisterButton = document.getElementById('show-register');
-    const registerSection = document.getElementById('auth-section-register');
-    const loginSection = document.getElementById('auth-section-login');
+    setTimeout(() => alertBox.remove(), 5000);
+}
 
-    showLoginButton.addEventListener('click', function() {
-        registerSection.style.display = 'none';
-        loginSection.style.display = 'block';
-    });
-
-    showRegisterButton.addEventListener('click', function() {
-        registerSection.style.display = 'block';
-        loginSection.style.display = 'none';
-    });
-});
-
+// Initial form state based on auth status
 document.addEventListener('DOMContentLoaded', () => {
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const filePreview = document.getElementById('file-preview');
-    const uploadForm = document.getElementById('upload-form');
-
-    dropZone.addEventListener('click', () => {
-        fileInput.click();
-    });
-
-    dropZone.addEventListener('dragover', (event) => {
-        event.preventDefault();
-        dropZone.style.borderColor = '#25D366';
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.style.borderColor = '#ccc';
-    });
-
-    dropZone.addEventListener('drop', (event) => {
-        event.preventDefault();
-        dropZone.style.borderColor = '#ccc';
-        handleFiles(event.dataTransfer.files);
-    });
-
-    fileInput.addEventListener('change', () => {
-        handleFiles(fileInput.files);
-    });
-
-    function handleFiles(files) {
-        filePreview.innerHTML = '';
-        for (let file of files) {
-            const fileURL = URL.createObjectURL(file);
-            const fileElement = document.createElement('img');
-            fileElement.src = fileURL;
-            filePreview.appendChild(fileElement);
-        }
-    }
-
-    uploadForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const views = document.getElementById('views').value;
-        const file = fileInput.files[0];
-
-        if (!views || !file) {
-            alert('Please enter the number of views and select a screenshot.');
-            return;
-        }
-
-        // Create FormData object to send file and views number
-        const formData = new FormData();
-        formData.append('views', views);
-        formData.append('screenshot', file);
-
-        // Send the form data to the server (replace `YOUR_SERVER_ENDPOINT` with your endpoint)
-        fetch('YOUR_SERVER_ENDPOINT', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(result => {
-            alert('Screenshot uploaded successfully!');
-            filePreview.innerHTML = ''; // Clear preview
-            uploadForm.reset(); // Reset the form
-        })
-        .catch(error => {
-            console.error('Error uploading screenshot:', error);
-            alert('Error uploading screenshot. Please try again.');
-        });
-    });
-});
-
-// script.js
-document.addEventListener('DOMContentLoaded', () => {
-    const uploadForm = document.getElementById('upload-form');
-    const viewsNumberInput = document.getElementById('views-number');
-    const screenshotFileInput = document.getElementById('screenshot-file');
-    
-    uploadForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        
-        const viewsNumber = viewsNumberInput.value;
-        const screenshotFile = screenshotFileInput.files[0];
-
-        if (!screenshotFile) {
-            alert('Please upload a screenshot.');
-            return;
-        }
-
-        try {
-            const storageRef = firebase.storage().ref('screenshots/' + screenshotFile.name);
-            await storageRef.put(screenshotFile);
-
-            const fileUrl = await storageRef.getDownloadURL();
-
-            const data = {
-                viewsNumber: viewsNumber,
-                screenshotUrl: fileUrl
-            };
-
-            // Sending data to a backend server (replace with your backend URL)
-            await fetch('https://your-backend-url.com/upload', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            alert('Screenshot uploaded successfully!');
-            viewsNumberInput.value = '';
-            screenshotFileInput.value = '';
-
-        } catch (error) {
-            console.error('Error uploading screenshot:', error);
-            alert('An error occurred while uploading the screenshot.');
-        }
-    });
+    const authState = localStorage.getItem('auth-state');
+    toggleAuthState(authState || 'register');
 });
 
