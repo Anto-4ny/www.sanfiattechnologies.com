@@ -45,47 +45,45 @@ const fileInput = document.getElementById('view-screenshot');
 const statusMessage = document.getElementById('upload-status');
 const copyLinkButton = document.getElementById('copy-link-button');
 
-// Function to toggle between registration and login forms
-function toggleAuthSection(showLogin) {
-    if (showLogin) {
-        registrationContainer.style.display = 'none';
-        loginContainer.style.display = 'block';
-    } else {
-        loginContainer.style.display = 'none';
-        registrationContainer.style.display = 'block';
-    }
-}
-
 // Toggle between registration and login forms
 document.getElementById('show-login').addEventListener('click', (event) => {
     event.preventDefault();
-    toggleAuthSection(true);
+    localStorage.setItem('auth-state', 'login');
+    registrationContainer.style.display = 'none';
+    loginContainer.style.display = 'block';
 });
 
 document.getElementById('show-register').addEventListener('click', (event) => {
     event.preventDefault();
-    toggleAuthSection(false);
+    localStorage.setItem('auth-state', 'register');
+    loginContainer.style.display = 'none';
+    registrationContainer.style.display = 'block';
 });
 
 // Toggle password visibility
-function togglePasswordVisibility(input, toggle) {
-    toggle.addEventListener('click', () => {
-        const type = input.type === 'password' ? 'text' : 'password';
-        input.type = type;
-        toggle.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+if (togglePassword && passwordInput) {
+    togglePassword.addEventListener('click', () => {
+        const type = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = type;
+        togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
     });
 }
 
-if (togglePassword && passwordInput) {
-    togglePasswordVisibility(passwordInput, togglePassword);
-}
-
 if (toggleConfirmPassword && confirmPasswordInput) {
-    togglePasswordVisibility(confirmPasswordInput, toggleConfirmPassword);
+    toggleConfirmPassword.addEventListener('click', () => {
+        const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
+        confirmPasswordInput.type = type;
+        toggleConfirmPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+    });
 }
 
+// Toggle login password visibility
 if (toggleLoginPassword && loginPasswordInput) {
-    togglePasswordVisibility(loginPasswordInput, toggleLoginPassword);
+    toggleLoginPassword.addEventListener('click', () => {
+        const type = loginPasswordInput.type === 'password' ? 'text' : 'password';
+        loginPasswordInput.type = type;
+        toggleLoginPassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+    });
 }
 
 // Handle payment button click
@@ -193,7 +191,9 @@ if (registrationForm) {
             });
 
             welcomeMessage.textContent = `Welcome, ${firstName}!`;
+            localStorage.setItem('auth-state', 'loggedIn');
             registrationContainer.style.display = 'none';
+            loginContainer.style.display = 'none';
             welcomeSection.style.display = 'block';
         } catch (error) {
             console.error('Error during registration:', error);
@@ -207,84 +207,126 @@ if (loginForm) {
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const email = document.getElementById('login-email').value.trim();
+        const email = document.getElement
+                            const email = document.getElementById('login-email').value.trim();
         const password = loginPasswordInput.value;
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = '/dashboard.html'; // Redirect to dashboard or another page
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            localStorage.setItem('auth-state', 'loggedIn');
+            registrationContainer.style.display = 'none';
+            loginContainer.style.display = 'none';
+            welcomeSection.style.display = 'block';
         } catch (error) {
             console.error('Error during login:', error);
-            alert('Login failed. Please check your credentials and try again.');
+            alert('Login failed. Please check your email and password and try again.');
         }
     });
 }
 
-// File upload and views count
-if (uploadButton && fileInput && statusMessage) {
+// Handle file upload
+if (uploadButton && fileInput) {
     uploadButton.addEventListener('click', async () => {
-        const file = fileInput.files[0];
-        if (!file) {
+        const viewsCount = parseInt(viewsCountInput.value, 10);
+        if (isNaN(viewsCount) || viewsCount <= 0) {
+            alert("Please enter a valid number of views.");
+            return;
+        }
+
+        if (fileInput.files.length === 0) {
             alert("Please select a screenshot to upload.");
             return;
         }
 
+        const file = fileInput.files[0];
+        const storageRef = ref(storage, `screenshots/${file.name}`);
         try {
-            const storageRef = ref(storage, `screenshots/${file.name}`);
-            await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(storageRef);
+            const snapshot = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
 
-            // Assuming you want to save the download URL to Firestore
+            // Save the screenshot URL and views count to Firestore
             const user = auth.currentUser;
             if (user) {
-                const userDocRef = doc(db, "users", user.uid);
-                await updateDoc(userDocRef, {
-                    screenshotURL: downloadURL,
-                    views: parseInt(viewsCountInput.value, 10) || 0
+                await updateDoc(doc(db, 'users', user.uid), {
+                    views: viewsCount,
+                    screenshotURL: downloadURL
                 });
 
-                statusMessage.textContent = 'Screenshot uploaded successfully!';
+                statusMessage.textContent = 'Upload successful!';
+                viewsCountInput.value = '';
+                fileInput.value = '';
             } else {
-                statusMessage.textContent = 'User not logged in.';
+                alert('User not authenticated.');
             }
         } catch (error) {
-            console.error('Error uploading screenshot:', error);
-            statusMessage.textContent = 'Failed to upload screenshot.';
+            console.error('Error uploading file:', error);
+            statusMessage.textContent = 'Upload failed. Please try again.';
         }
     });
 }
 
-// Copy referral link
-copyLinkButton.addEventListener('click', () => {
-    const referralLink = `${window.location.origin}/referral?code=${auth.currentUser?.uid}`;
-    navigator.clipboard.writeText(referralLink).then(() => {
-        alert('Referral link copied to clipboard!');
-    }).catch((error) => {
-        console.error('Error copying referral link:', error);
-        alert('Failed to copy referral link.');
+// Copy referral link to clipboard
+if (copyLinkButton) {
+    copyLinkButton.addEventListener('click', () => {
+        const referralLink = document.getElementById('referral-link').textContent.trim();
+        if (referralLink) {
+            navigator.clipboard.writeText(referralLink)
+                .then(() => {
+                    alert('Referral link copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Error copying link:', err);
+                });
+        } else {
+            alert('No referral link available.');
+        }
     });
-});
+}
 
-// WhatsApp share button
-whatsappShareButton.addEventListener('click', () => {
-    const referralLink = `${window.location.origin}/referral?code=${auth.currentUser?.uid}`;
-    const whatsappURL = `https://wa.me/?text=Check%20out%20this%20awesome%20site%20${encodeURIComponent(referralLink)}`;
-    window.open(whatsappURL, '_blank');
-});
+// Share referral link on WhatsApp
+if (whatsappShareButton) {
+    whatsappShareButton.addEventListener('click', () => {
+        const referralLink = document.getElementById('referral-link').textContent.trim();
+        if (referralLink) {
+            const encodedLink = encodeURIComponent(referralLink);
+            whatsappShareButton.href = `https://api.whatsapp.com/send?text=${encodedLink}`;
+        } else {
+            alert('No referral link available to share.');
+        }
+    });
+}
 
-// Authentication state change listener
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // User is signed in, show the welcome message and referral section
-        welcomeMessage.textContent = `Welcome back, ${user.displayName || 'User'}!`;
+// Check auth state on page load
+window.addEventListener('load', () => {
+    const authState = localStorage.getItem('auth-state');
+
+    if (authState === 'loggedIn') {
         registrationContainer.style.display = 'none';
         loginContainer.style.display = 'none';
         welcomeSection.style.display = 'block';
+    } else if (authState === 'login') {
+        registrationContainer.style.display = 'none';
+        loginContainer.style.display = 'block';
     } else {
-        // No user is signed in, show registration and login forms
         registrationContainer.style.display = 'block';
         loginContainer.style.display = 'none';
         welcomeSection.style.display = 'none';
     }
+
+    // Listen for auth state changes
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            localStorage.setItem('auth-state', 'loggedIn');
+            registrationContainer.style.display = 'none';
+            loginContainer.style.display = 'none';
+            welcomeSection.style.display = 'block';
+        } else {
+            localStorage.setItem('auth-state', 'none');
+            registrationContainer.style.display = 'block';
+            loginContainer.style.display = 'none';
+            welcomeSection.style.display = 'none';
+        }
+    });
 });
-        
