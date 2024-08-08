@@ -95,3 +95,44 @@ app.post('/send-email', (req, res) => {
 // Start the server
 app.listen(3000, () => console.log('Server running on port 3000'));
          
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const nodemailer = require('nodemailer');
+
+const app = express();
+app.use(bodyParser.json());
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'your-email@gmail.com',
+        pass: 'your-email-password'
+    }
+});
+
+app.post('/upload', (req, res) => {
+    const { viewsNumber, screenshotUrl } = req.body;
+
+    const mailOptions = {
+        from: 'your-email@gmail.com',
+        to: 'antocaptechnologies@gmail.com',
+        subject: 'New Screenshot Upload',
+        text: `Number of Views: ${viewsNumber}\nScreenshot URL: ${screenshotUrl}`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error('Error sending email:', error);
+            res.status(500).send('Error sending email');
+        } else {
+            console.log('Email sent:', info.response);
+            res.status(200).send('Email sent successfully');
+        }
+    });
+});
+
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
+});
+
