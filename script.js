@@ -193,11 +193,10 @@ if (registrationForm) {
             welcomeMessage.textContent = `Welcome, ${firstName}!`;
             localStorage.setItem('auth-state', 'loggedIn');
             registrationContainer.style.display = 'none';
-            loginContainer.style.display = 'none';
             welcomeSection.style.display = 'block';
         } catch (error) {
-            console.error('Error during registration:', error);
-            showAlert(registrationForm, 'Registration failed. Please try again.', 'error');
+            console.error('Error registering user:', error);
+            showAlert(emailInput, 'Registration failed. Please try again.', 'error');
         }
     });
 }
@@ -211,45 +210,30 @@ if (loginForm) {
         const password = loginPasswordInput.value;
 
         try {
-            const userCredential = await sign
-                                                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Fetch user data from Firestore
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                document.getElementById('user-email').textContent = userData.email;
-                document.getElementById('referral-count').textContent = userData.referrals;
-                document.getElementById('total-views').textContent = userData.views;
-                document.getElementById('total-earnings').textContent = userData.earnings || 0;
-                
-                localStorage.setItem('auth-state', 'loggedIn');
-                registrationContainer.style.display = 'none';
-                loginContainer.style.display = 'none';
-                welcomeSection.style.display = 'block';
-            } else {
-                showAlert(loginForm, 'User data not found.', 'error');
-            }
+            // Update the user data with a "loggedIn" status
+            await updateDoc(doc(db, 'users', user.uid), {
+                lastLogin: new Date()
+            });
+
+            localStorage.setItem('auth-state', 'loggedIn');
+            loginContainer.style.display = 'none';
+            welcomeSection.style.display = 'block';
         } catch (error) {
-            console.error('Error during login:', error);
-            showAlert(loginForm, 'Login failed. Please check your email and password and try again.', 'error');
+            console.error('Error logging in:', error);
+            showAlert(loginPasswordInput, 'Login failed. Please check your email and password.', 'error');
         }
     });
 }
 
-// Handle file upload and views count
-if (uploadButton) {
+// Handle file uploads
+if (uploadButton && fileInput) {
     uploadButton.addEventListener('click', async () => {
-        const viewsCount = parseInt(viewsCountInput.value, 10);
-        if (isNaN(viewsCount) || viewsCount <= 0) {
-            showAlert(viewsCountInput, 'Please enter a valid number of views.', 'error');
-            return;
-        }
-
         const file = fileInput.files[0];
         if (!file) {
-            showAlert(fileInput, 'Please select a screenshot to upload.', 'error');
+            statusMessage.textContent = 'No file selected.';
             return;
         }
 
@@ -257,197 +241,59 @@ if (uploadButton) {
             const storageRef = ref(storage, `screenshots/${file.name}`);
             await uploadBytes(storageRef, file);
             const downloadURL = await getDownloadURL(storageRef);
+            statusMessage.textContent = 'File uploaded successfully.';
 
-            // Update user data in Firestore
+            // Update the user profile with the uploaded file URL
             const user = auth.currentUser;
             if (user) {
                 await updateDoc(doc(db, 'users', user.uid), {
-                    views: viewsCount,
                     screenshotURL: downloadURL
                 });
-                
-                statusMessage.textContent = 'Screenshot uploaded successfully.';
-                statusMessage.style.color = 'green';
-                viewsCountInput.value = '';
-                fileInput.value = '';
-            } else {
-                showAlert(uploadButton, 'You must be logged in to upload screenshots.', 'error');
             }
         } catch (error) {
             console.error('Error uploading file:', error);
-            showAlert(uploadButton, 'Failed to upload screenshot. Please try again.', 'error');
+            statusMessage.textContent = 'Failed to upload file.';
         }
     });
 }
+
+// Display the correct form based on auth state
+document.addEventListener('DOMContentLoaded', () => {
+    const authState = localStorage.getItem('auth-state');
+    if (authState === 'login') {
+        registrationContainer.style.display = 'none';
+        loginContainer.style.display = 'block';
+    } else if (authState === 'register') {
+        loginContainer.style.display = 'none';
+        registrationContainer.style.display = 'block';
+    } else if (authState === 'loggedIn') {
+        registrationContainer.style.display = 'none';
+        loginContainer.style.display = 'none';
+        welcomeSection.style.display = 'block';
+    }
+});
 
 // Copy referral link to clipboard
 if (copyLinkButton) {
     copyLinkButton.addEventListener('click', () => {
-        const referralLink = document.getElementById('referral-link').textContent;
+        const referralLink = window.location.href + '?ref=' + auth.currentUser.uid;
         navigator.clipboard.writeText(referralLink).then(() => {
-            showAlert(copyLinkButton, 'Referral link copied to clipboard!', 'success');
+            alert('Referral link copied to clipboard.');
         }).catch(err => {
-            console.error('Error copying link:', err);
-            showAlert(copyLinkButton, 'Failed to copy referral link.', 'error');
+            console.error('Failed to copy referral link:', err);
         });
     });
 }
 
-// Show alerts in the appropriate boxes
+// Show alerts for input validation
 function showAlert(element, message, type) {
-    const alertBox = document.createElement('p');
+    const alertBox = document.createElement('div');
     alertBox.textContent = message;
-    alertBox.style.color = type === 'success' ? 'green' : 'red';
-    alertBox.style.fontSize = 'small';
-    element.parentElement.insertBefore(alertBox, element.nextSibling);
+    alertBox.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
+    element.parentElement.appendChild(alertBox);
+
     setTimeout(() => {
         alertBox.remove();
     }, 5000);
-}
-
-// Initialize the application state
-document.addEventListener('DOMContentLoaded', () => {
-    const authState = localStorage.getItem('auth-state');
-    if (authState === 'loggedIn') {
-        registrationContainer.style.display = 'none';
-        loginContainer.style.display = 'none';
-        welcomeSection.style.display = 'block';
-    } else if (authState === 'register') {
-        registrationContainer.style.display = 'block';
-        loginContainer.style.display = 'none';
-    } else {
-        registrationContainer.style.display = 'block';
-        loginContainer.style.display = 'none';
     }
-});
-
-
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    const payButtons = document.querySelectorAll('.pay-button');
-
-    payButtons.forEach(button => {
-        button.addEventListener('click', async () => {
-            const packageType = button.getAttribute('data-package');
-            const amount = getPackageAmount(packageType);
-
-            try {
-                const response = await fetch('/api/request-payment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ amount })
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    alert('Payment request sent. Please check your phone to complete the payment.');
-                } else {
-                    alert('Payment request failed. Please try again.');
-                }
-            } catch (error) {
-                console.error('Error sending payment request:', error);
-                alert('An error occurred. Please try again.');
-            }
-        });
-    });
-});
-
-function getPackageAmount(packageType) {
-    switch(packageType) {
-        case 'basic': return 500;
-        case 'standard': return 1000;
-        case 'premium': return 2000;
-        default: return 0;
-    }
-}
-
-// Generate referral link for a given package
-function generateReferralLink(packageName) {
-    const baseUrl = window.location.href.split('?')[0];
-    return `${baseUrl}?package=${packageName}`;
-}
-
-// Set referral link and copy to clipboard functionality
-function setReferralLinks() {
-    const packageNames = ['basic', 'standard', 'premium', 'ultimate'];
-    packageNames.forEach(packageName => {
-        const referralLink = generateReferralLink(packageName);
-        document.getElementById(`${packageName}-referral-link`).textContent = referralLink;
-    });
-}
-
-// Copy referral link to clipboard
-function copyReferralLink(packageName) {
-    const referralLink = generateReferralLink(packageName);
-    navigator.clipboard.writeText(referralLink).then(() => {
-        alert('Referral link copied to clipboard!');
-    }, (err) => {
-        console.error('Failed to copy link: ', err);
-    });
-}
-
-// Initialize the referral links on page load
-window.onload = function() {
-    setReferralLinks();
-    
-    // Check if user is logged in
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            // Show the welcome section and dashboard
-            document.getElementById('welcome-section').style.display = 'block';
-            document.getElementById('auth-section-register').style.display = 'none';
-            document.getElementById('auth-section-login').style.display = 'none';
-
-            // Fetch user data and update dashboard
-            const userId = user.uid;
-            const db = firebase.firestore();
-            const userDoc = db.collection('users').doc(userId);
-
-            userDoc.get().then(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById('user-email').textContent = data.email;
-                    document.getElementById('referral-count').textContent = data.referrals || 0;
-                    document.getElementById('total-views').textContent = data.totalViews || 0;
-                    document.getElementById('total-earnings').textContent = data.totalEarnings || 0;
-                    document.getElementById('amount-paid').textContent = data.amountPaid || 0;
-                }
-            }).catch(error => {
-                console.error('Error fetching user data: ', error);
-            });
-        } else {
-            // User is not logged in
-            document.getElementById('welcome-section').style.display = 'none';
-            document.getElementById('auth-section-register').style.display = 'block';
-            document.getElementById('auth-section-login').style.display = 'block';
-        }
-    });
-};
-
-// Request payment
-function requestPayment(packageName) {
-    // Call your server to initiate payment request
-    fetch(`/api/request-payment`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ package: packageName })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Payment request initiated. Please check your MPESA for further instructions.');
-        } else {
-            alert('Failed to initiate payment. Please try again.');
-        }
-    })
-    .catch(error => {
-        console.error('Error initiating payment:', error);
-    });
-}
-
+            
