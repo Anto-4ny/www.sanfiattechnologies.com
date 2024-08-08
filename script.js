@@ -320,4 +320,49 @@ document.addEventListener('DOMContentLoaded', () => {
         loginContainer.style.display = 'none';
     }
 });
-        
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const payButtons = document.querySelectorAll('.pay-button');
+
+    payButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+            const packageType = button.getAttribute('data-package');
+            const amount = getPackageAmount(packageType);
+
+            try {
+                const response = await fetch('/api/request-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ amount })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Payment request sent. Please check your phone to complete the payment.');
+                } else {
+                    alert('Payment request failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error sending payment request:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+});
+
+function getPackageAmount(packageType) {
+    switch(packageType) {
+        case 'basic': return 500;
+        case 'standard': return 1000;
+        case 'premium': return 2000;
+        default: return 0;
+    }
+}
+
+
