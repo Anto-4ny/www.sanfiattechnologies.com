@@ -386,3 +386,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// script.js
+document.addEventListener('DOMContentLoaded', () => {
+    const uploadForm = document.getElementById('upload-form');
+    const viewsNumberInput = document.getElementById('views-number');
+    const screenshotFileInput = document.getElementById('screenshot-file');
+    
+    uploadForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        const viewsNumber = viewsNumberInput.value;
+        const screenshotFile = screenshotFileInput.files[0];
+
+        if (!screenshotFile) {
+            alert('Please upload a screenshot.');
+            return;
+        }
+
+        try {
+            const storageRef = firebase.storage().ref('screenshots/' + screenshotFile.name);
+            await storageRef.put(screenshotFile);
+
+            const fileUrl = await storageRef.getDownloadURL();
+
+            const data = {
+                viewsNumber: viewsNumber,
+                screenshotUrl: fileUrl
+            };
+
+            // Sending data to a backend server (replace with your backend URL)
+            await fetch('https://your-backend-url.com/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            alert('Screenshot uploaded successfully!');
+            viewsNumberInput.value = '';
+            screenshotFileInput.value = '';
+
+        } catch (error) {
+            console.error('Error uploading screenshot:', error);
+            alert('An error occurred while uploading the screenshot.');
+        }
+    });
+});
+
