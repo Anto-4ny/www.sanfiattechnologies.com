@@ -469,44 +469,44 @@ button:hover {
 #upload-button:hover {
     background-color: #1da851;
 }
-
-/* General footer styling */
-footer {
-    background-color: #f8f9fa; /* Light gray background */
-    border-top: 1px solid #ddd; /* Border at the top */
-    padding: 10px 0; /* Padding for top and bottom */
-}
-
 .footer {
     display: flex;
-    flex-direction: column; /* Stack items vertically */
-    align-items: center; /* Center items horizontally */
-    justify-content: center; /* Center items vertically */
+    justify-content: space-around; /* Adjust alignment as needed */
+    background-color: #fff; /* Footer background color */
+    padding: 10px 0; /* Padding around the footer */
+    border-top: 1px solid #ddd; /* Top border for the footer */
 }
 
 .footer-item {
-    margin: 10px 0; /* Space between footer items */
-    text-align: center; /* Center align text */
+    text-align: center; /* Center align text and icons */
+}
+
+.footer-icon {
+    width: 24px; /* Set a fixed width for icons */
+    height: 24px; /* Set a fixed height for icons */
+    margin-bottom: 5px; /* Space between icon and text */
 }
 
 .footer-item a {
     text-decoration: none;
-    color: #333; /* Dark text color */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 14px; /* Font size for text */
+    color: #000; /* Color for the text */
 }
 
-.footer-item i {
-    font-size: 24px; /* Icon size */
-    margin-bottom: 5px; /* Space between icon and text */
-    color: black; /* Icon color */
+.footer-item a:hover {
+    color: #007bff; /* Change color on hover */
 }
 
-.footer-item span {
-    display: block;
+@media (max-width: 768px) {
+    .footer {
+        flex-direction: column; /* Stack items vertically on small screens */
+        align-items: center; /* Center items */
+    }
+
+    .footer-item {
+        margin-bottom: 10px; /* Space between items */
+    }
 }
+
 
 .Button {
     text-align: center;
