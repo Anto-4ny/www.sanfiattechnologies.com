@@ -31,6 +31,7 @@ nav {
 /* Hide desktop navigation on smaller screens */
 .desktop-nav {
     display: flex;
+    gap: 15px;
 }
 
 .mobile-nav {
@@ -49,7 +50,7 @@ nav {
     cursor: pointer;
 }
 
-/* Show hamburger menu and hide desktop menu on small screens */
+/* Hide desktop navigation on smaller screens */
 @media (max-width: 768px) {
     .desktop-nav {
         display: none; /* Hide desktop navigation */
@@ -57,10 +58,14 @@ nav {
 
     .hamburger-menu {
         display: block; /* Show hamburger menu */
+        background: none;
+        border: none;
+        font-size: 50px; /* Adjust icon size */
+        cursor: pointer;
     }
 
     .mobile-nav {
-        display: flex;
+        display: none; /* Hide mobile navigation by default */
         flex-direction: column;
         position: absolute;
         top: 60px; /* Adjust based on header height */
@@ -77,13 +82,19 @@ nav {
         padding: 10px;
         text-align: center;
         display: block;
+        color: #000; /* Text color */
+        text-decoration: none;
+    }
+
+    .mobile-nav a:hover {
+        background-color: #f1f1f1; /* Background color on hover */
     }
 }
+
 /* Mobile menu visibility */
 .mobile-nav.show {
     display: flex; /* Show mobile menu */
 }
-
 
 main {
     padding: 20px;
