@@ -22,6 +22,17 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 const analytics = getAnalytics(app);
 
+document.addEventListener('DOMContentLoaded', () => {
+    const hamburgerIcon = document.getElementById('hamburger-icon');
+    const mobileNav = document.getElementById('mobile-nav');
+
+    hamburgerIcon.addEventListener('click', () => {
+        // Toggle the mobile navigation menu
+        mobileNav.classList.toggle('show');
+    });
+});
+
+
 // Form Elements
 const registrationForm = document.getElementById('registration-form');
 const togglePassword = document.getElementById('toggle-password');
