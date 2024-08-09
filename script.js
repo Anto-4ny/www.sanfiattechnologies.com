@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore, doc, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
@@ -178,9 +178,9 @@ if (registrationForm) {
                 return;
             }
 
-            const signInMethods = await getAuth().fetchSignInMethodsForEmail(email);
+            const signInMethods = await auth.fetchSignInMethodsForEmail(email);
             if (signInMethods.length > 0) {
-                showAlert(emailInput, "This email is already in use. Please use a different email or log in.", 'error');
+                showAlert(document.getElementById('email'), "This email is already in use. Please use a different email or log in.", 'error');
                 return;
             }
 
@@ -218,7 +218,7 @@ if (loginForm) {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             localStorage.setItem('auth-state', 'loggedIn');
-            toggleAuthState('loggedIn');
+                        toggleAuthState('loggedIn');
         } catch (error) {
             console.error('Error logging in:', error);
             showAlert(loginPasswordInput, 'Login failed. Please check your email and password.', 'error');
@@ -263,5 +263,5 @@ function showAlert(inputElement, message, type) {
         newAlert.style.color = type === 'success' ? 'green' : 'red';
         inputElement.parentElement.appendChild(newAlert);
     }
-                         }
-                
+}
+
