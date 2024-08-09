@@ -105,7 +105,7 @@ input {
 }
 
 button {
-    background-color: #333;
+    background-color: #25D366;
     color: white;
     padding: 10px;
     border: none;
@@ -114,7 +114,7 @@ button {
 }
 
 button:hover {
-    background-color: #555;
+    background-color: #1e8e4f;
 }
 #auth-section p, #auth-section a {
         text-align: center;
@@ -141,24 +141,25 @@ button:hover {
 
 .password-container .eye-icon {
     position: absolute;
-    right: 10px; /* Adjust this value to position the icon properly */
+    right: 20px; 
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    font-size: 18px; /* Adjust the size if necessary */
-    color: #333; /* Adjust the color if necessary */
+    font-size: 18px; 
+    color: #333; 
 }
 
 
     #login-form-container, #welcome-section {
-        display: none; /* Hide both containers initially */
+        display: none; 
     }
 
     #welcome-section {
-        display: none; /* Show this section only after login */
+        display: none; 
     }
 .copyright-text {
     color: white;
+    text-align: center;
 }
 
 /* Packages Section */
