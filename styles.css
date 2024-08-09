@@ -507,7 +507,6 @@ button:hover {
     }
 }
 
-
 .Button {
     text-align: center;
     margin-top: 10px; /* Space above button */
@@ -529,15 +528,16 @@ button:hover {
 
 /* Responsive styling for mobile phones */
 @media (max-width: 600px) {
-    .footer-item i {
-        font-size: 24px; /* Ensure icon size is consistent on mobile */
+    .footer-icon {
+        width: 20px; /* Adjust icon size if needed */
+        height: 20px; /* Adjust icon size if needed */
     }
 
     .footer-item span {
-        font-size: 14px; /* Adjust font size if needed */
+        font-size: 12px; /* Adjust font size if needed */
     }
 
     .post-btn i {
-        font-size: 24px; /* Ensure icon size is consistent on mobile */
+        font-size: 20px; /* Adjust icon size if needed */
     }
 }
