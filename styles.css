@@ -435,11 +435,13 @@ footer {
 
 .footer {
     display: flex;
-    justify-content: space-around; /* Space out items evenly */
-    align-items: center; /* Center items vertically */
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
 }
 
 .footer-item {
+    margin: 10px 0; /* Space between footer items */
     text-align: center; /* Center align text */
 }
 
@@ -482,12 +484,11 @@ footer {
 
 /* Responsive styling */
 @media (max-width: 600px) {
-    .footer {
-        flex-direction: column;
+    .footer-item {
+        font-size: 16px; /* Increase font size for small screens */
     }
 
-    .footer-item {
-        margin-bottom: 10px; /* Space between footer items */
+    .post-btn i {
+        font-size: 28px; /* Increase icon size for small screens */
     }
 }
-
