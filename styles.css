@@ -7,39 +7,83 @@ body {
     background-repeat: no-repeat;
 }
 
-
+/* General header styling */
 header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     padding: 10px;
-    background-color: #25D366;
-    color: white;
-    position: sticky;
+    background-color: #fff; /* Header background color */
+    border-bottom: 1px solid #ddd; /* Bottom border */
 }
 
+/* Logo styling */
 #logo {
-    height: 50px; /* Adjust size as needed */
-    width: auto; /* Maintain aspect ratio */
+    height: 50px; /* Adjust height as needed */
 }
 
-
-nav a {
-    color: white;
-    margin: 0 15px;
-    text-decoration: none;
+/* Navigation styling */
+nav {
+    display: flex;
+    gap: 15px;
 }
-@media (max-width: 600px) {
-    nav {
+
+/* Hide desktop navigation on smaller screens */
+.desktop-nav {
+    display: flex;
+}
+
+.mobile-nav {
+    display: none; /* Hide mobile navigation by default */
+}
+
+/* Hamburger menu styling */
+.hamburger-menu {
+    display: none; /* Hide hamburger menu by default */
+}
+
+#hamburger-icon {
+    background: none;
+    border: none;
+    font-size: 24px; /* Adjust icon size as needed */
+    cursor: pointer;
+}
+
+/* Show hamburger menu and hide desktop menu on small screens */
+@media (max-width: 768px) {
+    .desktop-nav {
+        display: none; /* Hide desktop navigation */
+    }
+
+    .hamburger-menu {
+        display: block; /* Show hamburger menu */
+    }
+
+    .mobile-nav {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        position: absolute;
+        top: 60px; /* Adjust based on header height */
+        right: 10px; /* Adjust position as needed */
+        background-color: #fff; /* Background color for mobile menu */
+        border: 1px solid #ddd; /* Border for mobile menu */
+        border-radius: 4px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Shadow for mobile menu */
+        z-index: 1000; /* Ensure menu is above other content */
     }
 
-    nav a {
-        margin: 10px 0;
+    .mobile-nav a {
+        padding: 10px;
+        text-align: center;
+        display: block;
     }
 }
+/* Mobile menu visibility */
+.mobile-nav.show {
+    display: flex; /* Show mobile menu */
+}
+
 
 main {
     padding: 20px;
