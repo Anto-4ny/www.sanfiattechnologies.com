@@ -475,6 +475,11 @@ button:hover {
     background-color: #fff; /* Footer background color */
     padding: 10px 0; /* Padding around the footer */
     border-top: 1px solid #ddd; /* Top border for the footer */
+    position: fixed; /* Fixed position */
+    bottom: 0; /* Stick to the bottom */
+    left: 0; /* Align to the left edge */
+    width: 100%; /* Full width */
+    z-index: 1000; /* Ensure it stays on top of other elements */
 }
 
 .footer-item {
