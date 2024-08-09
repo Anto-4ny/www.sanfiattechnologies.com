@@ -45,7 +45,7 @@ nav {
 #hamburger-icon {
     background: none;
     border: none;
-    font-size: 24px; /* Adjust icon size as needed */
+    font-size: 50px; /* Adjust icon size as needed */
     cursor: pointer;
 }
 
@@ -490,8 +490,8 @@ button:hover {
 }
 
 .footer-icon {
-    width: 50px; /* Set a fixed width for icons */
-    height: 50px; /* Set a fixed height for icons */
+    width: 40px; /* Set a fixed width for icons */
+    height: 40px; /* Set a fixed height for icons */
     margin-bottom: 5px; /* Space between icon and text */
 }
 
@@ -540,8 +540,8 @@ button:hover {
 /* Responsive styling for mobile phones */
 @media (max-width: 600px) {
     .footer-icon {
-        width: 50px; /* Adjust icon size if needed */
-        height: 50px; /* Adjust icon size if needed */
+        width: 40px; /* Adjust icon size if needed */
+        height: 40px; /* Adjust icon size if needed */
     }
 
     .footer-item span {
