@@ -484,17 +484,23 @@ button:hover {
 
 .footer-item {
     text-align: center; /* Center align text and icons */
+    display: flex;
+    flex-direction: row; /* Stack icon above text */
+    align-items: center; /* Center align items horizontally */
 }
 
 .footer-icon {
-    width: 24px; /* Set a fixed width for icons */
-    height: 24px; /* Set a fixed height for icons */
+    width: 50px; /* Set a fixed width for icons */
+    height: 50px; /* Set a fixed height for icons */
     margin-bottom: 5px; /* Space between icon and text */
 }
 
 .footer-item a {
     text-decoration: none;
     color: #000; /* Color for the text */
+    display: flex;
+    flex-direction: column; /* Stack icon above text */
+    align-items: center; /* Center align items horizontally */
 }
 
 .footer-item a:hover {
@@ -534,8 +540,8 @@ button:hover {
 /* Responsive styling for mobile phones */
 @media (max-width: 600px) {
     .footer-icon {
-        width: 20px; /* Adjust icon size if needed */
-        height: 20px; /* Adjust icon size if needed */
+        width: 50px; /* Adjust icon size if needed */
+        height: 50px; /* Adjust icon size if needed */
     }
 
     .footer-item span {
