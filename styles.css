@@ -426,29 +426,68 @@ button:hover {
     background-color: #1da851;
 }
 
+/* General footer styling */
+footer {
+    background-color: #f8f9fa; /* Light gray background */
+    border-top: 1px solid #ddd; /* Border at the top */
+    padding: 10px 0; /* Padding for top and bottom */
+}
+
 .footer {
     display: flex;
-    justify-content: space-around;
-    padding: 10px;
-    background: #fff;
-    border-top: 1px solid #ddd;
-    position: fixed;
+    justify-content: space-around; /* Space out items evenly */
+    align-items: center; /* Center items vertically */
+}
+
+.footer-item {
+    text-align: center; /* Center align text */
 }
 
 .footer-item a {
     text-decoration: none;
-    color: #333;
+    color: #333; /* Dark text color */
     display: flex;
     flex-direction: column;
     align-items: center;
+    font-size: 14px; /* Font size for text */
 }
 
 .footer-item i {
-    font-size: 24px;
+    font-size: 20px; /* Icon size */
+    margin-bottom: 5px; /* Space between icon and text */
+    color: #007bff; /* Icon color */
 }
 
 .footer-item span {
-    font-size: 12px;
+    display: block;
+}
+
+.Button {
+    text-align: center;
+    margin-top: 10px; /* Space above button */
+}
+
+.post-btn {
+    display: inline-block;
+    background-color: #007bff; /* Button background color */
+    border-radius: 50%; /* Circular button */
+    padding: 10px;
+    color: white; /* Text color */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+.post-btn i {
+    font-size: 24px; /* Icon size */
+}
+
+/* Responsive styling */
+@media (max-width: 600px) {
+    .footer {
+        flex-direction: column;
     }
 
+    .footer-item {
+        margin-bottom: 10px; /* Space between footer items */
+    }
+}
 
