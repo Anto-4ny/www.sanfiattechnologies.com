@@ -69,11 +69,11 @@ main {
 /* Responsive styling */
 @media (max-width: 600px) {
     .welcome-box {
-        padding: 15px;
+        padding: 10px;
     }
 
     .welcome-box h1 {
-        font-size: 15px;
+        font-size: 20px;
     }
 
     .welcome-box p {
@@ -135,7 +135,7 @@ button:hover {
 
 .password-container input {
     width: 100%;
-    padding-right: 30px; /* Adjust this value to make space for the icon */
+    padding-right: 25px; /* Adjust this value to make space for the icon */
     box-sizing: border-box;
 }
 
