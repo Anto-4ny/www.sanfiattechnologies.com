@@ -455,9 +455,9 @@ footer {
 }
 
 .footer-item i {
-    font-size: 20px; /* Icon size */
+    font-size: 24px; /* Icon size */
     margin-bottom: 5px; /* Space between icon and text */
-    color: #007bff; /* Icon color */
+    color: black; /* Icon color */
 }
 
 .footer-item span {
@@ -480,15 +480,20 @@ footer {
 
 .post-btn i {
     font-size: 24px; /* Icon size */
+    color: white; /* Icon color */
 }
 
-/* Responsive styling */
+/* Responsive styling for mobile phones */
 @media (max-width: 600px) {
-    .footer-item {
-        font-size: 16px; /* Increase font size for small screens */
+    .footer-item i {
+        font-size: 24px; /* Ensure icon size is consistent on mobile */
+    }
+
+    .footer-item span {
+        font-size: 14px; /* Adjust font size if needed */
     }
 
     .post-btn i {
-        font-size: 28px; /* Increase icon size for small screens */
+        font-size: 24px; /* Ensure icon size is consistent on mobile */
     }
 }
