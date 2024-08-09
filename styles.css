@@ -6,7 +6,8 @@ body {
     background-position: center;
     background-repeat: no-repeat;
 }
- /* General header styling */
+
+/* General header styling */
 header {
     display: flex;
     justify-content: space-between;
@@ -20,6 +21,7 @@ header {
 /* Logo styling */
 #logo {
     height: 50px; /* Adjust height as needed */
+    cursor: pointer; /* Pointer cursor to indicate it's clickable */
 }
 
 /* Desktop navigation styling */
@@ -46,13 +48,14 @@ header {
 /* Hamburger menu styling */
 .hamburger-menu {
     display: none; /* Hide hamburger menu by default */
-}
-
-#hamburger-icon {
     background: none;
     border: none;
-    font-size: 50px; /* Adjust icon size as needed */
     cursor: pointer;
+}
+
+#hamburger-icon img {
+    width: 50px; /* Adjust size of hamburger icon */
+    height: 50px; /* Adjust size of hamburger icon */
 }
 
 /* Responsive styling for smaller screens */
