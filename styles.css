@@ -498,7 +498,7 @@ button:hover {
 
 @media (max-width: 768px) {
     .footer {
-        flex-direction: column; /* Stack items vertically on small screens */
+        flex-direction: row; /* Stack items vertically on small screens */
         align-items: center; /* Center items */
     }
 
