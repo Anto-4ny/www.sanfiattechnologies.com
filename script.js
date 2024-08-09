@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const registrationForm = document.getElementById('registration-form');
     const loginForm = document.getElementById('login-form');
     const fileInput = document.getElementById('view-screenshot');
+    const uploadButton = document.getElementById('upload-button');
     const referralLinkButton = document.getElementById('copy-referral-link');
     const whatsappShareButton = document.getElementById('whatsapp-share');
     const packageContainers = document.querySelectorAll('.package-container');
@@ -71,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Login form not found");
     }
 
-    if (fileInput) {
-        document.getElementById('upload-button').addEventListener('click', handleFileUpload);
+    if (fileInput && uploadButton) {
+        uploadButton.addEventListener('click', handleFileUpload);
     } else {
         console.error("File input or upload button not found");
     }
@@ -292,5 +293,5 @@ function shareOnWhatsApp() {
     const message = encodeURIComponent(`Check out this referral link: ${referralLink}`);
     window.open(`https://wa.me/?text=${message}`, '_blank');
     console.log("Shared on WhatsApp");
-                          }
-    
+        }
+                          
