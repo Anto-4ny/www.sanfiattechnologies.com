@@ -98,8 +98,8 @@
     <h1>Welcome to Your Dashboard</h1>
     <p>To start uploading screenshots of your WhatsApp status views and track your earnings,
         you need to refer at least 10 people. Each referred person must pay the registration 
-        fee to be eligible. Once you have 10 referrals, a product will be send to every day 
-        and you will be rewto post it on your WhatsApp status and submit views after  24 Hours.
+        fee to be eligible. Once you have 10 referrals, a product will be send to you every day 
+        and you will be required to post it on your WhatsApp status and submit views after  24 Hours.
         It will then be reviewed and feedback send after some time. Enjoy earning from your status views.</p>
                 </section>
                 
@@ -156,12 +156,18 @@
                 <h2 style="color: white;">Purchase Status Views</h2>
                 <section class="packages-info-box">
     <h1>Available Packages</h1>
-    <p>Choose a package to start getting products to post on your WhatsApp status and begin earning from status views. Each package offers different levels of access and earnings. Select the package that best suits your needs:</p>
+    <p>Choose a package to start getting products to post on your WhatsApp status and 
+        begin earning from status views. Each package offers different levels of access
+        and earnings. Select the package that best suits your needs:</p>
     <ul>
         <li><strong>Basic:</strong> Purchase for Ksh 500. Pay Ksh 5 per view.</li>
-        <li><strong>Advanced:</strong> Purchase for Ksh 1000. Pay Ksh 10 per view.</li>
+        <button class="pay-button" onclick="requestPayment('basic')" aria-label="Pay for Basic Package via MPESA">Pay via MPESA</button>
+        <li><strong>Standard:</strong> Purchase for Ksh 1000. Pay Ksh 10 per view.</li>
+        <button class="pay-button" onclick="requestPayment('standard')" aria-label="Pay for Standard Package via MPESA">Pay via MPESA</button>
         <li><strong>Premium:</strong> Purchase for Ksh 2000. Pay Ksh 15 per view.</li>
+        <button class="pay-button" onclick="requestPayment('premium')" aria-label="Pay for Premium Package via MPESA">Pay via MPESA</button>
         <li><strong>Ultimate:</strong> Purchase for Ksh 4000. Pay Ksh 25 per view.</li>
+        <button class="pay-button" onclick="requestPayment('ultimate')" aria-label="Pay for Ultimate Package via MPESA">Pay via MPESA</button>
     </ul>
     <p>Select a package and make the payment to get started!</p>
                 </section>
