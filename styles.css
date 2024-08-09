@@ -54,8 +54,8 @@ header {
 }
 
 #hamburger-icon img {
-    width: 50px; /* Adjust size of hamburger icon */
-    height: 50px; /* Adjust size of hamburger icon */
+    width: 40px; /* Adjust size of hamburger icon */
+    height: 40px; /* Adjust size of hamburger icon */
 }
 
 /* Responsive styling for smaller screens */
