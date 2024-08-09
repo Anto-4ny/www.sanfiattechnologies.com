@@ -94,6 +94,7 @@ form {
 label {
     display: block;
     margin-bottom: 5px;
+    padding-right: 25px; 
 }
 
 input {
@@ -102,7 +103,6 @@ input {
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    padding-right: 25px; 
 }
 
 button {
@@ -119,13 +119,13 @@ button:hover {
 }
 #auth-section p, #auth-section a {
         text-align: center;
-            margin-top: 10px;
+        margin-top: 10px;
             }
 
-            a {
-                color: #333;
-                    text-decoration: none;
-              }
+    a {
+      color: #333;
+      text-decoration: none;
+     }
 }
 
 .password-container {
