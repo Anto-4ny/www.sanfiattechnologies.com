@@ -2,13 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
 app.use(bodyParser.json());
 
 // MPESA Configuration
-const TILL_NUMBER = process.env.TILL_NUMBER;
+const PAYBILL_NUMBER = process.env.PAYBILL_NUMBER;
 const CONSUMER_KEY = process.env.CONSUMER_KEY;
 const CONSUMER_SECRET = process.env.CONSUMER_SECRET;
 const MPESA_BASE_URL = 'https://sandbox.safaricom.co.ke'; // Use the live URL for production
@@ -32,24 +33,32 @@ async function getOAuthToken() {
   return response.data.access_token;
 }
 
+// Function to get the password for the STK Push request
+function getPassword(shortcode, passkey, timestamp) {
+  const dataToEncode = shortcode + passkey + timestamp;
+  return Buffer.from(dataToEncode).toString('base64');
+}
+
 // Endpoint to initiate payment request
 app.post('/api/request-payment', async (req, res) => {
   try {
     const token = await getOAuthToken();
-    const { amount, phoneNumber } = req.body;
+    const { amount, phoneNumber, accountReference } = req.body; // Account reference required for Paybill
+    const timestamp = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 14);
+    const password = getPassword(PAYBILL_NUMBER, 'your_mpesa_passkey', timestamp); // Replace 'your_mpesa_passkey' with your actual passkey
 
     const response = await axios.post(`${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`, {
-      BusinessShortCode: TILL_NUMBER,
-      Password: 'your_encoded_password', // Encode based on MPESA requirements
-      Timestamp: new Date().toISOString().replace(/[-:.]/g, '').slice(0, 14), // Format the timestamp as needed
-      TransactionType: 'CustomerPayBillOnline',
+      BusinessShortCode: PAYBILL_NUMBER,
+      Password: password,
+      Timestamp: timestamp,
+      TransactionType: 'CustomerPayBillOnline', // Paybill transaction type
       Amount: amount,
       PartyA: phoneNumber, // Customer's phone number
-      PartyB: TILL_NUMBER,
+      PartyB: PAYBILL_NUMBER,
       PhoneNumber: phoneNumber,
-      CallBackURL: 'your_callback_url',
-      AccountReference: 'account_reference',
-      TransactionDesc: 'transaction_description'
+      CallBackURL: 'your_callback_url', // Replace 'your_callback_url' with your actual callback URL
+      AccountReference: accountReference, // Customer's account reference
+      TransactionDesc: 'transaction_description' // Provide a description for the transaction
     }, {
       headers: {
         'Authorization': `Bearer ${token}`
