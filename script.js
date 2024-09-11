@@ -21,124 +21,111 @@ document.addEventListener('DOMContentLoaded', () => {
     const storage = getStorage(app);
     const analytics = getAnalytics(app);
 
-                        
-const loginSection = document.getElementById('login-section');
-            const signupSection = document.getElementById('signup-section');
-            const showSignupButton = document.getElementById('show-signup');
-            const showLoginButton = document.getElement
-                        // Continue from the previous JavaScript code
-            const showLoginButton = document.getElementById('show-login');
-            const loginForm = document.getElementById('login-form');
-            const signupForm = document.getElementById('signup-form');
-            const loginMessage = document.getElementById('login-message');
-            const signupMessage = document.getElementById('signup-message');
-            const toggleLoginPassword = document.getElementById('toggle-login-password');
-            const toggleSignupPassword = document.getElementById('toggle-signup-password');
-            const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
-            const payButton = document.getElementById('pay-button');
-            const paymentConfirmation = document.getElementById('payment-confirmation');
+           document.addEventListener('DOMContentLoaded', () => {
+    const loginSection = document.getElementById('login-section');
+    const signupSection = document.getElementById('signup-section');
+    const showSignupButton = document.getElementById('show-signup');
+    const showLoginButton = document.getElementById('show-login');
+    const loginMessage = document.getElementById('login-message');
+    const signupMessage = document.getElementById('signup-message');
+    const toggleLoginPassword = document.getElementById('toggle-login-password');
+    const toggleSignupPassword = document.getElementById('toggle-signup-password');
+    const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
+    const payButton = document.getElementById('pay-button');
+    const paymentConfirmation = document.getElementById('payment-confirmation');
 
-            // Toggle between login and registration sections
-            showSignupButton.addEventListener('click', () => {
-                loginSection.classList.add('hidden');
-                signupSection.classList.remove('hidden');
-            });
+    // Toggle between login and signup sections
+    showSignupButton.addEventListener('click', () => {
+        loginSection.classList.add('hidden');
+        signupSection.classList.remove('hidden');
+    });
 
-            showLoginButton.addEventListener('click', () => {
-                signupSection.classList.add('hidden');
-                loginSection.classList.remove('hidden');
-            });
+    showLoginButton.addEventListener('click', () => {
+        signupSection.classList.add('hidden');
+        loginSection.classList.remove('hidden');
+    });
 
-            // Toggle password visibility
-            const togglePasswordVisibility = (input, eyeIcon) => {
-                eyeIcon.addEventListener('click', () => {
-                    const type = input.type === 'password' ? 'text' : 'password';
-                    input.type = type;
-                    eyeIcon.textContent = type === 'password' ? '👁️' : '🙈';
-                });
-            };
-
-            togglePasswordVisibility(document.getElementById('login-password'), toggleLoginPassword);
-            togglePasswordVisibility(document.getElementById('signup-password'), toggleSignupPassword);
-            togglePasswordVisibility(document.getElementById('confirm-password'), toggleConfirmPassword);
-
-            // Handle login
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('login-email').value;
-                const password = document.getElementById('login-password').value;
-
-                try {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    window.location.href = 'dashboard.html'; // Redirect to dashboard or home page
-                } catch (error) {
-                    loginMessage.textContent = error.message;
-                }
-            });
-
-            // Handle registration
-            signupForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const firstName = document.getElementById('first-name').value;
-                const lastName = document.getElementById('last-name').value;
-                const email = document.getElementById('signup-email').value;
-                const password = document.getElementById('signup-password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
-                const paymentCode = paymentConfirmation.value;
-
-                if (password !== confirmPassword) {
-                    signupMessage.textContent = 'Passwords do not match.';
-                    return;
-                }
-
-                try {
-                    // Check if email is already in use
-                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                    signupMessage.textContent = 'Email already in use. Please login.';
-                } catch (error) {
-                    // Register new user
-                    try {
-                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                        await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
-
-                        // Check payment confirmation
-                        // Simulating payment verification; replace with actual API call
-                        const paymentVerified = await verifyPayment(paymentCode); // Function to verify payment
-
-                        if (paymentVerified) {
-                            await setDoc(doc(db, 'users', userCredential.user.uid), {
-                                firstName,
-                                lastName,
-                                email
-                            });
-                            window.location.href = 'dashboard.html'; // Redirect after successful registration
-                        } else {
-                            signupMessage.textContent = 'Payment not confirmed.';
-                        }
-                    } catch (error) {
-                        signupMessage.textContent = error.message;
-                    }
-                }
-            });
-
-            // MPESA Payment Integration
-            payButton.addEventListener('click', () => {
-                // This is a placeholder. Replace with actual MPESA integration code
-                window.location.href = `https://api.example.com/mpesa/stkpush?amount=250&paybill=400200&account=861102`;
-            });
-
-            // Function to verify payment (stub, replace with actual verification code)
-            async function verifyPayment(paymentCode) {
-                // Replace with actual API request to verify payment
-                // For example:
-                // const response = await fetch('https://api.example.com/verify-payment', {
-                //     method: 'POST',
-                //     body: JSON.stringify({ paymentCode })
-                // });
-                // const result = await response.json();
-                // return result.verified;
-                return true; // Simulating a successful payment
-            }
+    // Toggle password visibility
+    const togglePasswordVisibility = (input, eyeIcon) => {
+        eyeIcon.addEventListener('click', () => {
+            const type = input.type === 'password' ? 'text' : 'password';
+            input.type = type;
+            eyeIcon.textContent = type === 'password' ? '👁️' : '🙈';
         });
-    
-                
+    };
+
+    togglePasswordVisibility(document.getElementById('login-password'), toggleLoginPassword);
+    togglePasswordVisibility(document.getElementById('signup-password'), toggleSignupPassword);
+    togglePasswordVisibility(document.getElementById('confirm-password'), toggleConfirmPassword);
+
+    // Handle login
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            window.location.href = 'dashboard.html'; // Redirect to dashboard or home page
+        } catch (error) {
+            loginMessage.textContent = error.message;
+        }
+    });
+
+    // Handle registration
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const firstName = document.getElementById('first-name').value;
+        const lastName = document.getElementById('last-name').value;
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        const paymentCode = paymentConfirmation.value;
+
+        if (password !== confirmPassword) {
+            signupMessage.textContent = 'Passwords do not match.';
+            return;
+        }
+
+        try {
+            // Check if email is already in use
+            await signInWithEmailAndPassword(auth, email, password);
+            signupMessage.textContent = 'Email already in use. Please login.';
+        } catch (error) {
+            // Register new user
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
+
+                // Check payment confirmation
+                const paymentVerified = await verifyPayment(paymentCode); // Function to verify payment
+
+                if (paymentVerified) {
+                    await setDoc(doc(db, 'users', userCredential.user.uid), {
+                        firstName,
+                        lastName,
+                        email
+                    });
+                    window.location.href = 'dashboard.html'; // Redirect after successful registration
+                } else {
+                    signupMessage.textContent = 'Payment not confirmed.';
+                }
+            } catch (error) {
+                signupMessage.textContent = error.message;
+            }
+        }
+    });
+
+    // MPESA Payment Integration
+    payButton.addEventListener('click', () => {
+        // This is a placeholder. Replace with actual MPESA integration code
+        window.location.href = `https://api.example.com/mpesa/stkpush?amount=250&paybill=400200&account=861102`;
+    });
+
+    // Function to verify payment (stub, replace with actual verification code)
+    async function verifyPayment(paymentCode) {
+        // Replace with actual API request to verify payment
+        return true; // Simulating a successful payment
+    }
+});
+                                     
