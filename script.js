@@ -14,13 +14,16 @@ const firebaseConfig = {
     appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
     measurementId: "G-EPLJB8MTRH"
 };
+document.addEventListener('DOMContentLoaded', () => {
+    const app = initializeApp(firebaseConfig); // Initialize Firebase inside DOMContentLoaded
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    const analytics = getAnalytics(app);
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
-const analytics = getAnalytics(app);
+    console.log("Firebase and DOM initialized");
+});
+
 
 // Debugging: Log Firebase initialization
 console.log("Firebase initialized");
