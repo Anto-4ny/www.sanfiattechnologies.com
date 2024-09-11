@@ -13,24 +13,12 @@
     <link rel="stylesheet" href="dashboard.css">
     <link rel="icon" href="images/Photo_1723191951676.png" type="image/x-icon">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .hidden {
-            display: none;
-        }
-        .error {
-            color: red;
-        }
-        .success {
-            color: green;
-        }
-        .input-group {
-            margin-bottom: 10px;
-        }
-        .eye-icon {
-            cursor: pointer;
-        }
+        /* Basic styling, adjust as needed */
+        .hidden { display: none; }
+        .show { display: block; }
+        .password-toggle { cursor: pointer; }
+        #payment-section { margin-top: 20px; }
+        .message { color: red; }
     </style>
 </head>
 <body>
@@ -62,63 +50,44 @@
             <h1>Welcome to Sanfiat Technologies</h1>
             <p>This is a program designed to help you earn money from WhatsApp status views. To get started, you need to register and pay an activation fee of Ksh 200. After payment, enter the MPESA code you receive to complete the activation process and start earning.</p>
         </section>
-        <section id="login-section">
-        <h2>Login</h2>
+        <div id="login-section">
         <form id="login-form">
-            <div class="input-group">
-                <label for="login-email">Email:</label>
-                <input type="email" id="login-email" required>
-            </div>
-            <div class="input-group">
-                <label for="login-password">Password:</label>
-                <input type="password" id="login-password" required>
-                <span class="eye-icon" id="toggle-login-password">👁️</span>
-            </div>
+            <h2>Login</h2>
+            <label for="login-email">Email:</label>
+            <input type="email" id="login-email" required>
+            <label for="login-password">Password:</label>
+            <input type="password" id="login-password" required>
+            <span id="toggle-login-password" class="password-toggle">👁️</span>
             <button type="submit">Login</button>
+            <div id="login-message" class="message"></div>
+            <button type="button" id="show-signup">Go to Signup</button>
         </form>
-        <p>Don't have an account? <button id="show-signup">Register here</button></p>
-        <p id="login-message" class="error"></p>
-        </section>
-        <!-- Registration Section (Initially Hidden) -->
-    <section id="signup-section" class="hidden">
-        <h2>Sign Up</h2>
+    </div>
+    <div id="signup-section" class="hidden">
         <form id="signup-form">
-            <div class="input-group">
-                <label for="first-name">First Name:</label>
-                <input type="text" id="first-name" required>
-            </div>
-            <div class="input-group">
-                <label for="last-name">Last Name:</label>
-                <input type="text" id="last-name" required>
-            </div>
-            <div class="input-group">
-                <label for="signup-email">Email:</label>
-                <input type="email" id="signup-email" required>
-            </div>
-            <div class="input-group">
-                <label for="signup-password">Password:</label>
-                <input type="password" id="signup-password" required>
-                <span class="eye-icon" id="toggle-signup-password">👁️</span>
-            </div>
-            <div class="input-group">
-                <label for="confirm-password">Confirm Password:</label>
-                <input type="password" id="confirm-password" required>
-                <span class="eye-icon" id="toggle-confirm-password">👁️</span>
-            </div>
-            <div class="input-group">
-                <label for="payment-amount">Amount (Ksh):</label>
-                <input type="number" id="payment-amount" value="250" readonly>
-            </div>
-            <button type="button" id="pay-button">Pay 250 Ksh via MPESA</button>
-            <div class="input-group">
-                <label for="payment-confirmation">Payment Confirmation Code:</label>
-                <input type="text" id="payment-confirmation" required>
-            </div>
-            <button type="submit">Register</button>
+            <h2>Signup</h2>
+            <label for="first-name">First Name:</label>
+            <input type="text" id="first-name" pattern="[A-Za-z]+" required>
+            <label for="last-name">Last Name:</label>
+            <input type="text" id="last-name" pattern="[A-Za-z]+" required>
+            <label for="signup-email">Email:</label>
+            <input type="email" id="signup-email" required>
+            <label for="signup-password">Password:</label>
+            <input type="password" id="signup-password" required>
+            <span id="toggle-signup-password" class="password-toggle">👁️</span>
+            <label for="confirm-password">Confirm Password:</label>
+            <input type="password" id="confirm-password" required>
+            <span id="toggle-confirm-password" class="password-toggle">👁️</span>
+            <button type="submit">Signup</button>
+            <div id="signup-message" class="message"></div>
+            <button type="button" id="show-login">Go to Login</button>
         </form>
-        <p>Already have an account? <button id="show-login">Login here</button></p>
-        <p id="signup-message" class="error"></p>
-    </section>
+    </div>
+    <div id="payment-section">
+        <button type="button" id="pay-button">Pay 250 Ksh</button>
+        <label for="payment-confirmation">Enter MPESA Code:</label>
+        <input type="text" id="payment-confirmation">
+    </div>
         
         
 
