@@ -14,7 +14,6 @@ const firebaseConfig = {
     appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
     measurementId: "G-EPLJB8MTRH"
 };
-document.addEventListener('DOMContentLoaded', () => {
     const app = initializeApp(firebaseConfig); // Initialize Firebase inside DOMContentLoaded
     const auth = getAuth(app);
     const db = getFirestore(app);
