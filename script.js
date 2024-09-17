@@ -114,4 +114,8 @@ const firebaseConfig = {
             }
         }
     });
-
+    // MPESA Payment Integration
+    payButton.addEventListener('click', () => {
+        // This is a placeholder. Replace with actual MPESA integration code
+        window.location.href = `https://api.example.com/mpesa/stkpush?amount=250&paybill=400200&account=861102`;
+    });
