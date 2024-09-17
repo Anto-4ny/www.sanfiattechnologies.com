@@ -115,16 +115,51 @@ const firebaseConfig = {
         }
     });
 
-    // MPESA Payment Integration
-    payButton.addEventListener('click', () => {
-        // This is a placeholder. Replace with actual MPESA integration code
-        window.location.href = `https://api.example.com/mpesa/stkpush?amount=250&paybill=400200&account=861102`;
-    });
-
-    // Function to verify payment (stub, replace with actual verification code)
-    async function verifyPayment(paymentCode) {
-        // Replace with actual API request to verify payment
-        return true; // Simulating a successful payment
+// Handle Pay button click
+document.getElementById("pay-button").addEventListener("click", function() {
+    const phoneNumber = document.getElementById("phone-number").value;
+    
+    if (phoneNumber.length === 10) {
+        // Simulate MPESA payment process
+        alert(`An MPESA pop-up will appear on phone number ${phoneNumber}. Please enter your MPESA PIN.`);
+        
+        // Add initial payment status to Firestore as pending
+        db.collection("payments").add({
+            phoneNumber: phoneNumber,
+            amount: 250,
+            status: "Pending",
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function(docRef) {
+            console.log("Payment added with ID: ", docRef.id);
+            alert("After receiving the MPESA transaction code, please enter it in the next field.");
+        }).catch(function(error) {
+            console.error("Error adding payment: ", error);
+        });
+    } else {
+        alert("Please enter a valid phone number.");
     }
 });
-                                     
+
+// Handle payment code submission
+document.getElementById("submit-payment").addEventListener("click", function() {
+    const paymentCode = document.getElementById("payment-confirmation").value;
+    
+    if (paymentCode) {
+        // Update Firestore with the MPESA transaction code
+        db.collection("payments").where("phoneNumber", "==", document.getElementById("phone-number").value)
+        .get().then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                db.collection("payments").doc(doc.id).update({
+                    mpesaCode: paymentCode,
+                    status: "Waiting for Confirmation"
+                });
+                document.getElementById("payment-status").textContent = "Payment submitted. Please wait up to 30 minutes for confirmation.";
+            });
+        }).catch((error) => {
+            console.error("Error updating payment: ", error);
+        });
+    } else {
+        alert("Please enter the MPESA transaction code.");
+    }
+});
+
