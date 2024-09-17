@@ -14,7 +14,8 @@ const firebaseConfig = {
     measurementId: "G-EPLJB8MTRH"
 };
 
-const app = initializeApp(firebaseConfig); 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
@@ -64,9 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = 'dashboard.html'; 
+            window.location.href = 'dashboard.html'; // Redirect to dashboard or home page
         } catch (error) {
             loginMessage.textContent = error.message;
+            loginMessage.classList.add('error'); // Ensure CSS styles the error properly
         }
     });
 
@@ -82,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (password !== confirmPassword) {
             signupMessage.textContent = 'Passwords do not match.';
+            signupMessage.classList.add('error'); // Add error styling
             return;
         }
 
@@ -91,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
 
             // Check payment confirmation
-            const paymentVerified = await verifyPayment(paymentCode);
+            const paymentVerified = await verifyPayment(paymentCode); // Function to verify payment
 
             if (paymentVerified) {
                 await setDoc(doc(db, 'users', userCredential.user.uid), {
@@ -99,24 +102,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     lastName,
                     email
                 });
-                window.location.href = 'dashboard.html'; 
+                window.location.href = 'dashboard.html'; // Redirect after successful registration
             } else {
                 signupMessage.textContent = 'Payment not confirmed.';
+                signupMessage.classList.add('error');
             }
         } catch (error) {
             signupMessage.textContent = error.message;
+            signupMessage.classList.add('error'); // Ensure the message is displayed correctly
         }
     });
 
-    // MPESA Payment Integration (Placeholder)
+    // Function to verify payment (stub, replace with actual verification code)
+    async function verifyPayment(paymentCode) {
+        // Replace with actual API request to verify payment
+        return true; // Simulating a successful payment
+    }
+
+    // MPESA Payment Integration placeholder
     payButton.addEventListener('click', () => {
-        // Placeholder for actual MPESA integration
+        // This is a placeholder. Replace with actual MPESA integration code
         window.location.href = `https://api.example.com/mpesa/stkpush?amount=250&paybill=400200&account=861102`;
     });
-
-    // Function to verify payment
-    async function verifyPayment(paymentCode) {
-        // Placeholder: replace with actual API request to verify payment
-        return true; // Simulating a successful payment for testing
-    }
 });
