@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
 // Firebase configuration
@@ -14,13 +13,13 @@ const firebaseConfig = {
     appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
     measurementId: "G-EPLJB8MTRH"
 };
-    const app = initializeApp(firebaseConfig); // Initialize Firebase inside DOMContentLoaded
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-    const analytics = getAnalytics(app);
 
-           document.addEventListener('DOMContentLoaded', () => {
+const app = initializeApp(firebaseConfig); 
+const auth = getAuth(app);
+const db = getFirestore(app);
+const analytics = getAnalytics(app);
+
+document.addEventListener('DOMContentLoaded', () => {
     const loginSection = document.getElementById('login-section');
     const signupSection = document.getElementById('signup-section');
     const showSignupButton = document.getElementById('show-signup');
@@ -65,7 +64,7 @@ const firebaseConfig = {
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = 'dashboard.html'; // Redirect to dashboard or home page
+            window.location.href = 'dashboard.html'; 
         } catch (error) {
             loginMessage.textContent = error.message;
         }
@@ -87,39 +86,37 @@ const firebaseConfig = {
         }
 
         try {
-            // Check if email is already in use
-            await signInWithEmailAndPassword(auth, email, password);
-            signupMessage.textContent = 'Email already in use. Please login.';
-        } catch (error) {
             // Register new user
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
 
-                // Check payment confirmation
-                const paymentVerified = await verifyPayment(paymentCode); // Function to verify payment
+            // Check payment confirmation
+            const paymentVerified = await verifyPayment(paymentCode);
 
-                if (paymentVerified) {
-                    await setDoc(doc(db, 'users', userCredential.user.uid), {
-                        firstName,
-                        lastName,
-                        email
-                    });
-                    window.location.href = 'dashboard.html'; // Redirect after successful registration
-                } else {
-                    signupMessage.textContent = 'Payment not confirmed.';
-                }
-            } catch (error) {
-                signupMessage.textContent = error.message;
+            if (paymentVerified) {
+                await setDoc(doc(db, 'users', userCredential.user.uid), {
+                    firstName,
+                    lastName,
+                    email
+                });
+                window.location.href = 'dashboard.html'; 
+            } else {
+                signupMessage.textContent = 'Payment not confirmed.';
             }
+        } catch (error) {
+            signupMessage.textContent = error.message;
         }
     });
-    // MPESA Payment Integration
+
+    // MPESA Payment Integration (Placeholder)
     payButton.addEventListener('click', () => {
-        // This is a placeholder. Replace with actual MPESA integration code
+        // Placeholder for actual MPESA integration
         window.location.href = `https://api.example.com/mpesa/stkpush?amount=250&paybill=400200&account=861102`;
-            // Function to verify payment (stub, replace with actual verification code)
-    async function verifyPayment(paymentCode) {
-        // Replace with actual API request to verify payment
-        return true; // Simulating a successful payment
     });
+
+    // Function to verify payment
+    async function verifyPayment(paymentCode) {
+        // Placeholder: replace with actual API request to verify payment
+        return true; // Simulating a successful payment for testing
+    }
+});
