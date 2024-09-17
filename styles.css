@@ -470,6 +470,12 @@ button:hover {
 #upload-button:hover {
     background-color: #1da851;
 }
+
+.error {
+    color: red;
+    font-weight: bold;
+}
+
 .footer {
     display: flex;
     justify-content: space-around; /* Adjust alignment as needed */
