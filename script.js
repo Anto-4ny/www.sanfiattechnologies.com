@@ -118,4 +118,8 @@ const firebaseConfig = {
     payButton.addEventListener('click', () => {
         // This is a placeholder. Replace with actual MPESA integration code
         window.location.href = `https://api.example.com/mpesa/stkpush?amount=250&paybill=400200&account=861102`;
+            // Function to verify payment (stub, replace with actual verification code)
+    async function verifyPayment(paymentCode) {
+        // Replace with actual API request to verify payment
+        return true; // Simulating a successful payment
     });
