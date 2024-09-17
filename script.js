@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
 // Firebase configuration
@@ -104,3 +104,50 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Function to update dashboard fields
+const updateDashboard = (userData) => {
+    // Get the DOM elements for user info
+    const userEmailElement = document.getElementById('user-email');
+    const referralCountElement = document.getElementById('referral-count');
+    const totalViewsElement = document.getElementById('total-views');
+    const totalEarningsElement = document.getElementById('total-earnings');
+    const amountPaidElement = document.getElementById('amount-paid');
+
+    // Update fields with user data
+    if (userData) {
+        userEmailElement.textContent = userData.email || 'No email';
+        referralCountElement.textContent = userData.referrals || 0;
+        totalViewsElement.textContent = userData.totalViews || 0;
+        totalEarningsElement.textContent = userData.totalEarnings || 0;
+        amountPaidElement.textContent = userData.amountPaid || 0;
+    }
+};
+
+// Check if a user is logged in and fetch their data
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // User is logged in
+        const userEmail = user.email;
+
+        // Fetch user data from Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            userData.email = userEmail; // Add email to userData for easier display
+
+            // Update the dashboard with fetched user data
+            updateDashboard(userData);
+        } else {
+            console.log('No user data found in Firestore.');
+            // Update dashboard with basic info if no data found
+            updateDashboard({ email: userEmail });
+        }
+    } else {
+        // User is not logged in
+        window.location.href = 'login.html'; // Redirect to login if not logged in
+    }
+});
+
