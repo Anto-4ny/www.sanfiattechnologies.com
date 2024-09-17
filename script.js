@@ -30,8 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleLoginPassword = document.getElementById('toggle-login-password');
     const toggleSignupPassword = document.getElementById('toggle-signup-password');
     const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
-    const payButton = document.getElementById('pay-button');
-    const paymentConfirmation = document.getElementById('payment-confirmation');
 
     // Toggle between login and signup sections
     showSignupButton.addEventListener('click', () => {
@@ -80,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('signup-email').value;
         const password = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
-        const paymentCode = paymentConfirmation.value;
 
         if (password !== confirmPassword) {
             signupMessage.textContent = 'Passwords do not match.';
@@ -93,35 +90,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
 
-            // Check payment confirmation
-            const paymentVerified = await verifyPayment(paymentCode); // Function to verify payment
+            // Store user data in Firestore
+            await setDoc(doc(db, 'users', userCredential.user.uid), {
+                firstName,
+                lastName,
+                email
+            });
 
-            if (paymentVerified) {
-                await setDoc(doc(db, 'users', userCredential.user.uid), {
-                    firstName,
-                    lastName,
-                    email
-                });
-                window.location.href = 'dashboard.html'; // Redirect after successful registration
-            } else {
-                signupMessage.textContent = 'Payment not confirmed.';
-                signupMessage.classList.add('error');
-            }
+            window.location.href = 'dashboard.html'; // Redirect after successful registration
         } catch (error) {
             signupMessage.textContent = error.message;
             signupMessage.classList.add('error'); // Ensure the message is displayed correctly
         }
-    });
-
-    // Function to verify payment (stub, replace with actual verification code)
-    async function verifyPayment(paymentCode) {
-        // Replace with actual API request to verify payment
-        return true; // Simulating a successful payment
-    }
-
-    // MPESA Payment Integration placeholder
-    payButton.addEventListener('click', () => {
-        // This is a placeholder. Replace with actual MPESA integration code
-        window.location.href = `https://api.example.com/mpesa/stkpush?amount=250&paybill=400200&account=861102`;
     });
 });
