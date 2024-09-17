@@ -1,106 +1,96 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const nodemailer = require('nodemailer');
 const axios = require('axios');
-const crypto = require('crypto');
-require('dotenv').config();
+const firebase = require("firebase-admin");
 
-const app = express();
-app.use(bodyParser.json());
-
-// MPESA Configuration
-const PAYBILL_NUMBER = process.env.PAYBILL_NUMBER;
-const CONSUMER_KEY = process.env.CONSUMER_KEY;
-const CONSUMER_SECRET = process.env.CONSUMER_SECRET;
-const MPESA_BASE_URL = 'https://sandbox.safaricom.co.ke'; // Use the live URL for production
-
-// Nodemailer Configuration
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
+// Initialize Firebase
+firebase.initializeApp({
+  credential: firebase.credential.applicationDefault(),
+  databaseURL: "https://your-firebase-url.firebaseio.com"
 });
 
-// Function to get OAuth token from MPESA
-async function getOAuthToken() {
-  const response = await axios.get(`${MPESA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials`, {
-    headers: {
-      'Authorization': `Basic ${Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString('base64')}`
-    }
-  });
-  return response.data.access_token;
-}
+const db = firebase.firestore();
 
-// Function to get the password for the STK Push request
-function getPassword(shortcode, passkey, timestamp) {
-  const dataToEncode = shortcode + passkey + timestamp;
-  return Buffer.from(dataToEncode).toString('base64');
-}
+// Daraja API credentials
+const consumerKey = 'yourConsumerKey';
+const consumerSecret = 'yourConsumerSecret';
+const shortCode = 'yourCooperativeBankPaybill'; // Paybill account number
+const passkey = 'yourPassKey'; 
+const callbackURL = 'https://your-server-url/callback'; // Your backend callback URL
 
-// Endpoint to initiate payment request
-app.post('/api/request-payment', async (req, res) => {
-  try {
-    const token = await getOAuthToken();
-    const { amount, phoneNumber, accountReference } = req.body; // Account reference required for Paybill
-    const timestamp = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 14);
-    const password = getPassword(PAYBILL_NUMBER, 'your_mpesa_passkey', timestamp); // Replace 'your_mpesa_passkey' with your actual passkey
-
-    const response = await axios.post(`${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`, {
-      BusinessShortCode: PAYBILL_NUMBER,
-      Password: password,
-      Timestamp: timestamp,
-      TransactionType: 'CustomerPayBillOnline', // Paybill transaction type
-      Amount: amount,
-      PartyA: phoneNumber, // Customer's phone number
-      PartyB: PAYBILL_NUMBER,
-      PhoneNumber: phoneNumber,
-      CallBackURL: 'your_callback_url', // Replace 'your_callback_url' with your actual callback URL
-      AccountReference: accountReference, // Customer's account reference
-      TransactionDesc: 'transaction_description' // Provide a description for the transaction
-    }, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+// Function to generate access token
+async function getAccessToken() {
+    const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+    const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
+        headers: {
+            Authorization: `Basic ${auth}`
+        }
     });
+    return response.data.access_token;
+}
 
-    res.json({ success: true, message: response.data.ResponseDescription });
-  } catch (error) {
-    console.error('Error requesting payment:', error);
-    res.json({ success: false, message: 'Failed to request payment.' });
-  }
-});
+// Function to trigger MPESA STK Push
+async function initiateSTKPush(phoneNumber, amount) {
+    const accessToken = await getAccessToken();
+    const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
+    const password = Buffer.from(`${shortCode}${passkey}${timestamp}`).toString('base64');
 
-// Endpoint to verify payment (implement as needed)
-app.post('/api/verify-payment', (req, res) => {
-  const { paymentConfirmation } = req.body;
-  // Implement payment verification logic using MPESA API
-  res.send('Payment verification not implemented.');
-});
+    const requestBody = {
+        BusinessShortCode: shortCode,
+        Password: password,
+        Timestamp: timestamp,
+        TransactionType: "CustomerPayBillOnline",
+        Amount: amount,
+        PartyA: phoneNumber,
+        PartyB: shortCode,
+        PhoneNumber: phoneNumber,
+        CallBackURL: callbackURL,
+        AccountReference: "Payment",
+        TransactionDesc: "Payment for Services"
+    };
 
-// Endpoint to send email with screenshot details
-app.post('/send-email', (req, res) => {
-  const { email, viewsCount, fileURL } = req.body;
+    const response = await axios.post(
+        'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+        requestBody,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        }
+    );
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: 'antocaptechnologies@gmail.com',
-    subject: 'New Screenshot Upload',
-    text: `User Email: ${email}\nNumber of Views: ${viewsCount}\nScreenshot URL: ${fileURL}`,
-    html: `<p>User Email: ${email}</p><p>Number of Views: ${viewsCount}</p><p>Screenshot URL: <a href="${fileURL}">${fileURL}</a></p>`
-  };
+    return response.data;
+}
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error("Error sending email:", error);
-      res.status(500).send('Error sending email.');
-    } else {
-      res.status(200).send('Email sent successfully.');
+// Handle payment initiation
+app.post('/pay', async (req, res) => {
+    const { phoneNumber } = req.body;
+    const amount = 250; // The amount to pay
+
+    try {
+        const result = await initiateSTKPush(phoneNumber, amount);
+        res.status(200).json({ success: true, message: 'Payment initiated. Enter your MPESA PIN.' });
+    } catch (error) {
+        console.error('Payment initiation failed:', error);
+        res.status(500).json({ success: false, message: 'Payment initiation failed' });
     }
-  });
 });
 
-// Start the server
-app.listen(3000, () => console.log('Server running on port 3000'));
+// Callback to handle the response from MPESA
+app.post('/callback', (req, res) => {
+    const paymentData = req.body.Body.stkCallback;
+    const phoneNumber = paymentData.CallbackMetadata.Item[4].Value;
+    const mpesaCode = paymentData.CallbackMetadata.Item[1].Value;
 
+    // Save payment data to Firestore
+    db.collection('payments').add({
+        phoneNumber: phoneNumber,
+        mpesaCode: mpesaCode,
+        amount: 250,
+        status: "Waiting for Confirmation",
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        res.status(200).send("Payment recorded");
+    }).catch((error) => {
+        console.error("Error saving payment:", error);
+        res.status(500).send("Error saving payment");
+    });
+});
