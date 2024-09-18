@@ -55,20 +55,34 @@ document.addEventListener('DOMContentLoaded', () => {
     togglePasswordVisibility(document.getElementById('signup-password'), toggleSignupPassword);
     togglePasswordVisibility(document.getElementById('confirm-password'), toggleConfirmPassword);
 
-    // Handle login
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
 
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = 'dashboard.html'; // Redirect to dashboard or home page
-        } catch (error) {
-            loginMessage.textContent = error.message;
-            loginMessage.classList.add('error'); // Ensure CSS styles the error properly
-        }
-    });
+// Handle login form submission
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const loginMessage = document.getElementById('login-message'); // Assuming you have an element for showing login errors
+
+    try {
+        // Sign in the user with email and password
+        await auth.signInWithEmailAndPassword(email, password);
+        window.location.href = 'dashboard.html'; // Redirect to dashboard if login is successful
+    } catch (error) {
+        // Display error message if login fails
+        loginMessage.textContent = error.message;
+        loginMessage.classList.add('error'); // Assuming 'error' is a CSS class for styling errors
+    }
+});
+
+// Redirect to index.html if not logged in
+auth.onAuthStateChanged((user) => {
+    if (!user) {
+        // Redirect to index.html if no user is authenticated
+        window.location.href = 'index.html';
+    }
+});
+    
 
     // Handle registration
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
