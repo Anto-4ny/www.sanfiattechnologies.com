@@ -161,7 +161,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         // User is not logged in
-        window.location.href = 'index.html'; // Redirect to login if not logged in
+        window.location.href = ''; // Redirect to login if not logged in
     }
 });
 
