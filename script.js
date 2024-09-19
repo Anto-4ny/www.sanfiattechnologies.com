@@ -128,7 +128,6 @@ const updateDashboard = (userData) => {
     }
 };
 
-// Check if a user is logged in and fetch their data
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         // User is logged in
@@ -150,8 +149,8 @@ onAuthStateChanged(auth, async (user) => {
             updateDashboard({ email: userEmail });
         }
     } else {
-        // User is not logged in
-        window.location.href = '#login-section'; // Redirect to login if not logged in
+        // User is not logged in, redirect to the login section
+        document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
     }
 });
 
