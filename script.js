@@ -154,3 +154,25 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
+
+        // JavaScript for pop-in effect when scrolling
+        const paymentBox = document.querySelector('.payment-box');
+        const confirmationBox = document.querySelector('.confirmation-box');
+
+        // Function to handle scrolling pop-in effect
+        const handleScroll = () => {
+            const paymentBoxTop = paymentBox.getBoundingClientRect().top;
+            const confirmationBoxTop = confirmationBox.getBoundingClientRect().top;
+            const triggerHeight = window.innerHeight * 0.8; // Trigger pop-in when section is 80% in view
+
+            if (paymentBoxTop < triggerHeight) {
+                paymentBox.classList.add('visible');
+            }
+            if (confirmationBoxTop < triggerHeight) {
+                confirmationBox.classList.add('visible');
+            }
+        };
+
+        // Attach the scroll event listener
+        window.addEventListener('scroll', handleScroll);
+    
