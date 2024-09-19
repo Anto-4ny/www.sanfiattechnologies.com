@@ -1,0 +1,151 @@
+<!-- Packages Section -->
+    <section id="packages" style="display: none;">
+        <section id="packages">
+            <section id="packages-section">
+                <h2 style="color: white;">Purchase a package</h2>
+                <section class="packages-info-box">
+                    <h1>Available Packages</h1>
+                    <p>Choose a package to start getting products to post on your WhatsApp status and 
+                        begin earning from status views. Each package offers different levels of access
+                        and earnings. Select the package that best suits your needs:</p>
+                    <ul>
+                        <li><strong>Basic:</strong> Purchase for Ksh 500. Pay Ksh 5 per view.</li>
+                        <button class="pay-button" onclick="requestPayment('basic')" aria-label="Pay for Basic Package via MPESA">Pay via MPESA</button>
+                        <li><strong>Standard:</strong> Purchase for Ksh 1000. Pay Ksh 10 per view.</li>
+                        <button class="pay-button" onclick="requestPayment('standard')" aria-label="Pay for Standard Package via MPESA">Pay via MPESA</button>
+                        <li><strong>Premium:</strong> Purchase for Ksh 2000. Pay Ksh 15 per view.</li>
+                        <button class="pay-button" onclick="requestPayment('premium')" aria-label="Pay for Premium Package via MPESA">Pay via MPESA</button>
+                        <li><strong>Ultimate:</strong> Purchase for Ksh 4000. Pay Ksh 25 per view.</li>
+                        <button class="pay-button" onclick="requestPayment('ultimate')" aria-label="Pay for Ultimate Package via MPESA">Pay via MPESA</button>
+                    </ul>
+                    <p>Select a package and make the payment to get started!</p>
+                </section>
+                <div class="package-container">
+                    <!-- Package 1 -->
+                    <div class="package-box" style="background-color: #eaf2f8; border-color: #b3d9ff;">
+                        <h3>Basic Package</h3>
+                        <div class="package-price">Ksh 500</div>
+                        <div class="package-description">Ideal for small campaigns.</div>
+                        <div class="package-details">
+                            <p>Number of Referrals Required: 5</p>
+                            <p>Pay Per View: 5 Ksh</p>
+                            <p>Payment Information: Click the button below to pay.</p>
+                        </div>
+                        <button class="pay-button" onclick="requestPayment('basic')" aria-label="Pay for Basic Package via MPESA">Pay via MPESA</button>
+                        <div class="package-referral-link">
+                            <p>Referral Link: <span id="basic-referral-link"></span></p>
+                            <button onclick="copyReferralLink('basic')" aria-label="Copy Basic Package referral link">Copy Link</button>
+                        </div>
+                    </div>
+
+                    <!-- Package 2 -->
+                    <div class="package-box" style="background-color: #fff3e0; border-color: #ffb74d;">
+                        <h3>Standard Package</h3>
+                        <div class="package-price">Ksh 1000</div>
+                        <div class="package-description">For moderate campaigns.</div>
+                        <div class="package-details">
+                            <p>Number of Referrals Required: 10</p>
+                            <p>Pay Per View: 4 Ksh</p>
+                            <p>Payment Information: Click the button below to pay.</p>
+                        </div>
+                        <button class="pay-button" onclick="requestPayment('standard')" aria-label="Pay for Standard Package via MPESA">Pay via MPESA</button>
+                        <div class="package-referral-link">
+                            <p>Referral Link: <span id="standard-referral-link"></span></p>
+                            <button onclick="copyReferralLink('standard')" aria-label="Copy Standard Package referral link">Copy Link</button>
+                        </div>
+                    </div>
+
+                    <!-- Package 3 -->
+                    <div class="package-box" style="background-color: #e8f5e9; border-color: #a5d6a7;">
+                        <h3>Premium Package</h3>
+                        <div class="package-price">Ksh 2000</div>
+                        <div class="package-description">For large campaigns with high impact.</div>
+                        <div class="package-details">
+                            <p>Number of Referrals Required: 20</p>
+                            <p>Pay Per View: 3 Ksh</p>
+                            <p>Payment Information: Click the button below to pay.</p>
+                        </div>
+                        <button class="pay-button" onclick="requestPayment('premium')" aria-label="Pay for Premium Package via MPESA">Pay via MPESA</button>
+                        <div class="package-referral-link">
+                            <p>Referral Link: <span id="premium-referral-link"></span></p>
+                            <button onclick="copyReferralLink('premium')" aria-label="Copy Premium Package referral link">Copy Link</button>
+                        </div>
+                    </div>
+
+                    <!-- Package 4 -->
+                    <div class="package-box" style="background-color: #fce4ec; border-color: #f48fb1;">
+                        <h3>Ultimate Package</h3>
+                        <div class="package-price">Ksh 3000</div>
+                        <div class="package-description">For the most extensive campaigns.</div>
+                        <div class="package-details">
+                            <p>Number of Referrals Required: 30</p>
+                            <p>Pay Per View: 2 Ksh</p>
+                            <p>Payment Information: Click the button below to pay.</p>
+                        </div>
+                        <button class="pay-button" onclick="requestPayment('ultimate')" aria-label="Pay for Ultimate Package via MPESA">Pay via MPESA</button>
+                        <div class="package-referral-link">
+                            <p>Referral Link: <span id="ultimate-referral-link"></span></p>
+                            <button onclick="copyReferralLink('ultimate')" aria-label="Copy Ultimate Package referral link">Copy Link</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </section>
+    
+            
+    </main>
+<footer>
+    <div class="footer">
+    <div class="footer-item">
+        <a href="#home">
+            <img src="images/home.png" alt="Home Icon" class="footer-icon">
+            <span>Home</span>
+        </a>
+    </div>
+    <div class="footer-item">
+        <a href="#login">
+            <img src="images/images.png" alt="Login Icon" class="footer-icon">
+            <span>Log in</span>
+        </a>
+    </div>
+    <div class="footer-item">
+        <a href="#register">
+            <img src="images/images.jpeg" alt="Register Icon" class="footer-icon">
+            <span>Register</span>
+        </a>
+    </div>
+    <div class="footer-item">
+        <a href="dashboard.html">
+            <img src="images/dashboard .png" alt="Dashboard Icon" class="footer-icon">
+            <span>Dashboard</span>
+        </a>
+    </div>
+    <div class="footer-item">
+        <a href="#packages">
+            <img src="images/packages.png" alt="Packages Icon" class="footer-icon">
+            <span>Packages</span>
+        </a>
+    </div>
+    </div>
+    
+    <div class="Button">
+        <a href="#dashboard">
+            <p class="post-btn">
+                <i class="fa fa-plus-square"></i>
+            </p>
+        </a>
+    </div>
+</footer>
+    
+        <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js"></script>
+
+    <!-- Your custom script using Firebase -->
+    <script type="module" src="script.js"></script>
+</body>
+    </html>
