@@ -4,7 +4,7 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    background-image: url('images/referralsbackground.jpg'); /* Path to your background image */
+    background-image: url('dimages/referralsbackground.jpg'); /* Path to your background image */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
