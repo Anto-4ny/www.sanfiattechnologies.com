@@ -26,42 +26,45 @@
 
     <main>
         <section class="welcome-box" id="home">
-            <h1>Welcome to Sanfiat Technologies</h1>
-            <p>This is a program designed to help you earn money from WhatsApp status views. To get started, you need to register and pay an activation fee of Ksh 200. After payment, enter the MPESA code you receive to complete the activation process and start earning.</p>
-        </section>
-        <div id="login-section">
-        <form id="login-form">
-            <h2>Login</h2>
-            <label for="login-email">Email:</label>
-            <input type="email" id="login-email" required>
-            <label for="login-password">Password:</label>
-            <input type="password" id="login-password" required>
-            <span id="toggle-login-password" class="password-toggle">👁️</span>
-            <button type="submit">Login</button>
-            <div id="login-message" class="message"></div>
-            <button type="button" id="show-signup">Go to Signup</button>
-        </form>
-    </div>
-    <div id="signup-section" class="hidden">
-        <form id="signup-form">
-            <h2>Signup</h2>
-            <label for="first-name">First Name:</label>
-            <input type="text" id="first-name" pattern="[A-Za-z]+" required>
-            <label for="last-name">Last Name:</label>
-            <input type="text" id="last-name" pattern="[A-Za-z]+" required>
-            <label for="signup-email">Email:</label>
-            <input type="email" id="signup-email" required>
-            <label for="signup-password">Password:</label>
-            <input type="password" id="signup-password" required>
-            <span id="toggle-signup-password" class="password-toggle">👁️</span>
-            <label for="confirm-password">Confirm Password:</label>
-            <input type="password" id="confirm-password" required>
-            <span id="toggle-confirm-password" class="password-toggle">👁️</span>
-            <button type="submit">Signup</button>
-            <div id="signup-message" class="message"></div>
-            <button type="button" id="show-login">Go to Login</button>
-        </form>
-    </div>   
+    <h1>Welcome to Sanfiat Technologies.</h1>
+            <p>Log in below or create an account if you don't have one.</p>
+</section>
+
+<div id="login-section">
+    <form id="login-form">
+        <h2>Login</h2>
+        <label for="login-email">Email:</label>
+        <input type="email" id="login-email" placeholder="Enter your email" required>
+        <label for="login-password">Password:</label>
+        <input type="password" id="login-password" placeholder="Enter your password" required>
+        <span id="toggle-login-password" class="password-toggle">👁️</span>
+        <button type="submit">Login</button>
+        <div id="login-message" class="message"></div>
+        <button type="button" id="show-signup">Go to Signup</button>
+    </form>
+</div>
+
+<div id="signup-section" class="hidden">
+    <form id="signup-form">
+        <h2>Signup</h2>
+        <label for="first-name">First Name:</label>
+        <input type="text" id="first-name" pattern="[A-Za-z]+" placeholder="Enter your first name" required>
+        <label for="last-name">Last Name:</label>
+        <input type="text" id="last-name" pattern="[A-Za-z]+" placeholder="Enter your last name" required>
+        <label for="signup-email">Email:</label>
+        <input type="email" id="signup-email" placeholder="Enter your email" required>
+        <label for="signup-password">Password:</label>
+        <input type="password" id="signup-password" placeholder="Create a password" required>
+        <span id="toggle-signup-password" class="password-toggle">👁️</span>
+        <label for="confirm-password">Confirm Password:</label>
+        <input type="password" id="confirm-password" placeholder="Confirm your password" required>
+        <span id="toggle-confirm-password" class="password-toggle">👁️</span>
+        <button type="submit">Signup</button>
+        <div id="signup-message" class="message"></div>
+        <button type="button" id="show-login">Go to Login</button>
+    </form>
+</div>
+        
                 
         <!-- Packages Section -->
     <section id="packages" style="display: none;">
