@@ -1,0 +1,82 @@
+<section id="upload-section">
+                    <h2>Upload Your Status Screenshot</h2>
+                    <form id="upload-form">
+                        <label for="views">Number of Views:</label>
+                        <input type="number" id="views" placeholder="Enter number of views" required>
+                        
+                        <label for="screenshot">Screenshot:</label>
+                        <div class="upload-container">
+                            <div id="drop-zone" class="drop-zone" aria-label="Drop files here or click to upload">
+                                <p>Drag and drop files here or click to upload.</p>
+                                <input type="file" id="file-input" accept="image/*" aria-label="Choose screenshot" required />
+                            </div>
+                            <div id="file-preview" class="file-preview">
+                                <!-- Preview of selected files will be shown here -->
+                            </div>
+                        </div>
+                        <button type="submit" id="upload-button" aria-label="Upload screenshot">Upload Screenshot</button>
+                    </form>
+                </section>
+                
+                <div id="referral-link-section">
+                    <h3>Your Referral Link</h3>
+                    <p id="referral-link"></p>
+                    <button id="copy-link-button">Copy Link</button>
+                    <a id="whatsapp-share-button" href="#" target="_blank" aria-label="Share on WhatsApp">
+                        <img src="images/waicon.jpg" alt="Share on WhatsApp" style="width: 30px; vertical-align: middle;">
+                        Share on WhatsApp
+                    </a>
+                </div>
+            </div>
+<footer>
+    <div class="footer">
+    <div class="footer-item">
+        <a href="#home">
+            <img src="images/home.png" alt="Home Icon" class="footer-icon">
+            <span>Home</span>
+        </a>
+    </div>
+    <div class="footer-item">
+        <a href="#login">
+            <img src="images/images.png" alt="Login Icon" class="footer-icon">
+            <span>Log in</span>
+        </a>
+    </div>
+    <div class="footer-item">
+        <a href="#register">
+            <img src="images/images.jpeg" alt="Register Icon" class="footer-icon">
+            <span>Register</span>
+        </a>
+    </div>
+    <div class="footer-item">
+        <a href="dashboard.html">
+            <img src="images/dashboard .png" alt="Dashboard Icon" class="footer-icon">
+            <span>Dashboard</span>
+        </a>
+    </div>
+    <div class="footer-item">
+        <a href="htmls/purchase-a-package.html">
+            <img src="images/packages.png" alt="Packages Icon" class="footer-icon">
+            <span>Packages</span>
+        </a>
+    </div>
+    </div>
+    
+    <div class="Button">
+        <a href="#dashboard">
+            <p class="post-btn">
+                <i class="fa fa-plus-square"></i>
+            </p>
+        </a>
+    </div>
+</footer>
+    
+        <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
