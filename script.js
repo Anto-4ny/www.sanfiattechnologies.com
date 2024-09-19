@@ -75,15 +75,6 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     }
 });
 
-// Redirect to index.html if not logged in
-auth.onAuthStateChanged((user) => {
-    if (!user) {
-        // Redirect to index.html if no user is authenticated
-        window.location.href = 'index.html';
-    }
-});
-    
-
     // Handle registration
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
         e.preventDefault();
