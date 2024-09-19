@@ -18,76 +18,78 @@ header {
     position: relative; /* Ensure correct positioning of mobile nav */
 }
 
-/* Logo styling */
-#logo {
-    height: 50px; /* Adjust height as needed */
-    cursor: pointer; /* Pointer cursor to indicate it's clickable */
-}
-
-/* Desktop navigation styling */
-.desktop-nav {
-    display: flex;
-    gap: 15px;
-}
 
 /* Mobile navigation styling */
 .mobile-nav {
-    display: none; /* Hide mobile navigation by default */
+    display: none;
     flex-direction: column;
     position: absolute;
     top: 60px; /* Adjust based on header height */
     right: 10px; /* Adjust position as needed */
-    background-color: #fff; /* Background color for mobile menu */
-    border: 1px solid #ddd; /* Border for mobile menu */
+    background-color: #fff;
+    border: 1px solid #ddd;
     border-radius: 4px;
     padding: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Shadow for mobile menu */
-    z-index: 1000; /* Ensure menu is above other content */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
 }
 
 /* Hamburger menu styling */
 .hamburger-menu {
-    display: none; /* Hide hamburger menu by default */
+    display: none;
     background: none;
     border: none;
     cursor: pointer;
 }
 
 #hamburger-icon img {
-    width: 40px; /* Adjust size of hamburger icon */
-    height: 40px; /* Adjust size of hamburger icon */
+    width: 40px;
+    height: 40px;
+}
+
+/* Desktop navigation styling */
+.desktop-nav a {
+    margin-left: 20px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.desktop-nav a:hover {
+    color: #f1f1f1;
 }
 
 /* Responsive styling for smaller screens */
 @media (max-width: 768px) {
     .desktop-nav {
-        display: none; /* Hide desktop navigation on small screens */
+        display: none;
     }
 
     .hamburger-menu {
-        display: block; /* Show hamburger menu on small screens */
+        display: block;
     }
 
     .mobile-nav.show {
-        display: flex; /* Show mobile menu when .show class is added */
+        display: flex;
     }
 
     .mobile-nav a {
         padding: 10px;
         text-align: center;
         display: block;
-        color: #000; /* Text color */
+        color: #000;
         text-decoration: none;
     }
 
     .mobile-nav a:hover {
-        background-color: #f1f1f1; /* Background color on hover */
+        background-color: #f1f1f1;
     }
 }
 
+    
 
 main {
-    padding: 20px;
+    padding: 30px;
 }
 
 /* Styles for the welcome section */
