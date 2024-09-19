@@ -110,7 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Function to update dashboard fields
 const updateDashboard = (userData) => {
-    // Get the DOM elements for user info
+    // Get the DOM elements for user inf
+    const firstNameElement =document.getElementById('firstName');
     const userEmailElement = document.getElementById('user-email');
     const referralCountElement = document.getElementById('referral-count');
     const totalViewsElement = document.getElementById('total-views');
@@ -150,7 +151,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         // User is not logged in
-        window.location.href = 'login.html'; // Redirect to login if not logged in
+        window.location.href = '#login-section'; // Redirect to login if not logged in
     }
 });
 
