@@ -24,14 +24,37 @@ header {
     display: none;
     flex-direction: column;
     position: absolute;
-    top: 60px; /* Adjust based on header height */
-    right: 10px; /* Adjust position as needed */
+    top: 60px;
+    right: 0;
+    width: 50%; /* Make mobile menu half the screen width */
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
-    padding: 20px;
+    padding: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     z-index: 1000;
+}
+
+/* Mobile nav links styling */
+.mobile-nav a {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    text-align: left;
+    color: #000;
+    text-decoration: none;
+    font-size: 16px;
+    border-bottom: 1px solid #ddd;
+}
+
+.mobile-nav a img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.mobile-nav a:hover {
+    background-color: #f1f1f1;
 }
 
 /* Hamburger menu styling */
@@ -74,19 +97,11 @@ header {
     }
 
     .mobile-nav a {
-        padding: 20px;
-        text-align: center;
-        display: block;
-        color: #000;
-        text-decoration: none;
-    }
-
-    .mobile-nav a:hover {
-        background-color: #f1f1f1;
+        padding: 15px 20px;
+        font-size: 18px;
     }
 }
 
-    
 
 main {
     padding: 30px;
