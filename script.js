@@ -176,3 +176,9 @@ onAuthStateChanged(auth, async (user) => {
         // Attach the scroll event listener
         window.addEventListener('scroll', handleScroll);
     
+// JavaScript to toggle mobile navigation
+document.getElementById('hamburger-icon').addEventListener('click', function() {
+    var mobileNav = document.getElementById('mobile-nav');
+    mobileNav.classList.toggle('show');
+});
+
