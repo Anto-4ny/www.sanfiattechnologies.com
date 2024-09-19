@@ -55,25 +55,23 @@ document.addEventListener('DOMContentLoaded', () => {
     togglePasswordVisibility(document.getElementById('signup-password'), toggleSignupPassword);
     togglePasswordVisibility(document.getElementById('confirm-password'), toggleConfirmPassword);
 
+    // Handle login form submission
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-// Handle login form submission
-document.getElementById('login-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    const loginMessage = document.getElementById('login-message'); // Assuming you have an element for showing login errors
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
 
-    try {
-        // Sign in the user with email and password
-        await auth.signInWithEmailAndPassword(email, password);
-        window.location.href = 'dashboard.html'; // Redirect to dashboard if login is successful
-    } catch (error) {
-        // Display error message if login fails
-        loginMessage.textContent = error.message;
-        loginMessage.classList.add('error'); // Assuming 'error' is a CSS class for styling errors
-    }
-});
+        try {
+            // Sign in the user with email and password
+            await signInWithEmailAndPassword(auth, email, password);
+            window.location.href = 'dashboard.html'; // Redirect to dashboard if login is successful
+        } catch (error) {
+            // Display error message if login fails
+            loginMessage.textContent = error.message;
+            loginMessage.classList.add('error'); // Assuming 'error' is a CSS class for styling errors
+        }
+    });
 
     // Handle registration
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
@@ -152,7 +150,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         // User is not logged in
-        window.location.href = 'login-section'; // Redirect to login if not logged in
+        window.location.href = 'login.html'; // Redirect to login if not logged in
     }
 });
 
