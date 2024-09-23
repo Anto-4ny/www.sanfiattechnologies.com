@@ -101,57 +101,6 @@
                 
 </div>
    </main>
-<script>
-    // Handle Pay button click
-document.getElementById("pay-button").addEventListener("click", function() {
-    const phoneNumber = document.getElementById("phone-number").value;
-    
-    if (phoneNumber.length === 10) {
-        // Simulate MPESA payment process
-        alert(`An MPESA pop-up will appear on phone number ${phoneNumber}. Please enter your MPESA PIN.`);
-        
-        // Add initial payment status to Firestore as pending
-        db.collection("payments").add({
-            phoneNumber: phoneNumber,
-            amount: 250,
-            status: "Pending",
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(function(docRef) {
-            console.log("Payment added with ID: ", docRef.id);
-            alert("After receiving the MPESA transaction code, please enter it in the next field.");
-        }).catch(function(error) {
-            console.error("Error adding payment: ", error);
-        });
-    } else {
-        alert("Please enter a valid phone number.");
-    }
-});
-
-// Handle payment code submission
-document.getElementById("submit-payment").addEventListener("click", function() {
-    const paymentCode = document.getElementById("payment-confirmation").value;
-    
-    if (paymentCode) {
-        // Update Firestore with the MPESA transaction code
-        db.collection("payments").where("phoneNumber", "==", document.getElementById("phone-number").value)
-        .get().then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                db.collection("payments").doc(doc.id).update({
-                    mpesaCode: paymentCode,
-                    status: "Waiting for Confirmation"
-                });
-                document.getElementById("payment-status").textContent = "Payment submitted. Please wait up to 30 minutes for confirmation.";
-            });
-        }).catch((error) => {
-            console.error("Error updating payment: ", error);
-        });
-    } else {
-        alert("Please enter the MPESA transaction code.");
-    }
-});
-            </script>
-
-    
         <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js"></script>
@@ -161,5 +110,73 @@ document.getElementById("submit-payment").addEventListener("click", function() {
 
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
+    <script>
+    // Handle Pay button click
+    document.getElementById("pay-button").addEventListener("click", async function() {
+        const phoneNumber = document.getElementById("phone-number").value;
+        
+        if (phoneNumber.length === 10) {
+            try {
+                // Make a POST request to initiate MPESA payment via the backend
+                const response = await fetch('/api/pay', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phoneNumber: phoneNumber })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Notify user about the STK push and inform about entering the MPESA PIN
+                    alert(result.message);
+                    console.log('STK Response:', result.stkResponse);
+                    // Store payment ID for future use (e.g., updating with payment code)
+                    sessionStorage.setItem('paymentId', result.paymentId);
+                } else {
+                    alert('Payment initiation failed. ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error initiating payment:', error);
+                alert('Error initiating payment. Please try again.');
+            }
+        } else {
+            alert('Please enter a valid 10-digit phone number.');
+        }
+    });
+
+    // Handle payment code submission
+    document.getElementById("submit-payment").addEventListener("click", async function() {
+        const paymentCode = document.getElementById("payment-confirmation").value;
+        const paymentId = sessionStorage.getItem('paymentId');
+        
+        if (paymentCode && paymentId) {
+            try {
+                // Make a POST request to update Firestore with the MPESA transaction code
+                const response = await fetch(`/api/payments/${paymentId}/update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ mpesaCode: paymentCode })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById("payment-status").textContent = "Payment submitted. Please wait for confirmation.";
+                } else {
+                    alert('Failed to update payment. ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error updating payment:', error);
+                alert('Error updating payment. Please try again.');
+            }
+        } else {
+            alert('Please enter the MPESA transaction code.');
+        }
+    });
+                                         </script>
+    
 </body>
                             </html>
