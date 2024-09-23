@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const admin = require('firebase-admin');
+const path = require('path');  // To handle file paths
 require('dotenv').config();
 
 const app = express();
@@ -15,11 +16,19 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// Middleware
+// Middleware to parse incoming JSON and form data
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// MPESA STK Push endpoint
+// Serve static files (HTML, CSS, JS) from the root folder
+app.use(express.static(path.join(__dirname)));
+
+// Route to serve deposit.html directly from the root directory
+app.get('/deposit', (req, res) => {
+    res.sendFile(path.join(__dirname, 'deposit.html'));
+});
+
+// MPESA STK Push API endpoint
 app.post('/api/pay', async (req, res) => {
     const { phoneNumber } = req.body;
     const amount = 250; // Amount to be paid
@@ -75,7 +84,7 @@ app.post('/api/callback', async (req, res) => {
     }
 });
 
-// Function to get access token
+// Function to get MPESA access token
 async function getAccessToken() {
     const auth = Buffer.from(`${process.env.CONSUMER_KEY}:${process.env.CONSUMER_SECRET}`).toString('base64');
 
@@ -88,7 +97,7 @@ async function getAccessToken() {
     return response.data.access_token;
 }
 
-// Function to initiate STK push
+// Function to initiate MPESA STK Push
 async function initiateSTKPush(token, phoneNumber, amount) {
     const payload = {
         BusinessShortCode: '400200',
@@ -115,4 +124,3 @@ async function initiateSTKPush(token, phoneNumber, amount) {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-                
