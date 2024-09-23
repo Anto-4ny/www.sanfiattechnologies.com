@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 // Firebase Admin SDK setup
 admin.initializeApp({
     credential: admin.credential.applicationDefault(),
-    databaseURL: 'https://your-database-url.firebaseio.com'
+    databaseURL: 'https://antocap-referrals.firebaseio.com'
 });
 
 const db = admin.firestore();
