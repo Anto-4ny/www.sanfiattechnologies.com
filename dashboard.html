@@ -131,55 +131,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js"></script>
     
-<script>
-    // Handle Pay button click
-document.getElementById("pay-button").addEventListener("click", function() {
-    const phoneNumber = document.getElementById("phone-number").value;
-    
-    if (phoneNumber.length === 10) {
-        // Simulate MPESA payment process
-        alert(`An MPESA pop-up will appear on phone number ${phoneNumber}. Please enter your MPESA PIN.`);
-        
-        // Add initial payment status to Firestore as pending
-        db.collection("payments").add({
-            phoneNumber: phoneNumber,
-            amount: 250,
-            status: "Pending",
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(function(docRef) {
-            console.log("Payment added with ID: ", docRef.id);
-            alert("After receiving the MPESA transaction code, please enter it in the next field.");
-        }).catch(function(error) {
-            console.error("Error adding payment: ", error);
-        });
-    } else {
-        alert("Please enter a valid phone number.");
-    }
-});
-
-// Handle payment code submission
-document.getElementById("submit-payment").addEventListener("click", function() {
-    const paymentCode = document.getElementById("payment-confirmation").value;
-    
-    if (paymentCode) {
-        // Update Firestore with the MPESA transaction code
-        db.collection("payments").where("phoneNumber", "==", document.getElementById("phone-number").value)
-        .get().then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                db.collection("payments").doc(doc.id).update({
-                    mpesaCode: paymentCode,
-                    status: "Waiting for Confirmation"
-                });
-                document.getElementById("payment-status").textContent = "Payment submitted. Please wait up to 30 minutes for confirmation.";
-            });
-        }).catch((error) => {
-            console.error("Error updating payment: ", error);
-        });
-    } else {
-        alert("Please enter the MPESA transaction code.");
-    }
-});
-</script>
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
 </body>
