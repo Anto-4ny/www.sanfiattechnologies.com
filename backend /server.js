@@ -1,96 +1,89 @@
+const express = require('express');
+const bodyParser = require('body-parser');
 const axios = require('axios');
-const firebase = require("firebase-admin");
+const admin = require('firebase-admin');
+require('dotenv').config();
 
-// Initialize Firebase
-firebase.initializeApp({
-  credential: firebase.credential.applicationDefault(),
-  databaseURL: "https://your-firebase-url.firebaseio.com"
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Firebase Admin SDK setup
+admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+    databaseURL: 'https://your-database-url.firebaseio.com'
 });
 
-const db = firebase.firestore();
+const db = admin.firestore();
 
-// Daraja API credentials
-const consumerKey = 'yourConsumerKey';
-const consumerSecret = 'yourConsumerSecret';
-const shortCode = 'yourCooperativeBankPaybill'; // Paybill account number
-const passkey = 'yourPassKey'; 
-const callbackURL = 'https://your-server-url/callback'; // Your backend callback URL
+// Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Function to generate access token
+// MPESA STK Push endpoint
+app.post('/api/pay', async (req, res) => {
+    const { phoneNumber } = req.body;
+    const amount = 250; // Amount to be paid
+
+    try {
+        const token = await getAccessToken();
+        const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
+
+        // Add initial payment status to Firestore as pending
+        const paymentDoc = await db.collection('payments').add({
+            phoneNumber,
+            amount,
+            status: 'Pending',
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        res.status(200).json({
+            message: 'Payment initiated. Please enter your MPESA PIN.',
+            paymentId: paymentDoc.id,
+            stkResponse
+        });
+    } catch (error) {
+        console.error('Error initiating payment:', error);
+        res.status(500).json({ error: 'Payment initiation failed.' });
+    }
+});
+
+// Function to get access token
 async function getAccessToken() {
-    const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+    const auth = Buffer.from(`${process.env.CONSUMER_KEY}:${process.env.CONSUMER_SECRET}`).toString('base64');
+
     const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
         headers: {
             Authorization: `Basic ${auth}`
         }
     });
+
     return response.data.access_token;
 }
 
-// Function to trigger MPESA STK Push
-async function initiateSTKPush(phoneNumber, amount) {
-    const accessToken = await getAccessToken();
-    const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
-    const password = Buffer.from(`${shortCode}${passkey}${timestamp}`).toString('base64');
-
-    const requestBody = {
-        BusinessShortCode: shortCode,
-        Password: password,
-        Timestamp: timestamp,
-        TransactionType: "CustomerPayBillOnline",
+// Function to initiate STK push
+async function initiateSTKPush(token, phoneNumber, amount) {
+    const payload = {
+        BusinessShortCode: '400200',
         Amount: amount,
         PartyA: phoneNumber,
-        PartyB: shortCode,
+        PartyB: '400200',
         PhoneNumber: phoneNumber,
-        CallBackURL: callbackURL,
-        AccountReference: "Payment",
-        TransactionDesc: "Payment for Services"
+        CallBackURL: 'https://your-callback-url.com/callback',
+        AccountReference: 'YourAccountReference',
+        TransactionDesc: 'Payment for services'
     };
 
-    const response = await axios.post(
-        'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
-        requestBody,
-        {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
+    const response = await axios.post('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', payload, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
         }
-    );
+    });
 
     return response.data;
 }
 
-// Handle payment initiation
-app.post('/pay', async (req, res) => {
-    const { phoneNumber } = req.body;
-    const amount = 250; // The amount to pay
-
-    try {
-        const result = await initiateSTKPush(phoneNumber, amount);
-        res.status(200).json({ success: true, message: 'Payment initiated. Enter your MPESA PIN.' });
-    } catch (error) {
-        console.error('Payment initiation failed:', error);
-        res.status(500).json({ success: false, message: 'Payment initiation failed' });
-    }
-});
-
-// Callback to handle the response from MPESA
-app.post('/callback', (req, res) => {
-    const paymentData = req.body.Body.stkCallback;
-    const phoneNumber = paymentData.CallbackMetadata.Item[4].Value;
-    const mpesaCode = paymentData.CallbackMetadata.Item[1].Value;
-
-    // Save payment data to Firestore
-    db.collection('payments').add({
-        phoneNumber: phoneNumber,
-        mpesaCode: mpesaCode,
-        amount: 250,
-        status: "Waiting for Confirmation",
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        res.status(200).send("Payment recorded");
-    }).catch((error) => {
-        console.error("Error saving payment:", error);
-        res.status(500).send("Error saving payment");
-    });
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
