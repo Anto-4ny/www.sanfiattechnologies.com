@@ -47,6 +47,34 @@ app.post('/api/pay', async (req, res) => {
     }
 });
 
+// MPESA Callback handler
+app.post('/api/callback', async (req, res) => {
+    const { Body } = req.body;
+    const { stkCallback } = Body;
+
+    if (stkCallback && stkCallback.ResultCode !== undefined) {
+        const { MerchantRequestID, CheckoutRequestID, ResultCode, PhoneNumber } = stkCallback;
+
+        // Find and update the payment in Firestore
+        try {
+            const paymentRef = await db.collection('payments').where('phoneNumber', '==', PhoneNumber).get();
+            paymentRef.forEach(async (doc) => {
+                await db.collection('payments').doc(doc.id).update({
+                    status: ResultCode === 0 ? 'Success' : 'Failed', // ResultCode 0 means success
+                    mpesaCode: CheckoutRequestID
+                });
+            });
+
+            res.status(200).send('Callback processed successfully');
+        } catch (error) {
+            console.error('Error updating payment status:', error);
+            res.status(500).send('Failed to process callback');
+        }
+    } else {
+        res.status(400).send('Invalid callback data');
+    }
+});
+
 // Function to get access token
 async function getAccessToken() {
     const auth = Buffer.from(`${process.env.CONSUMER_KEY}:${process.env.CONSUMER_SECRET}`).toString('base64');
@@ -68,8 +96,8 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         PartyA: phoneNumber,
         PartyB: '400200',
         PhoneNumber: phoneNumber,
-        CallBackURL: 'https://your-callback-url.com/callback',
-        AccountReference: 'YourAccountReference',
+        CallBackURL: 'https://your-domain.com/api/callback',
+        AccountReference: '860211', // Cooperative bank paybill account number
         TransactionDesc: 'Payment for services'
     };
 
@@ -87,3 +115,4 @@ async function initiateSTKPush(token, phoneNumber, amount) {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+                
