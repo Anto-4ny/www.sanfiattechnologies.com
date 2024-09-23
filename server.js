@@ -120,6 +120,26 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     return response.data;
 }
 
+// Endpoint to update payment with MPESA transaction code
+app.post('/api/payments/:paymentId/update', async (req, res) => {
+    const { paymentId } = req.params;
+    const { mpesaCode } = req.body;
+
+    try {
+        const paymentRef = db.collection('payments').doc(paymentId);
+        await paymentRef.update({
+            mpesaCode: mpesaCode,
+            status: 'Waiting for Confirmation'
+        });
+
+        res.status(200).json({ message: 'Payment updated successfully.' });
+    } catch (error) {
+        console.error('Error updating payment:', error);
+        res.status(500).json({ error: 'Failed to update payment.' });
+    }
+});
+
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
