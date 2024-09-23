@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const admin = require('firebase-admin');
-const path = require('path');  // To handle file paths
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -20,7 +20,7 @@ const db = admin.firestore();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Serve static files (HTML, CSS, JS) from the root folder
+// Serve static files (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname)));
 
 // Route to serve deposit.html directly from the root directory
@@ -42,7 +42,8 @@ app.post('/api/pay', async (req, res) => {
             phoneNumber,
             amount,
             status: 'Pending',
-            timestamp: admin.firestore.FieldValue.serverTimestamp()
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            mpesaCheckoutRequestID: stkResponse.CheckoutRequestID // Save CheckoutRequestID to track later
         });
 
         res.status(200).json({
@@ -62,24 +63,39 @@ app.post('/api/callback', async (req, res) => {
     const { stkCallback } = Body;
 
     if (stkCallback && stkCallback.ResultCode !== undefined) {
-        const { MerchantRequestID, CheckoutRequestID, ResultCode, PhoneNumber } = stkCallback;
+        const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
 
-        // Find and update the payment in Firestore
         try {
-            const paymentRef = await db.collection('payments').where('phoneNumber', '==', PhoneNumber).get();
-            paymentRef.forEach(async (doc) => {
-                await db.collection('payments').doc(doc.id).update({
-                    status: ResultCode === 0 ? 'Success' : 'Failed', // ResultCode 0 means success
-                    mpesaCode: CheckoutRequestID
-                });
-            });
+            // Find and update the payment using the CheckoutRequestID
+            const paymentRef = await db.collection('payments')
+                .where('mpesaCheckoutRequestID', '==', CheckoutRequestID)
+                .get();
 
-            res.status(200).send('Callback processed successfully');
+            if (!paymentRef.empty) {
+                // Extract MPESA transaction details (e.g., transaction code)
+                let mpesaCode = '';
+                if (CallbackMetadata && CallbackMetadata.Item) {
+                    mpesaCode = CallbackMetadata.Item.find(item => item.Name === 'MpesaReceiptNumber')?.Value || '';
+                }
+
+                paymentRef.forEach(async (doc) => {
+                    await db.collection('payments').doc(doc.id).update({
+                        status: ResultCode === 0 ? 'Success' : 'Failed', // ResultCode 0 means success
+                        mpesaCode: mpesaCode || 'N/A'
+                    });
+                });
+
+                res.status(200).send('Callback processed successfully');
+            } else {
+                console.error('Payment not found for CheckoutRequestID:', CheckoutRequestID);
+                res.status(404).send('Payment not found');
+            }
         } catch (error) {
             console.error('Error updating payment status:', error);
             res.status(500).send('Failed to process callback');
         }
     } else {
+        console.error('Invalid callback data received');
         res.status(400).send('Invalid callback data');
     }
 });
@@ -100,13 +116,15 @@ async function getAccessToken() {
 // Function to initiate MPESA STK Push
 async function initiateSTKPush(token, phoneNumber, amount) {
     const payload = {
-        BusinessShortCode: '400200',
+        BusinessShortCode: '400200', // Replace with your shortcode
+        Password: createMpesaPassword(), // Password created using Shortcode and passkey
+        Timestamp: getCurrentTimestamp(), // Current timestamp in yyyymmddhhmmss
         Amount: amount,
         PartyA: phoneNumber,
-        PartyB: '400200',
+        PartyB: '400200', // Business shortcode
         PhoneNumber: phoneNumber,
         CallBackURL: 'https://your-domain.com/api/callback',
-        AccountReference: '860211', // Cooperative bank paybill account number
+        AccountReference: '860211', // Paybill account number or unique identifier
         TransactionDesc: 'Payment for services'
     };
 
@@ -120,7 +138,27 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     return response.data;
 }
 
-// Endpoint to update payment with MPESA transaction code
+// Utility function to create the MPESA password
+function createMpesaPassword() {
+    const shortcode = '400200'; // Replace with your business shortcode
+    const passkey = process.env.MPESA_PASSKEY; // From MPESA developer portal
+    const timestamp = getCurrentTimestamp();
+    const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
+    return password;
+}
+
+// Utility function to get the current timestamp
+function getCurrentTimestamp() {
+    const now = new Date();
+    return now.getFullYear() + 
+           ('0' + (now.getMonth() + 1)).slice(-2) + 
+           ('0' + now.getDate()).slice(-2) + 
+           ('0' + now.getHours()).slice(-2) + 
+           ('0' + now.getMinutes()).slice(-2) + 
+           ('0' + now.getSeconds()).slice(-2);
+}
+
+// Endpoint to update payment with MPESA transaction code manually
 app.post('/api/payments/:paymentId/update', async (req, res) => {
     const { paymentId } = req.params;
     const { mpesaCode } = req.body;
@@ -139,8 +177,8 @@ app.post('/api/payments/:paymentId/update', async (req, res) => {
     }
 });
 
-
 // Start server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+                             
