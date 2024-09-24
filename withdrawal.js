@@ -1,55 +1,23 @@
-document.getElementById('withdrawal-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
+document.getElementById('withdrawalForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
 
-    const withdrawalAmount = parseFloat(document.getElementById('withdrawal-amount').value);
-    const phoneNumber = document.getElementById('phone-number').value;
-    const transactionFee = withdrawalAmount * 0.10;
-    const netAmount = withdrawalAmount - transactionFee;
+    const userId = document.getElementById('userId').value;
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    const amount = document.getElementById('amount').value;
 
-    if (withdrawalAmount < 1000 || withdrawalAmount > 15500) {
-        document.getElementById('withdrawal-status').textContent = "Withdrawal amount must be between Ksh 1000 and Ksh 15500.";
-        return;
-    }
+    try {
+        const response = await fetch('/api/withdraw', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId, phoneNumber, amount })
+        });
 
-    // Fetch user's referral data to verify eligibility
-    const userReferrals = await fetchUserReferrals(phoneNumber);
-    if (userReferrals.totalReferrals < 10 || userReferrals.totalPaidReferrals < 10) {
-        document.getElementById('withdrawal-status').textContent = "You need at least 10 paid referrals to withdraw.";
-        return;
-    }
-
-    // Simulate MPESA transaction
-    const confirmation = confirm(`You are withdrawing Ksh ${withdrawalAmount}. A transaction fee of Ksh ${transactionFee} will be deducted. You will receive Ksh ${netAmount}. Do you wish to continue?`);
-    if (confirmation) {
-        // Call backend API for withdrawal
-        try {
-            const response = await fetch('/api/withdraw', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phoneNumber: phoneNumber,
-                    amount: netAmount,
-                    transactionFee: transactionFee
-                })
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                document.getElementById('withdrawal-status').textContent = "Withdrawal successful! Funds will be processed shortly.";
-            } else {
-                document.getElementById('withdrawal-status').textContent = "Error processing withdrawal: " + result.message;
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            document.getElementById('withdrawal-status').textContent = "An error occurred. Please try again.";
-        }
+        const result = await response.json();
+        document.getElementById('responseMessage').textContent = result.message || result.error;
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('responseMessage').textContent = 'An error occurred while processing your request.';
     }
 });
-
-// Mock function for checking user's referrals
-async function fetchUserReferrals(phoneNumber) {
-    // Replace with your backend API to check user referrals and registration payments
-    return await fetch(`/api/user/${phoneNumber}/referrals`).then(response => response.json());
-      }
-      
