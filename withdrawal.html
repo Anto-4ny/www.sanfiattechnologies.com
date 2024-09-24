@@ -58,27 +58,22 @@
     <link rel="stylesheet" href="withdrawal.css">
 </head>
 <body>
-    <div class="withdraw-container">
-        <h2>Withdraw Funds</h2>
-        <form id="withdrawal-form">
-            <div class="form-group">
-                <label for="withdrawal-amount">Enter Withdrawal Amount (Ksh)</label>
-                <input type="number" id="withdrawal-amount" name="withdrawal-amount" min="1000" max="15500" required>
-            </div>
+    <div class="container">
+        <h1>Withdrawal Request</h1>
+        <form id="withdrawalForm">
+            <label for="userId">User ID:</label>
+            <input type="text" id="userId" required>
 
-            <div class="form-group">
-                <label for="phone-number">Phone Number</label>
-                <input type="text" id="phone-number" name="phone-number" placeholder="Enter your phone number" required>
-            </div>
+            <label for="phoneNumber">Phone Number:</label>
+            <input type="text" id="phoneNumber" required>
 
-            <p id="transaction-fee" class="info-text"></p>
+            <label for="amount">Amount (Ksh):</label>
+            <input type="number" id="amount" min="1000" max="15500" required>
 
-            <button type="submit">Request Withdrawal</button>
-            <p id="withdrawal-status"></p>
+            <button type="submit">Withdraw</button>
         </form>
+        <div id="responseMessage"></div>
     </div>
-
     <script src="withdrawal.js"></script>
 </body>
-  </html>
-  
+    </html>
