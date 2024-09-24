@@ -62,19 +62,20 @@
         <h1>Withdrawal Request</h1>
         <form id="withdrawalForm">
             <label for="userId">Email:</label>
-            <input type="text" id="userId" required>
+            <input type="email" id="userId" placeholder="Enter your email" required>
 
             <label for="phoneNumber">Phone Number:</label>
-            <input type="text" id="phoneNumber" required>
+            <input type="text" id="phoneNumber" placeholder="Enter your phone number" required>
 
             <label for="amount">Amount (Ksh):</label>
-            <input type="number" id="amount" min="1000" max="15500" required>
+            <input type="number" id="amount" min="1000" max="15500" placeholder="Enter amount between 1000 and 15500" required>
 
             <button type="submit">Withdraw</button>
         </form>
         <div id="responseMessage"></div>
     </div>
     <script src="withdrawal.js"></script>
+</body>
  class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js"></script>
