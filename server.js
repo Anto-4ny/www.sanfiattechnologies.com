@@ -28,7 +28,13 @@ app.get('/deposit', (req, res) => {
     res.sendFile(path.join(__dirname, 'deposit.html'));
 });
 
-// MPESA STK Push API endpoint
+// Route to serve withdrawal.html
+app.get('/withdrawal', (req, res) => {
+    res.sendFile(path.join(__dirname, 'withdrawal.html'));
+});
+
+
+// MPESA STK Push API endpoint for deposits
 app.post('/api/pay', async (req, res) => {
     const { phoneNumber } = req.body;
     const amount = 250; // Amount to be paid
@@ -57,7 +63,7 @@ app.post('/api/pay', async (req, res) => {
     }
 });
 
-// MPESA Callback handler
+// MPESA Callback handler for deposits
 app.post('/api/callback', async (req, res) => {
     const { Body } = req.body;
     const { stkCallback } = Body;
@@ -177,8 +183,76 @@ app.post('/api/payments/:paymentId/update', async (req, res) => {
     }
 });
 
+// Withdrawal Feature
+
+// Route to request withdrawal
+app.post('/api/withdraw', async (req, res) => {
+    const { userId, phoneNumber, amount } = req.body;
+
+    try {
+        // Check if the user has enough balance
+        const userDoc = await db.collection('users').doc(userId).get();
+        const userData = userDoc.data();
+
+        if (!userData || userData.balance < amount) {
+            return res.status(400).json({ error: 'Insufficient balance.' });
+        }
+
+        // Deduct the amount from the user's balance
+        await db.collection('users').doc(userId).update({
+            balance: admin.firestore.FieldValue.increment(-amount)
+        });
+
+        // Record the withdrawal request in Firestore
+        const withdrawalDoc = await db.collection('withdrawals').add({
+            userId,
+            phoneNumber,
+            amount,
+            status: 'Pending',
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Send a success message
+        res.status(200).json({
+            message: 'Withdrawal requested successfully. It is being processed.',
+            withdrawalId: withdrawalDoc.id
+        });
+    } catch (error) {
+        console.error('Error processing withdrawal:', error);
+        res.status(500).json({ error: 'Failed to process withdrawal request.' });
+    }
+});
+
+// Admin approves the withdrawal and processes it (e.g., via MPESA)
+app.post('/api/withdraw/:withdrawalId/approve', async (req, res) => {
+    const { withdrawalId } = req.params;
+
+    try {
+        // Retrieve the withdrawal request
+        const withdrawalRef = db.collection('withdrawals').doc(withdrawalId);
+        const withdrawalDoc = await withdrawalRef.get();
+
+        if (!withdrawalDoc.exists) {
+            return res.status(404).json({ error: 'Withdrawal request not found.' });
+        }
+
+        const withdrawalData = withdrawalDoc.data();
+
+        // Process the withdrawal (example: send money via MPESA or other services)
+        // For this example, we are marking the withdrawal as "Success"
+        await withdrawalRef.update({
+            status: 'Success'
+        });
+
+        res.status(200).json({ message: 'Withdrawal processed successfully.' });
+    } catch (error) {
+        console.error('Error approving withdrawal:', error);
+        res.status(500).json({ error: 'Failed to approve withdrawal.' });
+    }
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-                             
+
