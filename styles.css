@@ -24,13 +24,13 @@ header {
     display: none;
     flex-direction: column;
     position: absolute;
-    top: 60px;
+    top: 70px;
     right: 0;
     width: 50%; /* Make mobile menu half the screen width */
     background-color: #fff;
     border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px;
+    border-radius: 6px;
+    padding: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     z-index: 1000;
 }
@@ -38,18 +38,18 @@ header {
 /* Mobile nav links styling */
 .mobile-nav a {
     display: flex;
-    align-items: center;
+    align-items: left;
     padding: 15px;
     text-align: left;
     color: #000;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 20px;
     border-bottom: 1px solid #ddd;
 }
 
 .mobile-nav a img {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     margin-right: 10px;
 }
 
