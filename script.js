@@ -73,6 +73,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Assuming you have already initialized Firebase in your project
+
+document.getElementById('forgot-password').addEventListener('click', function() {
+    const email = prompt("Please enter your registered email address:");
+    if (email) {
+        firebase.auth().sendPasswordResetEmail(email)
+            .then(() => {
+                alert("Password reset email sent! Please check your inbox.");
+            })
+            .catch((error) => {
+                let errorMessage = error.message;
+                alert("Error: " + errorMessage);
+            });
+    } else {
+        alert("Email cannot be empty.");
+    }
+});
+
+
+
     // Function to get URL parameters
 function getUrlParameter(name) {
     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
