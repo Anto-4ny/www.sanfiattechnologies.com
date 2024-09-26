@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const admin = require('firebase-admin');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid'); // To generate unique referral codes
 require('dotenv').config();
 
 const app = express();
@@ -33,10 +34,94 @@ app.get('/withdrawal', (req, res) => {
     res.sendFile(path.join(__dirname, 'withdrawal.html'));
 });
 
+// Referral link generation for new users
+app.post('/api/register', async (req, res) => {
+    const { phoneNumber, email, referralCode } = req.body;
+
+    try {
+        // Check if a user already exists
+        const userDoc = await db.collection('users').doc(email).get();
+        if (userDoc.exists) {
+            return res.status(400).json({ error: 'User already exists.' });
+        }
+
+        // Generate a unique referral link for the new user
+        const userReferralCode = uuidv4(); // Generate a unique referral code
+
+        // Save the new user along with their referral code
+        await db.collection('users').doc(email).set({
+            phoneNumber,
+            email,
+            referralCode: userReferralCode,
+            referredBy: referralCode || null, // Save the referral code if it was used
+            balance: 0,
+            registeredAt: admin.firestore.FieldValue.serverTimestamp(),
+            paidRegistration: false
+        });
+
+        // If a referral code was used, record the referral
+        if (referralCode) {
+            const referrer = await db.collection('users')
+                .where('referralCode', '==', referralCode)
+                .limit(1)
+                .get();
+
+            if (!referrer.empty) {
+                const referrerDoc = referrer.docs[0];
+                await db.collection('users').doc(referrerDoc.id).update({
+                    referredUsers: admin.firestore.FieldValue.arrayUnion(email)
+                });
+            }
+        }
+
+        res.status(200).json({
+            message: 'User registered successfully.',
+            referralLink: `https://your-domain.com/register?referralCode=${userReferralCode}`
+        });
+    } catch (error) {
+        console.error('Error registering user:', error);
+        res.status(500).json({ error: 'Failed to register user.' });
+    }
+});
+
+// Fetch referred users for a specific user
+app.get('/api/referrals/:email', async (req, res) => {
+    const { email } = req.params;
+
+    try {
+        const userDoc = await db.collection('users').doc(email).get();
+        if (!userDoc.exists) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const userData = userDoc.data();
+        if (!userData.referredUsers || userData.referredUsers.length === 0) {
+            return res.status(200).json({ message: 'No referrals yet.', referrals: [] });
+        }
+
+        // Fetch referred users' details
+        const referralPromises = userData.referredUsers.map(refEmail => db.collection('users').doc(refEmail).get());
+        const referralDocs = await Promise.all(referralPromises);
+
+        const referrals = referralDocs.map(doc => {
+            const refData = doc.data();
+            return {
+                email: doc.id,
+                phoneNumber: refData.phoneNumber,
+                paidRegistration: refData.paidRegistration
+            };
+        });
+
+        res.status(200).json({ referrals });
+    } catch (error) {
+        console.error('Error fetching referrals:', error);
+        res.status(500).json({ error: 'Failed to fetch referrals.' });
+    }
+});
 
 // MPESA STK Push API endpoint for deposits
 app.post('/api/pay', async (req, res) => {
-    const { phoneNumber } = req.body;
+    const { phoneNumber, email } = req.body;
     const amount = 250; // Amount to be paid
 
     try {
@@ -45,6 +130,7 @@ app.post('/api/pay', async (req, res) => {
 
         // Add initial payment status to Firestore as pending
         const paymentDoc = await db.collection('payments').add({
+            email,
             phoneNumber,
             amount,
             status: 'Pending',
@@ -89,6 +175,14 @@ app.post('/api/callback', async (req, res) => {
                         status: ResultCode === 0 ? 'Success' : 'Failed', // ResultCode 0 means success
                         mpesaCode: mpesaCode || 'N/A'
                     });
+
+                    if (ResultCode === 0) {
+                        // Mark the user as having paid registration fee
+                        const paymentData = doc.data();
+                        await db.collection('users').doc(paymentData.email).update({
+                            paidRegistration: true
+                        });
+                    }
                 });
 
                 res.status(200).send('Callback processed successfully');
@@ -106,153 +200,140 @@ app.post('/api/callback', async (req, res) => {
     }
 });
 
+// MPESA Withdrawal Request
+app.post('/api/withdraw', async (req, res) => {
+    const { email, phoneNumber, amount } = req.body;
+
+    try {
+        // Fetch user balance
+        const userDoc = await db.collection('users').doc(email).get();
+        if (!userDoc.exists) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const userData = userDoc.data();
+        const currentBalance = userData.balance || 0;
+
+        // Check if the user has enough balance to withdraw
+        if (currentBalance < amount) {
+            return res.status(400).json({ error: 'Insufficient balance.' });
+        }
+
+        // Deduct the amount from the user's balance
+        const newBalance = currentBalance - amount;
+        await db.collection('users').doc(email).update({
+            balance: newBalance
+        });
+
+        // Process the MPESA withdrawal (simulated for sandbox environment)
+        const token = await getAccessToken();
+        const withdrawalResponse = await initiateWithdrawal(token, phoneNumber, amount);
+
+        // Save the withdrawal transaction in Firestore
+        await db.collection('withdrawals').add({
+            email,
+            phoneNumber,
+            amount,
+            status: 'Pending',
+            mpesaTransactionID: withdrawalResponse.ConversationID,
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        res.status(200).json({
+            message: 'Withdrawal initiated. Please wait for confirmation.',
+            withdrawalResponse
+        });
+    } catch (error) {
+        console.error('Error initiating withdrawal:', error);
+        res.status(500).json({ error: 'Failed to initiate withdrawal.' });
+    }
+});
+
+// Function to initiate MPESA Withdrawal (B2C Request)
+async function initiateWithdrawal(token, phoneNumber, amount) {
+    const payload = {
+        InitiatorName: process.env.INITIATOR_NAME,
+        SecurityCredential: process.env.SECURITY_CREDENTIAL,
+        CommandID: 'BusinessPayment',
+        Amount: amount,
+        PartyA: '400200', // Replace with your shortcode
+        PartyB: phoneNumber,
+        Remarks: 'Withdrawal',
+        QueueTimeOutURL: 'https://anto-4ny.github.io/www.sanfiattechnologies.com/api/withdrawal-timeout',
+        ResultURL: 'https://anto-4ny.github.io/www.sanfiattechnologies.com/api/withdrawal-result',
+        Occasion: 'Withdrawal'
+    };
+
+    const response = await axios.post(
+        'https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest',
+        payload,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    return response.data;
+}
+
 // Function to get MPESA access token
 async function getAccessToken() {
-    const auth = Buffer.from(`${process.env.CONSUMER_KEY}:${process.env.CONSUMER_SECRET}`).toString('base64');
-
     const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
-        headers: {
-            Authorization: `Basic ${auth}`
+        auth: {
+            username: process.env.CONSUMER_KEY,
+            password: process.env.CONSUMER_SECRET
         }
     });
-
     return response.data.access_token;
 }
 
 // Function to initiate MPESA STK Push
 async function initiateSTKPush(token, phoneNumber, amount) {
+    const timestamp = generateTimestamp();
+    const password = Buffer.from(`${process.env.SHORTCODE}${process.env.PASSKEY}${timestamp}`).toString('base64');
+
     const payload = {
-        BusinessShortCode: '400200', // Replace with your shortcode
-        Password: createMpesaPassword(), // Password created using Shortcode and passkey
-        Timestamp: getCurrentTimestamp(), // Current timestamp in yyyymmddhhmmss
+        BusinessShortCode: process.env.SHORTCODE,
+        Password: password,
+        Timestamp: timestamp,
+        TransactionType: 'CustomerPayBillOnline',
         Amount: amount,
         PartyA: phoneNumber,
-        PartyB: '400200', // Business shortcode
+        PartyB: process.env.SHORTCODE,
         PhoneNumber: phoneNumber,
         CallBackURL: 'https://your-domain.com/api/callback',
-        AccountReference: '860211', // Paybill account number or unique identifier
-        TransactionDesc: 'Payment for services'
+        AccountReference: 'Referrals Program',
+        TransactionDesc: 'Payment for registration'
     };
 
-    const response = await axios.post('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', payload, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
+    const response = await axios.post(
+        'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+        payload,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
-    });
+    );
 
     return response.data;
 }
 
-// Utility function to create the MPESA password
-function createMpesaPassword() {
-    const shortcode = '400200'; // Replace with your business shortcode
-    const passkey = process.env.MPESA_PASSKEY; // From MPESA developer portal
-    const timestamp = getCurrentTimestamp();
-    const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
-    return password;
-}
-
-// Utility function to get the current timestamp
-function getCurrentTimestamp() {
+// Generate timestamp for MPESA transactions
+function generateTimestamp() {
     const now = new Date();
-    return now.getFullYear() + 
-           ('0' + (now.getMonth() + 1)).slice(-2) + 
-           ('0' + now.getDate()).slice(-2) + 
-           ('0' + now.getHours()).slice(-2) + 
-           ('0' + now.getMinutes()).slice(-2) + 
-           ('0' + now.getSeconds()).slice(-2);
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${year}${month}${day}${hours}${minutes}${seconds}`;
 }
 
-// Endpoint to update payment with MPESA transaction code manually
-app.post('/api/payments/:paymentId/update', async (req, res) => {
-    const { paymentId } = req.params;
-    const { mpesaCode } = req.body;
-
-    try {
-        const paymentRef = db.collection('payments').doc(paymentId);
-        await paymentRef.update({
-            mpesaCode: mpesaCode,
-            status: 'Waiting for Confirmation'
-        });
-
-        res.status(200).json({ message: 'Payment updated successfully.' });
-    } catch (error) {
-        console.error('Error updating payment:', error);
-        res.status(500).json({ error: 'Failed to update payment.' });
-    }
-});
-
-// Withdrawal Feature
-
-// Route to request withdrawal
-app.post('/api/withdraw', async (req, res) => {
-    const { userId, phoneNumber, amount } = req.body;
-
-    try {
-        // Check if the user has enough balance
-        const userDoc = await db.collection('users').doc(userId).get();
-        const userData = userDoc.data();
-
-        if (!userData || userData.balance < amount) {
-            return res.status(400).json({ error: 'Insufficient balance.' });
-        }
-
-        // Deduct the amount from the user's balance
-        await db.collection('users').doc(userId).update({
-            balance: admin.firestore.FieldValue.increment(-amount)
-        });
-
-        // Record the withdrawal request in Firestore
-        const withdrawalDoc = await db.collection('withdrawals').add({
-            userId,
-            phoneNumber,
-            amount,
-            status: 'Pending',
-            timestamp: admin.firestore.FieldValue.serverTimestamp()
-        });
-
-        // Send a success message
-        res.status(200).json({
-            message: 'Withdrawal requested successfully. It is being processed.',
-            withdrawalId: withdrawalDoc.id
-        });
-    } catch (error) {
-        console.error('Error processing withdrawal:', error);
-        res.status(500).json({ error: 'Failed to process withdrawal request.' });
-    }
-});
-
-// Admin approves the withdrawal and processes it (e.g., via MPESA)
-app.post('/api/withdraw/:withdrawalId/approve', async (req, res) => {
-    const { withdrawalId } = req.params;
-
-    try {
-        // Retrieve the withdrawal request
-        const withdrawalRef = db.collection('withdrawals').doc(withdrawalId);
-        const withdrawalDoc = await withdrawalRef.get();
-
-        if (!withdrawalDoc.exists) {
-            return res.status(404).json({ error: 'Withdrawal request not found.' });
-        }
-
-        const withdrawalData = withdrawalDoc.data();
-
-        // Process the withdrawal (example: send money via MPESA or other services)
-        // For this example, we are marking the withdrawal as "Success"
-        await withdrawalRef.update({
-            status: 'Success'
-        });
-
-        res.status(200).json({ message: 'Withdrawal processed successfully.' });
-    } catch (error) {
-        console.error('Error approving withdrawal:', error);
-        res.status(500).json({ error: 'Failed to approve withdrawal.' });
-    }
-});
-
-// Start server
+// Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
 
