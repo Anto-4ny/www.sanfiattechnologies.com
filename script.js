@@ -213,4 +213,39 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+//referred users
+document.addEventListener('DOMContentLoaded', async function () {
+    const email = "user-email@example.com"; // Replace this with actual logged-in user email
+    const referralSection = document.getElementById('referrals-section');
+    const referralList = document.getElementById('referral-list');
+
+    // Function to fetch referred users
+    async function fetchReferredUsers() {
+        try {
+            const response = await fetch(`/get-referrals?email=${email}`);
+            const referrals = await response.json();
+
+            if (response.ok) {
+                // Display the list of referred users
+                referralList.innerHTML = '';
+                referrals.forEach(referral => {
+                    const listItem = document.createElement('li');
+                    const status = referral.hasPaidFee ? 'Paid' : 'Not Paid';
+                    listItem.textContent = `Email: ${referral.email}, Phone: ${referral.phoneNumber}, Status: ${status}`;
+                    referralList.appendChild(listItem);
+                });
+            } else {
+                referralList.textContent = 'Failed to load referrals';
+            }
+        } catch (error) {
+            console.error('Error fetching referrals:', error);
+            referralList.textContent = 'Error fetching referrals';
+        }
+    }
+
+    // Fetch and display referred users
+    fetchReferredUsers();
+});
+
+
 
