@@ -57,20 +57,26 @@
     </form>
         </div>
 
-    <div id="new-password-section" class="hidden">
-    <h2>Set New Password</h2>
-    <form id="new-password-form">
+    <div id="password-reset-section" class="hidden">
+    <form id="otp-verification-form">
+        <h2>Enter Verification Code</h2>
+        <label for="otp-code">Verification Code:</label>
+        <input type="text" id="otp-code" placeholder="Enter the code from your email" required>
+        <button type="submit" style="width: 50%; height: 50px; font-size: 16px;">Verify Code</button>
+        <div id="otp-message" class="message"></div>
+    </form>
+
+    <form id="new-password-form" class="hidden">
+        <h2>Set New Password</h2>
         <label for="new-password">New Password:</label>
-        <input type="password" id="new-password" placeholder="Enter new password" required>
+        <input type="password" id="new-password" placeholder="Enter your new password" required>
         <label for="confirm-new-password">Confirm New Password:</label>
-        <input type="password" id="confirm-new-password" placeholder="Confirm new password" required>
-        <button type="submit" style="width: 50%; height: 50px; font-size: 16px;">Set New Password</button>
+        <input type="password" id="confirm-new-password" placeholder="Confirm your new password" required>
+        <button type="submit" style="width: 50%; height: 50px; font-size: 16px;">Reset Password</button>
         <div id="new-password-message" class="message"></div>
     </form>
     </div>
     
-        
-  
 
 <div id="signup-section" class="hidden">
     <form id="signup-form">
