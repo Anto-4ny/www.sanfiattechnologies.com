@@ -73,21 +73,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Assuming you have already initialized Firebase in your project
+// For Password Reset Request
+document.getElementById('password-reset-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const email = document.getElementById('reset-email').value;
 
-document.getElementById('forgot-password').addEventListener('click', function() {
-    const email = prompt("Please enter your registered email address:");
-    if (email) {
-        firebase.auth().sendPasswordResetEmail(email)
+    firebase.auth().sendPasswordResetEmail(email)
+        .then(() => {
+            document.getElementById('reset-message').textContent = "Password reset link sent! Please check your email.";
+            document.getElementById('password-reset-section').classList.add('hidden'); // Hide reset request
+        })
+        .catch((error) => {
+            document.getElementById('reset-message').textContent = "Error: " + error.message;
+        });
+});
+
+// Handling back to login button
+document.getElementById('back-to-login').addEventListener('click', function() {
+    document.getElementById('password-reset-section').classList.add('hidden');
+    document.getElementById('login-section').classList.remove('hidden');
+});
+
+// For setting New Password
+document.getElementById('new-password-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const newPassword = document.getElementById('new-password').value;
+    const confirmNewPassword = document.getElementById('confirm-new-password').value;
+
+    if (newPassword === confirmNewPassword) {
+        // You would call a function here to handle the new password setting using the token from the URL
+        // This example assumes you have the token available
+        const urlParams = new URLSearchParams(window.location.search);
+        const oobCode = urlParams.get('oobCode'); // Assuming the reset link contains this parameter
+
+        firebase.auth().verifyPasswordResetCode(oobCode)
+            .then((email) => {
+                return firebase.auth().confirmPasswordReset(oobCode, newPassword);
+            })
             .then(() => {
-                alert("Password reset email sent! Please check your inbox.");
+                document.getElementById('new-password-message').textContent = "Password has been reset successfully!";
+                // Redirect to login after successful reset
+                setTimeout(() => {
+                    window.location.href = 'login.html'; // Adjust to your login page URL
+                }, 2000);
             })
             .catch((error) => {
-                let errorMessage = error.message;
-                alert("Error: " + errorMessage);
+                document.getElementById('new-password-message').textContent = "Error: " + error.message;
             });
     } else {
-        alert("Email cannot be empty.");
+        document.getElementById('new-password-message').textContent = "Passwords do not match.";
     }
 });
 
