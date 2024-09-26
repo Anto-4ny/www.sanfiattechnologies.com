@@ -73,25 +73,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-// For Password Reset Request
-document.getElementById('password-reset-form').addEventListener('submit', function(event) {
+// Handling OTP Verification
+document.getElementById('otp-verification-form').addEventListener('submit', function(event) {
     event.preventDefault();
-    const email = document.getElementById('reset-email').value;
+    const otpCode = document.getElementById('otp-code').value;
 
-    firebase.auth().sendPasswordResetEmail(email)
-        .then(() => {
-            document.getElementById('reset-message').textContent = "Password reset link sent! Please check your email.";
-            document.getElementById('password-reset-section').classList.add('hidden'); // Hide reset request
+    // Here you should verify the OTP code (oobCode)
+    firebase.auth().verifyPasswordResetCode(otpCode)
+        .then((email) => {
+            // If verification is successful, show the new password form
+            document.getElementById('otp-message').textContent = "Code verified successfully!";
+            document.getElementById('new-password-form').classList.remove('hidden');
+            document.getElementById('otp-verification-form').classList.add('hidden');
         })
         .catch((error) => {
-            document.getElementById('reset-message').textContent = "Error: " + error.message;
+            document.getElementById('otp-message').textContent = "Error: " + error.message;
         });
-});
-
-// Handling back to login button
-document.getElementById('back-to-login').addEventListener('click', function() {
-    document.getElementById('password-reset-section').classList.add('hidden');
-    document.getElementById('login-section').classList.remove('hidden');
 });
 
 // For setting New Password
@@ -101,20 +98,16 @@ document.getElementById('new-password-form').addEventListener('submit', function
     const confirmNewPassword = document.getElementById('confirm-new-password').value;
 
     if (newPassword === confirmNewPassword) {
-        // You would call a function here to handle the new password setting using the token from the URL
-        // This example assumes you have the token available
-        const urlParams = new URLSearchParams(window.location.search);
-        const oobCode = urlParams.get('oobCode'); // Assuming the reset link contains this parameter
+        const otpCode = document.getElementById('otp-code').value; // Get the entered OTP code
 
-        firebase.auth().verifyPasswordResetCode(oobCode)
-            .then((email) => {
-                return firebase.auth().confirmPasswordReset(oobCode, newPassword);
-            })
+        // Confirm the password reset with the OTP code and the new password
+        firebase.auth().confirmPasswordReset(otpCode, newPassword)
             .then(() => {
                 document.getElementById('new-password-message').textContent = "Password has been reset successfully!";
-                // Redirect to login after successful reset
+                // Redirect back to login section after successful reset
                 setTimeout(() => {
-                    window.location.href = 'login.html'; // Adjust to your login page URL
+                    document.getElementById('password-reset-section').classList.add('hidden');
+                    document.getElementById('login-section').classList.remove('hidden');
                 }, 2000);
             })
             .catch((error) => {
@@ -124,7 +117,6 @@ document.getElementById('new-password-form').addEventListener('submit', function
         document.getElementById('new-password-message').textContent = "Passwords do not match.";
     }
 });
-
 
 
     // Function to get URL parameters
