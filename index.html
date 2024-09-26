@@ -44,26 +44,49 @@
     </form>
 </div>
 
-<div id="signup-section" class="hidden">
+<div id="signup-section">
     <form id="signup-form">
         <h2>Signup</h2>
         <label for="first-name">First Name:</label>
         <input type="text" id="first-name" pattern="[A-Za-z]+" placeholder="Enter your first name" required>
+        
         <label for="last-name">Last Name:</label>
         <input type="text" id="last-name" pattern="[A-Za-z]+" placeholder="Enter your last name" required>
+        
         <label for="signup-email">Email:</label>
         <input type="email" id="signup-email" placeholder="Enter your email" required>
+        
         <label for="signup-password">Password:</label>
         <input type="password" id="signup-password" placeholder="Create a password" required>
         <span id="toggle-signup-password" class="password-toggle">👁️</span>
+        
         <label for="confirm-password">Confirm Password:</label>
         <input type="password" id="confirm-password" placeholder="Confirm your password" required>
         <span id="toggle-confirm-password" class="password-toggle">👁️</span>
+        
+        <label for="referral-code">Referral Code (optional):</label>
+        <input type="text" id="referral-code" placeholder="Enter referral code (if any)" disabled>
+        
         <button type="submit">Signup</button>
         <div id="signup-message" class="message"></div>
         <button type="button" id="show-login">Go to Login</button>
     </form>
 </div>
+
+        <div id="login-section" class="hidden">
+    <form id="login-form">
+        <h2>Login</h2>
+        <label for="login-email">Email:</label>
+        <input type="email" id="login-email" placeholder="Enter your email" required>
+        <label for="login-password">Password:</label>
+        <input type="password" id="login-password" placeholder="Enter your password" required>
+        <span id="toggle-login-password" class="password-toggle">👁️</span>
+        <button type="submit">Login</button>
+        <div id="login-message" class="message"></div>
+        <button type="button" id="show-signup">Go to Signup</button>
+    </form>
+        </div>
+        
         <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js"></script>
