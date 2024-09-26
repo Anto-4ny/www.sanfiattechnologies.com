@@ -73,6 +73,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Show the password reset section
+document.getElementById('forgot-password').addEventListener('click', function() {
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('password-reset-section').classList.remove('hidden');
+});
+
+// Handle the "Back to Login" button
+document.getElementById('back-to-login').addEventListener('click', function() {
+    document.getElementById('password-reset-section').classList.add('hidden');
+    document.getElementById('login-section').classList.remove('hidden');
+});
+
+// Handle the password reset form submission
+document.getElementById('password-reset-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const email = document.getElementById('reset-email').value;
+
+    // Send the password reset email
+    firebase.auth().sendPasswordResetEmail(email)
+        .then(() => {
+            document.getElementById('reset-message').textContent = "Reset link sent! Check your email.";
+        })
+        .catch((error) => {
+            document.getElementById('reset-message').textContent = "Error: " + error.message;
+        });
+});
+
+
 // Handling OTP Verification
 document.getElementById('otp-verification-form').addEventListener('submit', function(event) {
     event.preventDefault();
