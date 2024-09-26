@@ -181,4 +181,36 @@ document.getElementById('hamburger-icon').addEventListener('click', function() {
     var mobileNav = document.getElementById('mobile-nav');
     mobileNav.classList.toggle('show');
 });
+// referal links
+document.addEventListener('DOMContentLoaded', function () {
+    // Fetch the referral link (Assume it's passed or loaded from the backend)
+    const referralLink = "https://yourdomain.com/signup?referral=your-user-id"; // Replace with dynamic user link
+
+    // Set referral link in the HTML
+    document.getElementById('referral-link').textContent = referralLink;
+
+    // Copy referral link to clipboard
+    document.getElementById('copy-link-button').addEventListener('click', function () {
+        const tempInput = document.createElement('input');
+        document.body.appendChild(tempInput);
+        tempInput.value = referralLink;
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Referral link copied to clipboard!');
+    });
+
+    // WhatsApp sharing functionality
+    document.getElementById('whatsapp-share-button').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const encodedMessage = encodeURIComponent(
+            `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits!`
+        );
+
+        const whatsappURL = `https://wa.me/?text=${encodedMessage}`;
+        window.open(whatsappURL, '_blank');
+    });
+});
+
 
