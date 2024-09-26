@@ -73,6 +73,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Function to get URL parameters
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    const results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
+
+// On DOMContentLoaded, check for referral code in the URL
+document.addEventListener('DOMContentLoaded', () => {
+    const referralCodeInput = document.getElementById('referral-code');
+    const referralCode = getUrlParameter('ref');
+
+    if (referralCode) {
+        referralCodeInput.value = referralCode; // Set the referral code
+        referralCodeInput.disabled = true; // Lock the input
+    }
+});
+
     // Handle registration
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -81,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('signup-email').value;
         const password = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
+        const referralCode = document.getElementById('referral-code').value;
 
         if (password !== confirmPassword) {
             signupMessage.textContent = 'Passwords do not match.';
