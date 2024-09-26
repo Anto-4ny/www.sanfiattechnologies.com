@@ -184,7 +184,7 @@ document.getElementById('hamburger-icon').addEventListener('click', function() {
 // referal links
 document.addEventListener('DOMContentLoaded', function () {
     // Fetch the referral link (Assume it's passed or loaded from the backend)
-    const referralLink = "https://yourdomain.com/signup?referral=your-user-id"; // Replace with dynamic user link
+    const referralLink = "https://anto-4ny.github.io/www.sanfiattechnologies.com/signup?referral=your-user-id"; // Replace with dynamic user link
 
     // Set referral link in the HTML
     document.getElementById('referral-link').textContent = referralLink;
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         } catch (error) {
             console.error('Error fetching referrals:', error);
-            referralList.textContent = 'Error fetching referrals';
+            referralList.textContent = 'Refer people using your referral link above. you can copy to your clipboard or click the WhatsApp icon and share the link';
         }
     }
 
