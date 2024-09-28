@@ -356,12 +356,12 @@ document.getElementById('current-date').textContent = `Date: ${formattedDate}`;
 // Product images URLs (can come from a backend or be hardcoded for now)
 const productImages = [
     'images/product/Photo_1723191951676.png', // Day 1
-    'images/product/product2.png', // Day 2
-    'images/product/product3.png', // Day 3
-    'images/product/product4.png', // Day 4
-    'images/product/product5.png', // Day 5
-    'images/product/product6.png', // Day 6
-    'images/product/product7.png'  // Day 7
+    'images/product/Photo_1723191951676.png', // Day 2
+    'images/product/Photo_1723191951676.png', // Day 3
+    'images/product/Photo_1723191951676.png', // Day 4
+    'images/product/Photo_1723191951676.png', // Day 5
+    'images/product/Photo_1723191951676.png', // Day 6
+    'images/product/Photo_1723191951676.png'  // Day 7
 ];
 
 
