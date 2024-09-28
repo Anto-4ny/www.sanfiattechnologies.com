@@ -360,7 +360,7 @@ const productImages = [
     'https://example.com/images/product3.jpg', // Day 3
     'https://example.com/images/product4.jpg', // Day 4
     'https://example.com/images/product5.jpg', // Day 5
-    'https://example.com/images/product6.jpg', // Day 6
+    'https://anto-4ny.github.io/www.sanfiattechnologies.com/product.html/images/product/Photo_1723191951676.png', // Day 6
     'https://example.com/images/product7.jpg'  // Day 7
 ];
 
