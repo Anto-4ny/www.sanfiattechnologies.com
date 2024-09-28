@@ -348,4 +348,40 @@ document.addEventListener('DOMContentLoaded', async function () {
 });
 
 
+// Get current date
+const today = new Date();
+const formattedDate = today.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+document.getElementById('current-date').textContent = `Date: ${formattedDate}`;
+
+// Product images URLs (can come from a backend or be hardcoded for now)
+const productImages = [
+    'https://example.com/images/product1.jpg', // Day 1
+    'https://example.com/images/product2.jpg', // Day 2
+    'https://example.com/images/product3.jpg', // Day 3
+    'https://example.com/images/product4.jpg', // Day 4
+    'https://example.com/images/product5.jpg', // Day 5
+    'https://example.com/images/product6.jpg', // Day 6
+    'https://example.com/images/product7.jpg'  // Day 7
+];
+
+// Logic to rotate product based on the current day
+const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+for (let i = 0; i < 7; i++) {
+    const productImageElement = document.getElementById(`product-image-${i+1}`);
+    const downloadLinkElement = document.getElementById(`download-image-${i+1}`);
+    const whatsappShareElement = document.getElementById(`whatsapp-share-${i+1}`);
+
+    const productImageUrl = productImages[(dayOfWeek + i) % 7]; // Rotate images based on day of week
+
+    // Set image source
+    productImageElement.src = productImageUrl;
+
+    // Set download link
+    downloadLinkElement.href = productImageUrl;
+
+    // Set WhatsApp share link
+    whatsappShareElement.href = `https://wa.me/?text=Check%20out%20this%20status%20image:%20${encodeURIComponent(productImageUrl)}`;
+}
+
 
