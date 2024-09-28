@@ -202,6 +202,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+document.getElementById('logout-button').addEventListener('click', function() {
+    firebase.auth().signOut()
+    .then(() => {
+        // Successfully logged out, now redirect to login section
+        alert("You have successfully logged out.");
+        
+        // Hide all sections except the login section
+        document.getElementById('login-section').classList.remove('hidden');
+        document.getElementById('signup-section').classList.add('hidden');
+        document.getElementById('password-reset-section').classList.add('hidden');
+        document.getElementById('home').classList.add('hidden');
+
+        // Scroll to the login section for better user experience
+        document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch((error) => {
+        console.error("Error logging out: ", error);
+    });
+});
+
+
 // Function to update dashboard fields
 const updateDashboard = (userData) => {
     // Get the DOM elements for user inf
