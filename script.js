@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         } catch (error) {
             console.error('Error fetching referrals:', error);
-            referralList.textContent = 'Refer people using your referral link above. you can copy to your clipboard or click the WhatsApp icon and share the link';
+            referralList.textContent = 'Refer people by sharing your referral link above.';
         }
     }
 
