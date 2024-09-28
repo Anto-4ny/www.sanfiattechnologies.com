@@ -503,6 +503,53 @@ button:hover {
     font-weight: bold;
 }
 
+/*products.html page*/
+
+.products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.product-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 250px;
+    text-align: center;
+}
+
+.product-card img {
+    max-width: 100%;
+    border-radius: 10px;
+}
+
+.actions {
+    margin-top: 15px;
+}
+
+.actions a {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    color: #fff;
+}
+
+#download-image-1 {
+    background-color: #28a745;
+}
+
+#whatsapp-share-1 {
+    background-color: #25D366;
+}
+
+
+
 .footer {
     display: flex;
     justify-content: space-around; /* Adjust alignment as needed */
