@@ -3,43 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notifications - Sanfiat Technologies</title>
+    <title>Sanfiat Technologies - My Dashboard</title>
+    <meta name="description" content="Sanfiat Technologies offers top-notch products and services advertising.">
+    <meta property="og:title" content="Sanfiat Technologies">
+    <meta property="og:description" content="Leading provider of products and services advertisment.">
+    <meta property="og:image" content=images/Photo_1723191951676.png">
+    <meta property="og:url" content="https://www.sanfiat-technologies.com">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="withdraw.css">
+    <link rel="icon" href="images/Photo_1723191951676.png" type="image/x-icon">
     <style>
-        /* Notifications page styling */
-        .notification-list {
-            margin: 20px auto;
-            width: 80%;
-        }
-
-        .notification-item {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin-bottom: 10px;
-            position: relative;
-        }
-
-        .notification-item p {
-            margin: 0;
-            font-size: 16px;
-        }
-
-        .close-notification-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            cursor: pointer;
-            color: red;
-            font-size: 20px;
-        }
-
-        .no-notifications {
-            text-align: center;
-            margin-top: 20px;
-        }
+        /* Basic styling, adjust as needed */
+        .hidden { display: none; }
+        .show { display: block; }
+        .password-toggle { cursor: pointer; }
+        #payment-section { margin-top: 20px; }
+        .message { color: red; }
     </style>
 </head>
+    <header>
+    <a href="index.html">
+        <img id="logo" src="images/Photo_1723191951676.png" alt="Logo">
+    </a>
+    <div class="notification-icon">
+        <a href="notifications.html">
+            <img src="images/notification-icon.png" alt="Notification" style="width: 30px;">
+            <span class="notification-count" id="notification-count">1</span>
+        </a>
+    </div>
+    <button id="hamburger-icon" class="hamburger-menu">
+        <img src="images/images.png" alt="Menu Icon">
+    </button>
+    <nav class="desktop-nav">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="packages.html">Packages</a>
+        <a href="deposit.html">Deposit</a>
+       <a href="upload.html">Upload screenshot</a>
+        <a href="withdrawal.html">withdraw</a>
+        <a href="product.html.html">Products</a>
+        <button type="button" id="logout-button" style="width: 50%; height: 50px; font-size: 16px;">Log Out</button>
+    </nav>
+    <nav id="mobile-nav" class="mobile-nav">
+        <a href="dashboard.html">
+            <img src="images/dashboard-icon.png" alt="Dashboard"> Dashboard
+        </a>
+        <a href="packages.html">
+            <img src="images/packages-icon.png" alt="Packages"> Packages
+        </a>
+        <a href="deposit.html">
+            <img src="images/deposit-icon.png" alt="Deposit">Deposit</a>
+      <a href="upload.html">
+            <img src="images/upload-icon.png" alt="upload">Upload screenshot
+      </a>
+<a href="withdrawal.html">
+            <img src="images/withdraw-icon.png" alt="withdraw">Withraw
+</a>
+        <a href="product.html">
+            <img src="images/product-icon.png" alt="products">Products
+        </a>
+        <button type="button" id="logout-button" style="width: 50%; height: 50px; font-size: 16px;">Log Out</button>
+        
+    </nav>
+    </header>
 <body>
 
 <header>
