@@ -401,3 +401,18 @@ for (let i = 0; i < 7; i++) {
 }
 
 
+// Handling the notification close event
+document.getElementById('close-notification').addEventListener('click', function() {
+    // Hide the notification bar when close button is clicked
+    document.getElementById('notification-bar').style.display = 'none';
+    
+    // Update notification count to 0 (mark as read)
+    document.getElementById('notification-count').textContent = '0';
+});
+
+// Optional: You can also handle notification icon click if needed
+document.getElementById('notification-icon').addEventListener('click', function() {
+    alert('You have new notifications!');
+});
+
+
