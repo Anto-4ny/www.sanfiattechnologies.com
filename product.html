@@ -124,6 +124,25 @@
             </div>
         </div> -->
     </section>
+    <section id="upload-section">
+                    <h2>Upload Your Status Screenshot</h2>
+                    <form id="upload-form">
+                        <label for="views">Number of Views:</label>
+                        <input type="number" id="views" placeholder="Enter number of views" required>
+                        
+                        <label for="screenshot">Screenshot:</label>
+                        <div class="upload-container">
+                            <div id="drop-zone" class="drop-zone" aria-label="Drop files here or click to upload">
+                                <p>Drag and drop files here or click to upload.</p>
+                                <input type="file" id="file-input" accept="image/*" aria-label="Choose screenshot" required />
+                            </div>
+                            <div id="file-preview" class="file-preview">
+                                <!-- Preview of selected files will be shown here -->
+                            </div>
+                        </div>
+                        <button type="submit" id="upload-button" aria-label="Upload screenshot">Upload Screenshot</button>
+                    </form>
+    </section>
 
     <footer>
     <div class="footer">
