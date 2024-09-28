@@ -277,11 +277,26 @@ onAuthStateChanged(auth, async (user) => {
         window.addEventListener('scroll', handleScroll);
     
 // JavaScript to toggle mobile navigation
-document.getElementById('hamburger-icon').addEventListener('click', function() {
+document.getElementById('hamburger-icon').addEventListener('click', function(event) {
+    event.stopPropagation(); // Prevent the event from bubbling up to the document
     var mobileNav = document.getElementById('mobile-nav');
     mobileNav.classList.toggle('show');
 });
-// referal links
+
+// Close mobile navigation when clicking outside of it
+document.addEventListener('click', function(event) {
+    var mobileNav = document.getElementById('mobile-nav');
+    var hamburgerIcon = document.getElementById('hamburger-icon');
+
+    // If mobile nav is visible and user clicks outside of it or on a different element
+    if (mobileNav.classList.contains('show') && !mobileNav.contains(event.target) && event.target !== hamburgerIcon) {
+        mobileNav.classList.remove('show');
+    }
+});
+
+
+
+// Referal links
 document.addEventListener('DOMContentLoaded', function () {
     // Fetch the referral link (Assume it's passed or loaded from the backend)
     const referralLink = "https://anto-4ny.github.io/www.sanfiattechnologies.com/signup?referral=your-user-id"; // Replace with dynamic user link
