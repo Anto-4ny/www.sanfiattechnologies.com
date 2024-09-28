@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Sanfiat Technologies</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Notifications page styling */
+        .notification-list {
+            margin: 20px auto;
+            width: 80%;
+        }
+
+        .notification-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .notification-item p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .close-notification-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            color: red;
+            font-size: 20px;
+        }
+
+        .no-notifications {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html">
+        <img id="logo" src="images/Photo_1723191951676.png" alt="Logo">
+    </a>
+    <div class="notification-icon">
+        <a href="notifications.html">
+            <img src="images/notification-icon.png" alt="Notification" style="width: 30px;">
+            <span class="notification-count" id="notification-count">1</span>
+        </a>
+    </div>
+</header>
+
+<h2 style="text-align: center;">Your Notifications</h2>
+
+<section class="notification-list">
+    <div class="notification-item" id="notification-1">
+        <p>Cashback Offers Activated Successfully: Purchase Premium package @1,800 Receive 5000KES Cashback, Purchase Professional package @4,800 Receive 10000KES Cashback bonus. All Cashbacks are instant!</p>
+        <span class="close-notification-btn" onclick="closeNotification('notification-1')">&times;</span>
+    </div>
+    <!-- You can add more notifications here -->
+</section>
+
+<script>
+    // Function to close a notification
+    function closeNotification(id) {
+        const notification = document.getElementById(id);
+        if (notification) {
+            notification.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
