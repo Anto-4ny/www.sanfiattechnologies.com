@@ -17,6 +17,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+
 // Middleware to parse incoming JSON and form data
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -331,6 +332,41 @@ function generateTimestamp() {
     const seconds = String(now.getSeconds()).padStart(2, '0');
     return `${year}${month}${day}${hours}${minutes}${seconds}`;
 }
+
+// Firestore setup
+const firestore = firebase.firestore();
+const usersRef = firestore.collection('users');
+
+// Function to handle referral updates
+async function handleReferral(referrerId, referredPackageType) {
+    const referrerRef = usersRef.doc(referrerId).collection('packages').doc(referredPackageType);
+    const referrerPackage = await referrerRef.get();
+    
+    if (referrerPackage.exists) {
+        const currentCount = referrerPackage.data().referralsCount || 0;
+        const newCount = currentCount + 1;
+        
+        // Update referral count
+        await referrerRef.update({
+            referralsCount: newCount
+        });
+        
+        // Check if referrals requirement is met
+        if (newCount >= referrerPackage.data().numberOfReferralsRequired) {
+            await addNotification(referrerId, 'Referral goal met for ' + referredPackageType + ' package!');
+        }
+    }
+}
+
+// Function to add notifications
+async function addNotification(userId, message) {
+    const notificationsRef = usersRef.doc(userId).collection('notifications');
+    await notificationsRef.add({
+        message: message,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
+
 
 // Start the server
 app.listen(PORT, () => {
