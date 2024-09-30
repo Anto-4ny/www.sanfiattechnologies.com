@@ -179,6 +179,40 @@
 
 
 <script>
+    function generateReferralLink(packageName) {
+    const baseUrl = "https://yourwebsite.com/referral";  // Your base referral URL
+    const userId = "USER_ID";  // Replace with logic to get user's ID or name
+    const referralLink = `${baseUrl}?package=${packageName}&referrer=${userId}`;
+    return referralLink;
+}
+
+function displayReferralLink(packageName, linkElementId) {
+    const referralLink = generateReferralLink(packageName);
+    const linkElement = document.getElementById(linkElementId);
+    linkElement.textContent = referralLink;
+}
+
+function copyReferralLink(packageName, linkElementId) {
+    const referralLink = generateReferralLink(packageName);
+    const tempInput = document.createElement("input");
+    tempInput.value = referralLink;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+
+    // Optionally, show a notification or alert to the user
+    alert(`Referral link for ${packageName} copied: ${referralLink}`);
+}
+
+// Initialize referral links when the page loads
+document.addEventListener("DOMContentLoaded", function() {
+    displayReferralLink('basic', 'basic-referral-link');
+    displayReferralLink('standard', 'standard-referral-link');
+    displayReferralLink('premium', 'premium-referral-link');
+    displayReferralLink('ultimate', 'ultimate-referral-link');
+});
+    
 // Fetch user package data from Firestore and update the UI
 function updatePackageStatus() {
     const userPackagesRef = firestore.collection('users').doc(userId).collection('packages');
