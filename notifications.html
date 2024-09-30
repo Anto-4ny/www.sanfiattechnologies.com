@@ -77,17 +77,37 @@
         <span class="close-notification-btn" onclick="closeNotification('notification-1')">&times;</span>
     </div>
     <!-- You can add more notifications here -->
-</section>
+<div id="notifications-container"></div>
 
 <script>
-    // Function to close a notification
-    function closeNotification(id) {
-        const notification = document.getElementById(id);
-        if (notification) {
-            notification.style.display = 'none';
-        }
+    const notificationsRef = firestore.collection('users').doc(userId).collection('notifications');
+    
+    async function fetchNotifications() {
+        const notificationsSnapshot = await notificationsRef.get();
+        const notificationsContainer = document.getElementById('notifications-container');
+        
+        notificationsSnapshot.forEach(doc => {
+            const notificationData = doc.data();
+            const notificationElement = document.createElement('div');
+            notificationElement.classList.add('notification-item');
+            
+            notificationElement.innerHTML = `
+                <p>${notificationData.message}</p>
+                <button onclick="closeNotification('${doc.id}')">Close</button>
+            `;
+            
+            notificationsContainer.appendChild(notificationElement);
+        });
     }
+    
+    async function closeNotification(notificationId) {
+        await notificationsRef.doc(notificationId).delete();
+        location.reload(); // reload to reflect changes
+    }
+    
+    fetchNotifications();
 </script>
+</section>
 
 <footer>
     <div class="footer">
