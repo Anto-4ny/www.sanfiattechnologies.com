@@ -75,9 +75,9 @@
         </ol>
 
         <label for="phone-number">Enter Your Phone Number:</label>
-        <input type="text" id="phone-number" placeholder="07XX XXX XXX">
-        
-        <button type="button" id="pay-button">Pay 250 Ksh</button>
+<input type="text" id="phone-number" placeholder="07XX XXX XXX">
+
+<button type="button" id="pay-button">Pay <span id="package-amount"></span></button>
         
         <label for="payment-confirmation">Enter MPESA Code:</label>
         <input type="text" id="payment-confirmation" placeholder="MPESA Transaction Code">
@@ -111,7 +111,25 @@
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
     <script>
-    // Handle Pay button click
+   
+// Extract the package info from the URL query string
+function getQueryParams() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const packageName = urlParams.get('packageName');
+    const packagePrice = urlParams.get('packagePrice');
+    
+    // Update the pay button with the correct package price
+    document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
+    
+    return { packageName, packagePrice };
+}
+
+// Call the function to update the page with the package details
+const packageInfo = getQueryParams();
+
+        
+        // Handle Pay button click
     document.getElementById("pay-button").addEventListener("click", async function() {
         const phoneNumber = document.getElementById("phone-number").value;
         
