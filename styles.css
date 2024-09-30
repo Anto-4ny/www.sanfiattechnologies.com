@@ -169,7 +169,7 @@ main {
 
 .notification-icon img {
     width: 30px;
-    vertical-align: middle;
+    vertical-align: right;
 }
 
 .notification-count {
