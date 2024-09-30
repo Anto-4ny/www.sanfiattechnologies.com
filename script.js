@@ -417,3 +417,110 @@ notificationsRef.onSnapshot(snapshot => {
     const unreadCount = snapshot.docs.length;
     notificationCountElement.textContent = unreadCount;
 });
+
+
+// Function to generate a referral link based on package and user ID
+function generateReferralLink(packageName) {
+    const baseUrl = "https://yourwebsite.com/referral";  // Replace with your actual base URL
+    const userId = "USER_ID";  // Replace with logic to get user's authenticated ID
+    const referralLink = `${baseUrl}?package=${packageName}&referrer=${userId}`;
+    return referralLink;
+}
+
+// Function to display the referral link in the UI
+function displayReferralLink(packageName, linkElementId) {
+    const referralLink = generateReferralLink(packageName);
+    const linkElement = document.getElementById(linkElementId);
+    linkElement.textContent = referralLink;
+}
+
+// Function to copy the referral link to the clipboard
+function copyReferralLink(packageName, linkElementId) {
+    const referralLink = generateReferralLink(packageName);
+    const tempInput = document.createElement("input");
+    tempInput.value = referralLink;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+
+    // Optionally, show a notification or alert to the user
+    alert(`Referral link for ${packageName} copied: ${referralLink}`);
+}
+
+// Initialize referral links for each package when the page loads
+document.addEventListener("DOMContentLoaded", function () {
+    displayReferralLink('basic', 'basic-referral-link');
+    displayReferralLink('standard', 'standard-referral-link');
+    displayReferralLink('premium', 'premium-referral-link');
+    displayReferralLink('ultimate', 'ultimate-referral-link');
+});
+
+// Fetch user package data from Firestore and update the UI with package status
+function updatePackageStatus() {
+    const userId = 'USER_ID';  // Replace with actual user ID from authentication
+    const userPackagesRef = firestore.collection('users').doc(userId).collection('packages');
+
+    userPackagesRef.get().then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+            const packageData = doc.data();
+            const statusElement = document.getElementById(`${packageData.packageName.toLowerCase()}-status`);
+
+            if (packageData.status === 'active') {
+                statusElement.textContent = 'Active';
+                statusElement.style.color = 'green';
+            } else {
+                statusElement.textContent = 'Inactive';
+                statusElement.style.color = 'red';
+            }
+        });
+    });
+}
+
+// Call the function to update the package status UI
+updatePackageStatus();
+
+// Fetch user packages from Firestore and render them dynamically
+async function fetchUserPackages() {
+    const userId = 'USER_ID'; // Replace with actual user ID from authentication
+    const userPackagesRef = firestore.collection('users').doc(userId).collection('packages');
+    const userPackagesSnapshot = await userPackagesRef.get();
+    const packagesContainer = document.getElementById('user-packages');
+
+    userPackagesSnapshot.forEach(doc => {
+        const packageData = doc.data();
+        const packageElement = document.createElement('div');
+        packageElement.classList.add('package-box');
+        packageElement.style.backgroundColor = packageData.color; // Customize package color
+
+        packageElement.innerHTML = `
+            <h3>${packageData.packageType} Package</h3>
+            <div class="package-price">Ksh ${packageData.price}</div>
+            <div class="package-description">${packageData.description}</div>
+            <div class="package-details">
+                <p>Referrals Required: ${packageData.numberOfReferralsRequired}</p>
+                <p>Referrals Made: ${packageData.referralsCount}</p>
+                <p>Pay Per View: ${packageData.payPerView} Ksh</p>
+                <progress value="${packageData.referralsCount}" max="${packageData.numberOfReferralsRequired}"></progress>
+            </div>
+            <button class="pay-button" onclick="requestPayment('${packageData.packageType}')">Pay via MPESA</button>
+            <div class="package-referral-link">
+                <p>Referral Link: <span id="${packageData.packageType.toLowerCase()}-referral-link"></span></p>
+                <button onclick="copyReferralLink('${packageData.packageType.toLowerCase()}', '${packageData.packageType.toLowerCase()}-referral-link')">Copy Link</button>
+            </div>
+        `;
+
+        packagesContainer.appendChild(packageElement);
+        displayReferralLink(packageData.packageType.toLowerCase(), `${packageData.packageType.toLowerCase()}-referral-link`);
+    });
+}
+
+// Fetch and display user packages on page load
+fetchUserPackages();
+
+// Function to handle MPESA payment request
+function requestPayment(packageType) {
+    // Redirect to deposit.html for payment processing
+    window.location.href = `deposit.html?package=${packageType}`;
+}
+
