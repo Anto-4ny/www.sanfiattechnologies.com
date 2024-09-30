@@ -402,10 +402,18 @@ for (let i = 0; i < 7; i++) {
 
 
 // Handling the notification close event
-    document.getElementById('close-notification').addEventListener('click', function() {
-        // Hide the notification bar when close button is clicked
-        document.getElementById('notification-bar').style.display = 'none';
-        
-        // Optionally, update the unread notification count if needed
-        document.getElementById('notification-count').textContent = '0';
-    });
+document.getElementById('close-notification').addEventListener('click', function() {
+    // Hide the notification bar when close button is clicked
+    document.getElementById('notification-bar').style.display = 'none';
+    
+    // Optionally, update the unread notification count if needed
+    document.getElementById('notification-count').textContent = '0';
+});
+
+const notificationCountElement = document.getElementById('notification-count');
+
+// Listen for new notifications
+notificationsRef.onSnapshot(snapshot => {
+    const unreadCount = snapshot.docs.length;
+    notificationCountElement.textContent = unreadCount;
+});
