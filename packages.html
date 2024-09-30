@@ -79,28 +79,27 @@
                     <p>Select a package and make the payment to get started!</p>
                 </section>
                 <div class="package-container">
-                    <!-- Package 1 -->
-                    <div class="package-box" style="background-color: #eaf2f8; border-color: #b3d9ff;">
-                        <h3>Basic Package</h3>
-                        <div class="package-price">Ksh 500</div>
-                        <div class="package-description">Ideal for small campaigns.</div>
-                        <div class="package-details">
-                            <p>Number of Referrals Required: 5</p>
-                            <p>Pay Per View: 5 Ksh</p>
-                            <p>Payment Information: Click the button below to pay.</p>
-                        </div>
-                         <button class="pay-button" 
+                    <!-- Package 1: Basic -->
+<div class="package-box" style="background-color: #eaf2f8; border-color: #b3d9ff;">
+    <h3>Basic Package</h3>
+    <div class="package-price">Ksh 500</div>
+    <div class="package-description">Ideal for small campaigns.</div>
+    <div class="package-details">
+        <p>Number of Referrals Required: 5</p>
+        <p>Pay Per View: 5 Ksh</p>
+        <p>Payment Information: Click the button below to pay.</p>
+    </div>
+    <button class="pay-button" 
         onclick="window.location.href='deposit.html?packageName=Basic&packagePrice=500'" 
         aria-label="Pay for Basic Package via MPESA">
     Pay via MPESA
-                         </button>
-                        <div class="package-referral-link">
-                            <p>Referral Link: <span id="basic-referral-link"></span></p>
-                            <button onclick="copyReferralLink('basic')" aria-label="Copy Basic Package referral link">Copy Link</button>
-                        </div>
-                    </div>
-
-                    <!-- Package 2 -->
+    </button>
+    <div class="package-referral-link">
+        <p>Referral Link: <span id="basic-referral-link"></span></p>
+        <button onclick="copyReferralLink('basic', 'basic-referral-link')" aria-label="Copy Basic Package referral link">Copy Link</button>
+    </div>
+</div>
+           <!-- Package 2 -->
                     <div class="package-box" style="background-color: #fff3e0; border-color: #ffb74d;">
                         <h3>Standard Package</h3>
                         <div class="package-price">Ksh 2800</div>
@@ -117,7 +116,7 @@
                          </button>
                         <div class="package-referral-link">
                             <p>Referral Link: <span id="standard-referral-link"></span></p>
-                            <button onclick="copyReferralLink('standard')" aria-label="Copy Standard Package referral link">Copy Link</button>
+                            <button onclick="copyReferralLink('standard', 'standard-referral-link')" aria-label="Copy Standard Package referral link">Copy Link</button>
                         </div>
                     </div>
 
@@ -138,7 +137,7 @@
                         </button>
                         <div class="package-referral-link">
                             <p>Referral Link: <span id="premium-referral-link"></span></p>
-                            <button onclick="copyReferralLink('premium')" aria-label="Copy Premium Package referral link">Copy Link</button>
+                            <button onclick="copyReferralLink('premium', 'premium-refferal-link')" aria-label="Copy Premium Package referral link">Copy Link</button>
                         </div>
                     </div>
 
@@ -159,7 +158,7 @@
                          </button>
                         <div class="package-referral-link">
                             <p>Referral Link: <span id="ultimate-referral-link"></span></p>
-                            <button onclick="copyReferralLink('ultimate')" aria-label="Copy Ultimate Package referral link">Copy Link</button>
+                            <button onclick="copyReferralLink('ultimate', 'ultimate-referral-link')" aria-label="Copy Ultimate Package referral link">Copy Link</button>
                         </div>
                     </div>
                 </div>
