@@ -171,7 +171,40 @@
   <!-- Packages will be dynamically inserted here -->
 </div>
 
+<div class="package-status" id="basic-status"></div>
+<div class="package-status" id="standard-status"></div>
+<div class="package-status" id="premium-status"></div>
+<div class="package-status" id="ultimate-status"></div>
+
+
+
+
 <script>
+// Fetch user package data from Firestore and update the UI
+function updatePackageStatus() {
+    const userPackagesRef = firestore.collection('users').doc(userId).collection('packages');
+    
+    userPackagesRef.get().then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+            const packageData = doc.data();
+            const statusElement = document.getElementById(`${packageData.packageName.toLowerCase()}-status`);
+            
+            if (packageData.status === 'active') {
+                statusElement.textContent = 'Active';
+                statusElement.style.color = 'green';
+            } else {
+                statusElement.textContent = 'Inactive';
+                statusElement.style.color = 'red';
+            }
+        });
+    });
+}
+
+// Call the function to update the UI
+updatePackageStatus();
+
+        
+    
     const userId = 'USER_ID'; // Replace with actual user ID from authentication
     const userPackagesRef = firestore.collection('users').doc(userId).collection('packages');
 
