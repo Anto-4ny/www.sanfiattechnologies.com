@@ -187,7 +187,7 @@ main {
 
 /* Notification Bar on Dashboard */
 #notification-bar {
-    background-color: #f39c12;
+    background-color: #e8f5e9;
     color: white;
     padding: 15px;
     text-align: left;
@@ -211,7 +211,7 @@ main {
 }
 
 .notification-item {
-    background-color: #f8f9fa;
+    background-color: #e8f5e9;
     border: 1px solid #ddd;
     padding: 20px;
     margin-bottom: 10px;
