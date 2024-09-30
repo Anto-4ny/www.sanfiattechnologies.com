@@ -368,6 +368,58 @@ async function addNotification(userId, message) {
 }
 
 
+    // Firestore setup for the user
+const userId = firebase.auth().currentUser.uid;
+const userPackagesRef = firestore.collection('users').doc(userId).collection('packages');
+
+// Handle payment completion
+function handlePaymentCompletion(packageName) {
+    // Assume the payment was successful and update Firestore with the purchased package
+    userPackagesRef.doc(packageName).set({
+        packageName: packageName,
+        price: packagePrice,
+        status: 'inactive',  // Initially inactive until referrals are complete
+        referrals: 0,
+        referralsRequired: packageReferralsRequired[packageName] // Predefined referral requirement
+    });
+
+    // Show notification for successful payment
+    showNotification(`Payment for ${packageName} package completed!`);
+}
+
+// Handle when a referral completes payment
+function handleReferralCompletion(referralUserId, packageName) {
+    const userPackageRef = userPackagesRef.doc(packageName);
+    
+    userPackageRef.get().then(doc => {
+        if (doc.exists) {
+            const currentReferrals = doc.data().referrals + 1;
+            const referralsRequired = doc.data().referralsRequired;
+            let status = 'inactive';
+
+            // Check if enough referrals are completed
+            if (currentReferrals >= referralsRequired) {
+                status = 'active';
+                showNotification(`${packageName} package is now active!`);
+            }
+
+            // Update the package status and referral count
+            userPackageRef.update({
+                referrals: currentReferrals,
+                status: status
+            });
+        }
+    });
+}
+
+// Example notification function (can be adjusted for UI)
+function showNotification(message) {
+    const notificationBar = document.getElementById('notification-bar');
+    notificationBar.textContent = message;
+    notificationBar.style.display = 'block';
+    }
+        
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
