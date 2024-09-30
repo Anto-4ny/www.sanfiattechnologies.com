@@ -150,6 +150,66 @@
             </section>
         </section>
     </section>
+
+        <div class="package-container" id="user-packages">
+  <!-- Packages will be dynamically inserted here -->
+</div>
+
+<script>
+    const userId = 'USER_ID'; // Replace with actual user ID from authentication
+    const userPackagesRef = firestore.collection('users').doc(userId).collection('packages');
+
+    // Fetch user packages and render them dynamically
+    async function fetchUserPackages() {
+        const userPackagesSnapshot = await userPackagesRef.get();
+        const packagesContainer = document.getElementById('user-packages');
+        
+        userPackagesSnapshot.forEach(doc => {
+            const packageData = doc.data();
+            const packageElement = document.createElement('div');
+            packageElement.classList.add('package-box');
+            packageElement.style.backgroundColor = packageData.color; // customize package color
+            
+            packageElement.innerHTML = `
+                <h3>${packageData.packageType} Package</h3>
+                <div class="package-price">Ksh ${packageData.price}</div>
+                <div class="package-description">${packageData.description}</div>
+                <div class="package-details">
+                    <p>Referrals Required: ${packageData.numberOfReferralsRequired}</p>
+                    <p>Referrals Made: ${packageData.referralsCount}</p>
+                    <p>Pay Per View: ${packageData.payPerView} Ksh</p>
+                    <progress value="${packageData.referralsCount}" max="${packageData.numberOfReferralsRequired}"></progress>
+                </div>
+                <button class="pay-button" onclick="requestPayment('${packageData.packageType}')">Pay via MPESA</button>
+                <div class="package-referral-link">
+                    <p>Referral Link: <span id="${packageData.packageType}-referral-link"></span></p>
+                    <button onclick="copyReferralLink('${packageData.packageType}')">Copy Link</button>
+                </div>
+            `;
+            
+            packagesContainer.appendChild(packageElement);
+        });
+    }
+    fetchUserPackages();
+
+    // Function to request MPESA payment
+    function requestPayment(packageType) {
+        // Redirect to deposit.html for payment processing
+        window.location.href = `deposit.html?package=${packageType}`;
+    }
+
+    // Function to copy referral link
+    function copyReferralLink(packageType) {
+        const referralLink = `https://yourwebsite.com/referral/${packageType}?referrer=${userId}`;
+        const referralLinkElement = document.getElementById(`${packageType}-referral-link`);
+        referralLinkElement.textContent = referralLink;
+        
+        navigator.clipboard.writeText(referralLink)
+            .then(() => alert('Referral link copied!'))
+            .catch(err => alert('Failed to copy link!'));
+    }
+                </script>
+        
     
             
     </main>
@@ -195,6 +255,7 @@
         </a>
     </div>
 </footer>
+
     
         <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
