@@ -210,21 +210,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Function to update dashboard fields
 const updateDashboard = (userData) => {
-    // Get the DOM elements for user inf
-    const firstNameElement =document.getElementById('firstName');
+    // Get the DOM elements for user info
+    const firstNameElement = document.getElementById('firstName');
     const userEmailElement = document.getElementById('user-email');
     const referralCountElement = document.getElementById('referral-count');
     const totalViewsElement = document.getElementById('total-views');
     const totalEarningsElement = document.getElementById('total-earnings');
     const amountPaidElement = document.getElementById('amount-paid');
+    const packageStatusElement = document.getElementById('package-status'); // New element for package status
 
     // Update fields with user data
     if (userData) {
+        firstNameElement.textContent = userData.firstName || 'No name'; // Update first name
         userEmailElement.textContent = userData.email || 'No email';
         referralCountElement.textContent = userData.referrals || 0;
         totalViewsElement.textContent = userData.totalViews || 0;
         totalEarningsElement.textContent = userData.totalEarnings || 0;
         amountPaidElement.textContent = userData.amountPaid || 0;
+
+        // Update package status
+        packageStatusElement.textContent = userData.packageStatus || 'No active package';
     }
 };
 
@@ -240,6 +245,10 @@ onAuthStateChanged(auth, async (user) => {
         if (userSnapshot.exists()) {
             const userData = userSnapshot.data();
             userData.email = userEmail; // Add email to userData for easier display
+
+            // Fetch additional user details like firstName and packageStatus
+            userData.firstName = userData.firstName || 'No name'; // Ensure first name is included
+            userData.packageStatus = userData.packageStatus || 'No active package'; // Ensure package status is included
 
             // Update the dashboard with fetched user data
             updateDashboard(userData);
