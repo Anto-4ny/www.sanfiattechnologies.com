@@ -24,7 +24,7 @@ header {
     padding: 10px;
     background-color: #fff;
     border-bottom: 1px solid #ddd;
-    position: relative;
+    position: fixed;
 }
 
 
