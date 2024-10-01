@@ -403,40 +403,38 @@ for (let i = 0; i < 7; i++) {
 
 // Handling the notification close event
 document.getElementById('close-notification').addEventListener('click', function() {
-    // Hide the notification bar when the close button is clicked
+    // Hide the notification bar when close button is clicked
     document.getElementById('notification-bar').style.display = 'none';
-    
-    // Optionally, update the unread notification count
+
+    // Optionally, update the unread notification count if needed
     document.getElementById('notification-count').textContent = '0';
 });
 
-// Listening for new notifications and updating the notification count
 const notificationCountElement = document.getElementById('notification-count');
-const notificationsRef = firestore.collection('notifications'); // Update this with your Firestore collection
 
+// Listen for new notifications
 notificationsRef.onSnapshot(snapshot => {
     const unreadCount = snapshot.docs.length;
     notificationCountElement.textContent = unreadCount;
 });
 
 // Function to generate a referral link based on package and user ID
-function generateReferralLink(packageName) {
+function generateReferralLink(packageName, userId) {
     const baseUrl = "https://yourwebsite.com/referral";  // Replace with your actual base URL
-    const userId = "USER_ID";  // Replace with logic to get the user's authenticated ID
     const referralLink = `${baseUrl}?package=${packageName}&referrer=${userId}`;
     return referralLink;
 }
 
 // Function to display the referral link in the UI
-function displayReferralLink(packageName, linkElementId) {
-    const referralLink = generateReferralLink(packageName);
+function displayReferralLink(packageName, linkElementId, userId) {
+    const referralLink = generateReferralLink(packageName, userId);
     const linkElement = document.getElementById(linkElementId);
     linkElement.textContent = referralLink;
 }
 
 // Function to copy the referral link to the clipboard
-function copyReferralLink(packageName, linkElementId) {
-    const referralLink = generateReferralLink(packageName);
+function copyReferralLink(packageName, linkElementId, userId) {
+    const referralLink = generateReferralLink(packageName, userId);
     const tempInput = document.createElement("input");
     tempInput.value = referralLink;
     document.body.appendChild(tempInput);
@@ -448,17 +446,8 @@ function copyReferralLink(packageName, linkElementId) {
     alert(`Referral link for ${packageName} copied: ${referralLink}`);
 }
 
-// Initialize referral links for each package when the page loads
-document.addEventListener("DOMContentLoaded", function () {
-    displayReferralLink('basic', 'basic-referral-link');
-    displayReferralLink('standard', 'standard-referral-link');
-    displayReferralLink('premium', 'premium-referral-link');
-    displayReferralLink('ultimate', 'ultimate-referral-link');
-});
-
 // Fetch user package data from Firestore and update the UI with package status
-function updatePackageStatus() {
-    const userId = 'USER_ID';  // Replace with actual user ID from authentication
+function updatePackageStatus(userId) {
     const userPackagesRef = firestore.collection('users').doc(userId).collection('packages');
 
     userPackagesRef.get().then(querySnapshot => {
@@ -477,12 +466,8 @@ function updatePackageStatus() {
     });
 }
 
-// Call the function to update the package status UI
-updatePackageStatus();
-
 // Fetch user packages from Firestore and render them dynamically
-async function fetchUserPackages() {
-    const userId = 'USER_ID'; // Replace with actual user ID from authentication
+async function fetchUserPackages(userId) {
     const userPackagesRef = firestore.collection('users').doc(userId).collection('packages');
     const userPackagesSnapshot = await userPackagesRef.get();
     const packagesContainer = document.getElementById('user-packages');
@@ -506,20 +491,33 @@ async function fetchUserPackages() {
             <button class="pay-button" onclick="requestPayment('${packageData.packageType}')">Pay via MPESA</button>
             <div class="package-referral-link">
                 <p>Referral Link: <span id="${packageData.packageType.toLowerCase()}-referral-link"></span></p>
-                <button onclick="copyReferralLink('${packageData.packageType.toLowerCase()}', '${packageData.packageType.toLowerCase()}-referral-link')">Copy Link</button>
+                <button onclick="copyReferralLink('${packageData.packageType.toLowerCase()}', '${packageData.packageType.toLowerCase()}-referral-link', '${userId}')">Copy Link</button>
             </div>
         `;
 
         packagesContainer.appendChild(packageElement);
-        displayReferralLink(packageData.packageType.toLowerCase(), `${packageData.packageType.toLowerCase()}-referral-link`);
+        displayReferralLink(packageData.packageType.toLowerCase(), `${packageData.packageType.toLowerCase()}-referral-link`, userId);
     });
 }
-
-// Fetch and display user packages on page load
-fetchUserPackages();
 
 // Function to handle MPESA payment request
 function requestPayment(packageType) {
     // Redirect to deposit.html for payment processing
     window.location.href = `deposit.html?package=${packageType}`;
 }
+
+// Listen for the authenticated user and initialize the app
+firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+        const userId = user.uid; // This is the USER_ID
+        console.log('User ID:', userId);
+
+        // Now you can use this userId in your Firestore queries, functions, etc.
+        fetchUserPackages(userId);
+        updatePackageStatus(userId);
+    } else {
+        // No user is signed in, handle accordingly (e.g., redirect to login)
+        console.log('No user is signed in');
+    }
+});
+                         
