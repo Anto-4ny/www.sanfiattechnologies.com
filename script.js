@@ -403,26 +403,26 @@ for (let i = 0; i < 7; i++) {
 
 // Handling the notification close event
 document.getElementById('close-notification').addEventListener('click', function() {
-    // Hide the notification bar when close button is clicked
+    // Hide the notification bar when the close button is clicked
     document.getElementById('notification-bar').style.display = 'none';
     
-    // Optionally, update the unread notification count if needed
+    // Optionally, update the unread notification count
     document.getElementById('notification-count').textContent = '0';
 });
 
+// Listening for new notifications and updating the notification count
 const notificationCountElement = document.getElementById('notification-count');
+const notificationsRef = firestore.collection('notifications'); // Update this with your Firestore collection
 
-// Listen for new notifications
 notificationsRef.onSnapshot(snapshot => {
     const unreadCount = snapshot.docs.length;
     notificationCountElement.textContent = unreadCount;
 });
 
-
 // Function to generate a referral link based on package and user ID
 function generateReferralLink(packageName) {
     const baseUrl = "https://yourwebsite.com/referral";  // Replace with your actual base URL
-    const userId = "USER_ID";  // Replace with logic to get user's authenticated ID
+    const userId = "USER_ID";  // Replace with logic to get the user's authenticated ID
     const referralLink = `${baseUrl}?package=${packageName}&referrer=${userId}`;
     return referralLink;
 }
@@ -523,4 +523,3 @@ function requestPayment(packageType) {
     // Redirect to deposit.html for payment processing
     window.location.href = `deposit.html?package=${packageType}`;
 }
-
