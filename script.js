@@ -429,7 +429,7 @@ notificationsRef.onSnapshot(snapshot => {
 
 // Function to generate a referral link based on package and user ID
 function generateReferralLink(packageName, userId) {
-    const baseUrl = "https://yourwebsite.com/referral";  // Replace with your actual base URL
+    const baseUrl = "https://anto-4ny.github.io/www.sanfiattechnologies.com/packages.html/";  // Replace with your actual base URL
     const referralLink = `${baseUrl}?package=${packageName}&referrer=${userId}`;
     return referralLink;
 }
