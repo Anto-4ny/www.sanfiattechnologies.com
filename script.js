@@ -453,7 +453,7 @@ function updatePackageStatus(userId) {
     userPackagesRef.get().then(querySnapshot => {
         querySnapshot.forEach(doc => {
             const packageData = doc.data();
-            const statusElement = document.getElementById(`${packageData.packageName.toLowerCase()}-status`);
+            const statusElement = document.getElementById(`${packageData.packageType.toLowerCase()}-status`);
 
             if (packageData.status === 'active') {
                 statusElement.textContent = 'Active';
@@ -493,6 +493,7 @@ async function fetchUserPackages(userId) {
                 <p>Referral Link: <span id="${packageData.packageType.toLowerCase()}-referral-link"></span></p>
                 <button onclick="copyReferralLink('${packageData.packageType.toLowerCase()}', '${packageData.packageType.toLowerCase()}-referral-link', '${userId}')">Copy Link</button>
             </div>
+            <div id="${packageData.packageType.toLowerCase()}-status"></div>
         `;
 
         packagesContainer.appendChild(packageElement);
@@ -520,4 +521,4 @@ firebase.auth().onAuthStateChanged(function(user) {
         console.log('No user is signed in');
     }
 });
-                         
+        
