@@ -285,9 +285,9 @@ onAuthStateChanged(auth, async (user) => {
         // Attach the scroll event listener
         window.addEventListener('scroll', handleScroll);
     
-// JavaScript to toggle mobile navigation
+// Toggle mobile navigation
 document.getElementById('hamburger-icon').addEventListener('click', function(event) {
-    event.stopPropagation(); // Prevent the event from bubbling up to the document
+    event.stopPropagation(); // Prevent event bubbling up to document
     var mobileNav = document.getElementById('mobile-nav');
     mobileNav.classList.toggle('show');
 });
@@ -297,13 +297,22 @@ document.addEventListener('click', function(event) {
     var mobileNav = document.getElementById('mobile-nav');
     var hamburgerIcon = document.getElementById('hamburger-icon');
 
-    // If mobile nav is visible and user clicks outside of it or on a different element
+    // Close the menu if clicking outside and menu is open
     if (mobileNav.classList.contains('show') && !mobileNav.contains(event.target) && event.target !== hamburgerIcon) {
         mobileNav.classList.remove('show');
     }
 });
 
-
+// Handle dropdown functionality for subcategories
+document.querySelectorAll('.has-submenu').forEach(function(item) {
+    item.addEventListener('click', function() {
+        this.classList.toggle('active');
+        var submenu = this.querySelector('.submenu');
+        if (submenu) {
+            submenu.classList.toggle('show-submenu');
+        }
+    });
+});
 
 // Referal links
 document.addEventListener('DOMContentLoaded', function () {
