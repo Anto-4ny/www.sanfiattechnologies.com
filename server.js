@@ -333,30 +333,6 @@ function generateTimestamp() {
     return `${year}${month}${day}${hours}${minutes}${seconds}`;
 }
 
-// Firestore setup
-const firestore = firebase.firestore();
-const usersRef = firestore.collection('users');
-
-// Function to handle referral updates
-async function handleReferral(referrerId, referredPackageType) {
-    const referrerRef = usersRef.doc(referrerId).collection('packages').doc(referredPackageType);
-    const referrerPackage = await referrerRef.get();
-    
-    if (referrerPackage.exists) {
-        const currentCount = referrerPackage.data().referralsCount || 0;
-        const newCount = currentCount + 1;
-        
-        // Update referral count
-        await referrerRef.update({
-            referralsCount: newCount
-        });
-        
-        // Check if referrals requirement is met
-        if (newCount >= referrerPackage.data().numberOfReferralsRequired) {
-            await addNotification(referrerId, 'Referral goal met for ' + referredPackageType + ' package!');
-        }
-    }
-}
 
 // Function to add notifications
 async function addNotification(userId, message) {
@@ -364,51 +340,6 @@ async function addNotification(userId, message) {
     await notificationsRef.add({
         message: message,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-}
-
-
-    // Firestore setup for the user
-const userId = firebase.auth().currentUser.uid;
-const userPackagesRef = firestore.collection('users').doc(userId).collection('packages');
-
-// Handle payment completion
-function handlePaymentCompletion(packageName) {
-    // Assume the payment was successful and update Firestore with the purchased package
-    userPackagesRef.doc(packageName).set({
-        packageName: packageName,
-        price: packagePrice,
-        status: 'inactive',  // Initially inactive until referrals are complete
-        referrals: 0,
-        referralsRequired: packageReferralsRequired[packageName] // Predefined referral requirement
-    });
-
-    // Show notification for successful payment
-    showNotification(`Payment for ${packageName} package completed!`);
-}
-
-// Handle when a referral completes payment
-function handleReferralCompletion(referralUserId, packageName) {
-    const userPackageRef = userPackagesRef.doc(packageName);
-    
-    userPackageRef.get().then(doc => {
-        if (doc.exists) {
-            const currentReferrals = doc.data().referrals + 1;
-            const referralsRequired = doc.data().referralsRequired;
-            let status = 'inactive';
-
-            // Check if enough referrals are completed
-            if (currentReferrals >= referralsRequired) {
-                status = 'active';
-                showNotification(`${packageName} package is now active!`);
-            }
-
-            // Update the package status and referral count
-            userPackageRef.update({
-                referrals: currentReferrals,
-                status: status
-            });
-        }
     });
 }
 
