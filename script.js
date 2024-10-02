@@ -539,83 +539,124 @@ firebase.auth().onAuthStateChanged(function(user) {
         console.log('No user is signed in');
     }
 });
-        
-// Handle activation button click to show the payment section
-document.getElementById('activate-btn').addEventListener('click', function() {
-    document.getElementById('payment-section').style.display = 'block';
-});
 
-// Handle payment button click to trigger MPESA payment
-document.getElementById('pay-btn').addEventListener('click', function() {
-    const phoneNumber = document.getElementById('phone-number').value;
-    const amount = document.getElementById('amount').value;
+// Initialize Firestore (using Firebase SDK)
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const firestore = firebase.firestore();
 
-    if (phoneNumber.length === 10 && phoneNumber.startsWith('07')) {
-        mpesaPayment(phoneNumber, amount);  // Trigger MPESA payment
+// Function to check if the user has paid
+const checkUserPaymentStatus = async () => {
+    const userId = localStorage.getItem('userId');  // Assuming userId is stored after login
+    if (!userId) {
+        return false;  // No user logged in
+    }
+
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (userDoc.exists && userDoc.data().paymentStatus) {
+        return true;  // User has paid
     } else {
-        alert('Please enter a valid MPESA number');
+        return false;  // User has not paid
+    }
+};
+
+// Redirect user based on payment status
+document.addEventListener('DOMContentLoaded', async () => {
+    const hasPaid = await checkUserPaymentStatus();
+    if (!hasPaid) {
+        showPaymentPopup();
     }
 });
 
-// Function to trigger MPESA payment (STK push)
-const mpesaPayment = async (phoneNumber, amount) => {
-    try {
-        const response = await fetch("/initiate-payment", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ phoneNumber, amount })
-        });
+// Function to show the payment popup
+const showPaymentPopup = () => {
+    const popup = document.getElementById('payment-popup');
+    popup.style.display = 'block';
+    
+    // Hide the pay button initially
+    const payButton = document.getElementById('pay-btn');
+    payButton.style.display = 'none';
 
-        const result = await response.json();
-        if (result.success) {
-            console.log("STK push sent to the user's phone.");
+    // Show the pay button after clicking "Activate Account"
+    const activateButton = document.getElementById('activate-btn');
+    activateButton.addEventListener('click', () => {
+        payButton.style.display = 'block';
+    });
+
+    // Handle pay button click and initiate MPESA payment
+    payButton.addEventListener('click', () => {
+        const phoneNumber = document.getElementById('mpesa-phone').value;
+        const amount = 250;
+
+        if (phoneNumber) {
+            // Call the backend to initiate the MPESA payment
+            fetch('/initiate-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    phoneNumber: phoneNumber,
+                    amount: amount
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("MPESA payment initiated. Please check your phone.");
+                } else {
+                    alert("Payment failed: " + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
         } else {
-            console.log("Error sending STK push: ", result.message);
+            alert("Please enter your MPESA phone number.");
         }
-    } catch (error) {
-        console.error("MPESA payment error: ", error);
+    });
+};
+
+// HTML for Payment Popup
+document.body.innerHTML += `
+    <div id="payment-popup" class="payment-popup">
+        <div class="popup-content">
+            <h3>Activate Your Account</h3>
+            <p>You need to activate your account by paying 250 Ksh to access restricted pages.</p>
+            <button id="activate-btn">Activate Account</button>
+            <div id="payment-form" style="margin-top: 10px;">
+                <input type="text" id="mpesa-phone" placeholder="Enter your MPESA number" />
+                <button id="pay-btn">Pay</button>
+            </div>
+        </div>
+    </div>
+`;
+
+// CSS for the payment popup
+const style = document.createElement('style');
+style.innerHTML = `
+    .payment-popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
     }
-};
-
-// Check payment status on page load
-const checkPaymentStatus = () => {
-    if (localStorage.getItem('paymentStatus') === 'paid') {
-        document.getElementById('payment-popup').style.display = 'none';
-        document.body.style.overflow = "auto"; // Allow scrolling if already paid
-    } else {
-        document.getElementById('payment-popup').style.display = 'block';
+    .popup-content {
+        background: white;
+        margin: 15% auto;
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+        border-radius: 8px;
     }
-};
-
-// Save payment details to Firestore (this would be done by the backend)
-const savePaymentDetails = async (userId, phoneNumber, amount, transactionId) => {
-    try {
-        await firestore.collection('payments').add({
-            userId: userId,
-            phoneNumber: phoneNumber,
-            amount: amount,
-            transactionId: transactionId,
-            timestamp: new Date()
-        });
-        console.log("Payment details saved to Firestore");
-    } catch (error) {
-        console.error("Error saving payment details: ", error);
-    }
-};
-
-// When payment is successful
-const onPaymentSuccess = (transactionId) => {
-    const userId = localStorage.getItem('userId');  // Assuming you store the userId on login
-    const phoneNumber = document.getElementById('phone-number').value;
-    const amount = document.getElementById('amount').value;
-
-    savePaymentDetails(userId, phoneNumber, amount, transactionId); // Save to Firestore
-
-    localStorage.setItem('paymentStatus', 'paid'); // Mark payment as done
-    checkPaymentStatus(); // Recheck payment status to unlock pages
-};
-
-// Run on page load
-document.addEventListener("DOMContentLoaded", checkPaymentStatus);
+`;
+document.head.appendChild(style);
