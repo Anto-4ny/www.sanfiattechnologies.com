@@ -6,6 +6,39 @@ body {
     background-position: center;
     background-repeat: no-repeat;
 }
+h1 {
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+#responseMessage {
+    text-align: center;
+    margin-top: 10px;
+}
 
 #home-page {
     background-image: url('images/referralsbackground.jpg'); /* Replace with your image path */
