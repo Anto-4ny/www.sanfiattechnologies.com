@@ -540,7 +540,6 @@ firebase.auth().onAuthStateChanged(function(user) {
     }
 });
 
-
 // Function to check if the user has paid
 const checkUserPaymentStatus = async () => {
     const userId = localStorage.getItem('userId');  // Assuming userId is stored after login
@@ -569,20 +568,20 @@ const showPaymentPopup = () => {
     const popup = document.getElementById('payment-popup');
     popup.style.display = 'block';
     
-    // Hide the pay button initially
-    const payButton = document.getElementById('pay-btn');
-    payButton.style.display = 'none';
+    // Hide the payment section initially
+    const paymentSection = document.getElementById('payment-section');
+    paymentSection.style.display = 'none';
 
-    // Show the pay button after clicking "Activate Account"
+    // Show the payment section and pay button after clicking "Activate Account"
     const activateButton = document.getElementById('activate-btn');
     activateButton.addEventListener('click', () => {
-        payButton.style.display = 'block';
+        paymentSection.style.display = 'block'; // Show payment section
     });
 
     // Handle pay button click and initiate MPESA payment
+    const payButton = document.getElementById('pay-btn');
     payButton.addEventListener('click', () => {
-        const phoneNumber = document.getElementById('mpesa-phone').value;
-        const amount = 250;
+        const phoneNumber = document.getElementById('phone-number').value; // Corrected ID
 
         if (phoneNumber) {
             // Call the backend to initiate the MPESA payment
@@ -593,7 +592,7 @@ const showPaymentPopup = () => {
                 },
                 body: JSON.stringify({
                     phoneNumber: phoneNumber,
-                    amount: amount
+                    amount: 250 // Amount to pay
                 })
             })
             .then(response => response.json())
@@ -610,4 +609,3 @@ const showPaymentPopup = () => {
         }
     });
 };
-
