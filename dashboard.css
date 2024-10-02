@@ -48,47 +48,6 @@ header {
     z-index: 1000; /* Ensure menu is above other content */
 }
 
-/* Hamburger menu styling */
-.hamburger-menu {
-    display: none; /* Hide hamburger menu by default */
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-#hamburger-icon img {
-    width: 50px; /* Adjust size of hamburger icon */
-    height: 50px; /* Adjust size of hamburger icon */
-}
-
-/* Responsive styling for smaller screens */
-@media (max-width: 768px) {
-    .desktop-nav {
-        display: none; /* Hide desktop navigation on small screens */
-    }
-
-    .hamburger-menu {
-        display: block; /* Show hamburger menu on small screens */
-    }
-
-    .mobile-nav.show {
-        display: flex; /* Show mobile menu when .show class is added */
-    }
-
-    .mobile-nav a {
-        padding: 10px;
-        text-align: center;
-        display: block;
-        color: #000; /* Text color */
-        text-decoration: none;
-    }
-
-    .mobile-nav a:hover {
-        background-color: #f1f1f1; /* Background color on hover */
-    }
-}
-
-
 main {
     padding: 20px;
 }
