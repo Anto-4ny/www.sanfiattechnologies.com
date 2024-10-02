@@ -9,11 +9,11 @@
     <meta property="og:description" content="Leading provider of products and services advertisment.">
     <meta property="og:image" content=images/Photo_1723191951676.png">
     <meta property="og:url" content="https://www.sanfiat-technologies.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="withdraw.css">
     <link rel="icon" href="images/Photo_1723191951676.png" type="image/x-icon">
-    <style>
+<style>
         /* Basic styling, adjust as needed */
         .hidden { display: none; }
         .show { display: block; }
@@ -28,43 +28,91 @@
     </a>
     <div class="notification-icon">
         <a href="notifications.html">
-            <img src="images/notification-icon.png" alt="Notification" style="width: 30px;">
+            <img src="images/Icons/notifications.png" alt="Notification" style="width: 30px;">
             <span class="notification-count" id="notification-count">1</span>
         </a>
     </div>
     <button id="hamburger-icon" class="hamburger-menu">
         <img src="images/images.png" alt="Menu Icon">
     </button>
-    <nav class="desktop-nav">
-        <a href="dashboard.html">Dashboard</a>
-        <a href="packages.html">Packages</a>
-        <a href="deposit.html">Deposit</a>
-       <a href="upload.html">Upload screenshot</a>
-        <a href="withdrawal.html">withdraw</a>
-        <a href="product.html.html">Products</a>
-        <button type="button" id="logout-button" style="width: 50%; height: 50px; font-size: 16px;">Log Out</button>
-    </nav>
-    <nav id="mobile-nav" class="mobile-nav">
-        <a href="dashboard.html">
-            <img src="images/dashboard-icon.png" alt="Dashboard"> Dashboard
-        </a>
-        <a href="packages.html">
-            <img src="images/packages-icon.png" alt="Packages"> Packages
-        </a>
-        <a href="deposit.html">
-            <img src="images/deposit-icon.png" alt="Deposit">Deposit</a>
-      <a href="upload.html">
-            <img src="images/upload-icon.png" alt="upload">Upload screenshot
-      </a>
-<a href="withdrawal.html">
-            <img src="images/withdraw-icon.png" alt="withdraw">Withraw
+       
+
+           <nav class="desktop-nav">
+        <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="packages.html"><i class="fas fa-box-open"></i> Packages</a>
+        <a href="deposit.html"><i class="fas fa-wallet"></i> Deposit</a>
+        <a href="upload.html"><i class="fas fa-upload"></i> Upload Screenshot</a>
+        <a href="withdrawal.html"><i class="fas fa-hand-holding-usd"></i> Withdraw</a>
+        <a href="product.html"><i class="fas fa-box"></i> Products</a>
+        <button type="button" id="logout-button" style="width: 50%; height: 50px; font-size: 16px;">
+            <i class="fas fa-sign-out-alt"></i> Log Out
+        </button>
+           </nav>
+        <nav id="mobile-nav" class="mobile-nav">
+           <a href="index.html">
+        <img id="logo" src="images/Photo_1723191951676.png" alt="Logo">
+           </a>
+    <h3>Main Categories</h3>
+<a href="dashboard.html" class="has-submenu">
+    <i class="fas fa-tachometer-alt"></i> Dashboard
 </a>
-        <a href="product.html">
-            <img src="images/product-icon.png" alt="products">Products
-        </a>
-        <button type="button" id="logout-button" style="width: 50%; height: 50px; font-size: 16px;">Log Out</button>
-        
-    </nav>
+<a href="packages.html" class="has-submenu">
+    <i class="fas fa-box-open"></i> Packages
+    <div class="submenu">
+        <a href="basic.html"><i class="fas fa-box"></i> Basic</a>
+        <a href="premium.html"><i class="fas fa-boxes"></i> Premium</a>
+    </div>
+</a>
+<a href="deposit.html" class="has-submenu">
+    <i class="fas fa-wallet"></i> Deposit
+    <div class="submenu">
+        <a href="mpesa.html"><i class="fas fa-mobile-alt"></i> MPESA</a>
+        <a href="paypal.html"><i class="fab fa-paypal"></i> PayPal</a>
+    </div>
+</a>
+<a href="withdraw.html" class="has-submenu">
+    <i class="fas fa-hand-holding-usd"></i> Withdraw
+    <div class="submenu">
+        <a href="mpesa-withdraw.html"><i class="fas fa-mobile-alt"></i> MPESA</a>
+        <a href="bank-transfer.html"><i class="fas fa-university"></i> Bank Transfer</a>
+    </div>
+</a>
+
+<h3>Other Categories</h3>
+<a href="products.html">
+    <i class="fas fa-box"></i> Products
+</a>
+<a href="whatsapp-earnings.html">
+    <i class="fab fa-whatsapp"></i> WhatsApp Earnings
+</a>
+<a href="bonuses.html">
+    <i class="fas fa-gift"></i> Bonuses
+</a>
+<a href="loans.html">
+    <i class="fas fa-money-check-alt"></i> Loans
+</a>
+<a href="vip.html">
+    <i class="fas fa-crown"></i> VIP
+</a>
+<a href="vvip.html">
+    <i class="fas fa-gem"></i> VVIP
+</a>
+<a href="blog.html">
+    <i class="fas fa-blog"></i> Blog
+</a>
+<a href="profile.html">
+    <i class="fas fa-user"></i> Profile
+</a>
+<a href="notifications.html">
+    <i class="fas fa-bell"></i> Notifications
+</a>
+<a href="reviews.html">
+    <i class="fas fa-star"></i> Reviews
+</a>
+<button type="button" id="logout-button">
+    <i class="fas fa-sign-out-alt"></i> Log Out
+        </button>
+        </nav>
     </header>
 <body>
 
