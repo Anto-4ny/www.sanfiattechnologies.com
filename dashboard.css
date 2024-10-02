@@ -10,43 +10,6 @@ body {
     background-repeat: no-repeat;
 }
 
-/* General header styling */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background-color: #fff; /* Header background color */
-    border-bottom: 1px solid #ddd; /* Bottom border */
-    position: relative; /* Ensure correct positioning of mobile nav */
-}
-
-/* Logo styling */
-#logo {
-    height: 50px; /* Adjust height as needed */
-    cursor: pointer; /* Pointer cursor to indicate it's clickable */
-}
-
-/* Desktop navigation styling */
-.desktop-nav {
-    display: flex;
-    gap: 15px;
-}
-
-/* Mobile navigation styling */
-.mobile-nav {
-    display: none; /* Hide mobile navigation by default */
-    flex-direction: column;
-    position: absolute;
-    top: 60px; /* Adjust based on header height */
-    right: 10px; /* Adjust position as needed */
-    background-color: #fff; /* Background color for mobile menu */
-    border: 1px solid #ddd; /* Border for mobile menu */
-    border-radius: 4px;
-    padding: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Shadow for mobile menu */
-    z-index: 1000; /* Ensure menu is above other content */
-}
 
 main {
     padding: 20px;
