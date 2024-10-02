@@ -3,9 +3,10 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const admin = require('firebase-admin');
 const path = require('path');
+const app = express();
 const { v4: uuidv4 } = require('uuid'); // To generate unique referral codes
 require('dotenv').config();
-
+app.use(bodyParser.json());
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -349,7 +350,80 @@ function showNotification(message) {
     notificationBar.textContent = message;
     notificationBar.style.display = 'block';
     }
-        
+
+
+
+// Route to initiate MPESA payment (STK push)
+app.post('/initiate-payment', async (req, res) => {
+    const { phoneNumber, amount } = req.body;
+
+    try {
+        // Get access token for MPESA API (replace with your own token fetch method)
+        const { data: { access_token } } = await axios({
+            method: 'GET',
+            url: 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+            headers: {
+                'Authorization': `Basic ${Buffer.from('YOUR_CONSUMER_KEY:YOUR_CONSUMER_SECRET').toString('base64')}`
+            }
+        });
+
+        // Prepare MPESA STK push request
+        const stkPushData = {
+            BusinessShortCode: 400200, // Your Paybill
+            Password: "GeneratedPassword", // Base64-encoded of the shortcode, passkey, and timestamp
+            Timestamp: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
+            TransactionType: "CustomerPayBillOnline",
+            Amount: amount,
+            PartyA: phoneNumber,
+            PartyB: 400200, // Paybill
+            PhoneNumber: phoneNumber,
+            CallBackURL: "https://your-website.com/mpesa-callback", // Your callback URL
+            AccountReference: "860211", // Account number
+            TransactionDesc: "Activation Payment"
+        };
+
+        // Make STK push request
+        const { data } = await axios({
+            method: 'POST',
+            url: 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+            headers: {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json'
+            },
+            data: stkPushData
+        });
+
+        if (data.ResponseCode === "0") {
+            res.status(200).json({ success: true, message: 'STK push sent' });
+        } else {
+            res.status(400).json({ success: false, message: data.errorMessage });
+        }
+    } catch (error) {
+        console.error("Error initiating MPESA payment: ", error);
+        res.status(500).json({ success: false, message: 'Failed to initiate payment' });
+    }
+});
+
+// MPESA Callback URL to confirm the payment
+app.post('/mpesa-callback', (req, res) => {
+    const transactionData = req.body.Body.stkCallback;
+
+    if (transactionData.ResultCode === 0) {
+        const transactionId = transactionData.CallbackMetadata.Item[1].Value;
+        const phoneNumber = transactionData.CallbackMetadata.Item[4].Value;
+        const amount = transactionData.CallbackMetadata.Item[0].Value;
+
+        // TODO: Save the payment info to Firestore or your database
+        console.log(`Transaction successful: ${transactionId} - Phone: ${phoneNumber} - Amount: ${amount}`);
+
+        // Send success response
+        res.status(200).json({ success: true, message: 'Payment successful' });
+    } else {
+        console.log(`Transaction failed: ${transactionData.ResultDesc}`);
+        res.status(400).json({ success: false, message: transactionData.ResultDesc });
+    }
+});
+
 
 // Start the server
 app.listen(PORT, () => {
