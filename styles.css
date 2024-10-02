@@ -63,11 +63,6 @@ header {
     color: #333;
 }
 
-#hamburger-icon img {
-    width: 50px; /* Adjust size of hamburger icon */
-    height: 50px; /* Adjust size of hamburger icon */
-}
-
 /* Mobile nav links styling */
 .mobile-nav a {
     padding: 15px;
