@@ -10,6 +10,15 @@ body {
     background-repeat: no-repeat;
 }
 
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff; /* Header background color */
+    border-bottom: 1px solid #ddd; /* Bottom border */
+    position: relative; /* Ensure correct positioning of mobile nav */
+}
 
 main {
     padding: 20px;
