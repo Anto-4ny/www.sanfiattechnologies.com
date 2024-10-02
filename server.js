@@ -351,6 +351,15 @@ function showNotification(message) {
     notificationBar.style.display = 'block';
     }
 
+const admin = require('firebase-admin');
+const serviceAccount = require('./path/to/your-service-account-file.json');  // Path to your Firestore service account key
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://your-firestore-database-url.firebaseio.com'  // Your Firestore database URL
+});
+
+const firestore = admin.firestore();
 
 
 // Route to initiate MPESA payment (STK push)
