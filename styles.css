@@ -50,6 +50,11 @@ header {
     transition: left 0.3s ease; /* Smooth slide in from the right */
 }
 
+#logo {
+    height: 50px; /* Adjust height as needed */
+    cursor: pointer; /* Pointer cursor to indicate it's clickable */
+}
+
 /* Slide in the mobile nav from the right */
 .mobile-nav.show {
     left: 0; /* Move it into view */
