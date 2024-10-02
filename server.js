@@ -1,12 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const axios = require('axios');
 const admin = require('firebase-admin');
+const axios = require('axios');
 const path = require('path');
-const app = express();
-const { v4: uuidv4 } = require('uuid'); // To generate unique referral codes
+const { v4: uuidv4 } = require('uuid'); // For generating unique referral codes
 require('dotenv').config();
-app.use(bodyParser.json());
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -17,7 +16,6 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
-
 
 // Middleware to parse incoming JSON and form data
 app.use(bodyParser.json());
@@ -34,6 +32,11 @@ app.get('/deposit', (req, res) => {
 // Route to serve withdrawal.html
 app.get('/withdrawal', (req, res) => {
     res.sendFile(path.join(__dirname, 'withdrawal.html'));
+});
+
+// Route to serve registration.html
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'registration.html'));
 });
 
 // Referral link generation for new users
@@ -261,21 +264,17 @@ async function initiateWithdrawal(token, phoneNumber, amount) {
         PartyA: '400200', // Replace with your shortcode
         PartyB: phoneNumber,
         Remarks: 'Withdrawal',
-        QueueTimeOutURL: 'https://anto-4ny.github.io/www.sanfiattechnologies.com/api/withdrawal-timeout',
-        ResultURL: 'https://anto-4ny.github.io/www.sanfiattechnologies.com/api/withdrawal-result',
+        QueueTimeOutURL: 'https://your-domain.com/callback', // Replace with your callback URL
+        ResultURL: 'https://your-domain.com/callback', // Replace with your callback URL
         Occasion: 'Withdrawal'
     };
 
-    const response = await axios.post(
-        'https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest',
-        payload,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+    const response = await axios.post('https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest', payload, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
         }
-    );
-
+    });
     return response.data;
 }
 
@@ -283,200 +282,14 @@ async function initiateWithdrawal(token, phoneNumber, amount) {
 async function getAccessToken() {
     const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
         auth: {
-            username: process.env.CONSUMER_KEY,
-            password: process.env.CONSUMER_SECRET
+            username: process.env.LIVE_APP_CONSUMER_KEY,
+            password: process.env.LIVE_APP_CONSUMER_SECRET
         }
     });
     return response.data.access_token;
 }
 
-// Function to initiate MPESA STK Push
-async function initiateSTKPush(token, phoneNumber, amount) {
-    const timestamp = generateTimestamp();
-    const password = Buffer.from(`${process.env.SHORTCODE}${process.env.PASSKEY}${timestamp}`).toString('base64');
-
-    const payload = {
-        BusinessShortCode: process.env.SHORTCODE,
-        Password: password,
-        Timestamp: timestamp,
-        TransactionType: 'CustomerPayBillOnline',
-        Amount: amount,
-        PartyA: phoneNumber,
-        PartyB: process.env.SHORTCODE,
-        PhoneNumber: phoneNumber,
-        CallBackURL: 'https://your-domain.com/api/callback',
-        AccountReference: 'Referrals Program',
-        TransactionDesc: 'Payment for registration'
-    };
-
-    const response = await axios.post(
-        'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
-        payload,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }
-    );
-
-    return response.data;
-}
-
-// Generate timestamp for MPESA transactions
-function generateTimestamp() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    return `${year}${month}${day}${hours}${minutes}${seconds}`;
-}
-
-
-// Function to add notifications
-async function addNotification(userId, message) {
-    const notificationsRef = usersRef.doc(userId).collection('notifications');
-    await notificationsRef.add({
-        message: message,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-}
-
-// Example notification function (can be adjusted for UI)
-function showNotification(message) {
-    const notificationBar = document.getElementById('notification-bar');
-    notificationBar.textContent = message;
-    notificationBar.style.display = 'block';
-    }
-
-const express = require('express');
-const bodyParser = require('body-parser');
-const admin = require('firebase-admin');
-const axios = require('axios');
-const serviceAccount = require('./path/to/serviceAccountKey.json');
-
-const app = express();
-app.use(bodyParser.json());
-
-// Initialize Firebase Admin SDK for Firestore
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://your-project-id.firebaseio.com'
-});
-
-const firestore = admin.firestore();
-
-// MPESA credentials
-const consumerKey = 'YOUR_MPESA_CONSUMER_KEY';
-const consumerSecret = 'YOUR_MPESA_CONSUMER_SECRET';
-const paybillNumber = '400200';  // Your Cooperative Bank Paybill
-const accountNumber = '860211';
-
-// Get MPESA access token
-const getMpesaToken = async () => {
-    const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
-    const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
-        headers: {
-            Authorization: `Basic ${auth}`
-        }
-    });
-    return response.data.access_token;
-};
-
-// Initiate MPESA Payment
-app.post('/initiate-payment', async (req, res) => {
-    const { phoneNumber, amount } = req.body;
-
-    try {
-        const accessToken = await getMpesaToken();
-        const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, -3);
-        const shortCode = paybillNumber;
-        const passKey = 'YOUR_MPESA_PASSKEY';
-        const password = Buffer.from(`${shortCode}${passKey}${timestamp}`).toString('base64');
-
-        const mpesaRequest = {
-            BusinessShortCode: shortCode,
-            Password: password,
-            Timestamp: timestamp,
-            TransactionType: 'CustomerPayBillOnline',
-            Amount: amount,
-            PartyA: phoneNumber,
-            PartyB: shortCode,
-            PhoneNumber: phoneNumber,
-            CallBackURL: 'https://your-domain.com/mpesa-callback',
-            AccountReference: accountNumber,
-            TransactionDesc: 'Account Activation Payment'
-        };
-
-        const response = await axios.post('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', mpesaRequest, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
-
-        res.status(200).json({ success: true, message: 'MPESA payment initiated', data: response.data });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'Failed to initiate payment' });
-    }
-});
-
-// MPESA Callback to handle payment result
-app.post('/mpesa-callback', async (req, res) => {
-    const transactionData = req.body.Body.stkCallback;
-
-    if (transactionData.ResultCode === 0) {
-        const transactionId = transactionData.CallbackMetadata.Item[1].Value;
-        const phoneNumber = transactionData.CallbackMetadata.Item[4].Value;
-        const amount = transactionData.CallbackMetadata.Item[0].Value;
-
-        const userQuery = await firestore.collection('users').where('phoneNumber', '==', phoneNumber).get();
-
-        if (!userQuery.empty) {
-            const userDoc = userQuery.docs[0];  // Assuming phone numbers are unique
-
-            // Update the user's payment status and transaction ID
-            await userDoc.ref.update({
-                paymentStatus: true,
-                transactionId: transactionId,
-                amountPaid: amount,
-                paymentDate: new Date()
-            });
-
-            // Save the payment details in the payments collection
-            await firestore.collection('payments').doc(transactionId).set({
-                userId: userDoc.id,
-                phoneNumber: phoneNumber,
-                transactionId: transactionId,
-                amount: amount,
-                timestamp: new Date(),
-                status: 'successful'
-            });
-
-            console.log(`Transaction successful: ${transactionId} - Phone: ${phoneNumber} - Amount: ${amount}`);
-            res.status(200).json({ success: true, message: 'Payment successful' });
-        } else {
-            console.log("User not found for this phone number.");
-            res.status(404).json({ success: false, message: 'User not found' });
-        }
-    } else {
-        console.log(`Transaction failed: ${transactionData.ResultDesc}`);
-        res.status(400).json({ success: false, message: transactionData.ResultDesc });
-    }
-});
-
-// Start the server
-const PORT = process.env.PORT || 3000;
+// Start the Express server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-
-
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-
