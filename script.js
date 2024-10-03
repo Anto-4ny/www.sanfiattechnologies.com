@@ -305,14 +305,16 @@ document.addEventListener('click', function(event) {
 
 // Handle dropdown functionality for subcategories
 document.querySelectorAll('.has-submenu').forEach(function(item) {
-    item.addEventListener('click', function() {
+    item.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default link behavior
         this.classList.toggle('active');
-        var submenu = this.querySelector('.submenu');
-        if (submenu) {
+        var submenu = this.nextElementSibling; // Find the next sibling which is the submenu div
+        if (submenu && submenu.classList.contains('submenu')) {
             submenu.classList.toggle('show-submenu');
         }
     });
 });
+
 
 // Referal links
 document.addEventListener('DOMContentLoaded', function () {
