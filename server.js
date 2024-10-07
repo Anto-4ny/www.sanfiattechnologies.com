@@ -124,13 +124,45 @@ app.get('/api/referrals/:email', async (req, res) => {
     }
 });
 
+
+// Function to initiate the MPESA STK Push request
+async function initiateSTKPush(token, phoneNumber, amount) {
+    const businessShortCode = '400200'; // Your Paybill number
+    const accountReference = '860211'; // Your account number
+
+    const url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'; // Use live URL for production
+
+    const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+
+    const payload = {
+        BusinessShortCode: businessShortCode, // Paybill number
+        Password: generatePassword(businessShortCode),
+        Timestamp: getCurrentTimestamp(),
+        TransactionType: 'CustomerPayBillOnline', // For Paybill transactions
+        Amount: amount,
+        PartyA: phoneNumber, // The customer's phone number
+        PartyB: businessShortCode, // Paybill number
+        PhoneNumber: phoneNumber,
+        CallBackURL: 'https://yourdomain.com/api/callback', // Replace with your actual callback URL
+        AccountReference: accountReference, // Your account number
+        TransactionDesc: `Payment to account ${accountReference}` // Optional description
+    };
+
+    const response = await axios.post(url, payload, { headers });
+    return response.data;
+            }
+            
+
 // MPESA STK Push API endpoint for deposits
 app.post('/api/pay', async (req, res) => {
     const { phoneNumber, email } = req.body;
     const amount = 250; // Amount to be paid
 
     try {
-        const token = await getAccessToken();
+        const token = await getAccessToken(); // Function to get OAuth token
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
 
         // Add initial payment status to Firestore as pending
@@ -153,6 +185,7 @@ app.post('/api/pay', async (req, res) => {
         res.status(500).json({ error: 'Payment initiation failed.' });
     }
 });
+
 
 // MPESA Callback handler for deposits
 app.post('/api/callback', async (req, res) => {
