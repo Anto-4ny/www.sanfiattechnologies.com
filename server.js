@@ -130,7 +130,7 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     const businessShortCode = '400200'; // Your Paybill number
     const accountReference = '860211'; // Your account number
 
-    const url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'; // Use live URL for production
+    const url = 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'; // Use live URL for production
 
     const headers = {
         Authorization: `Bearer ${token}`,
@@ -185,6 +185,8 @@ app.post('/api/pay', async (req, res) => {
         res.status(500).json({ error: 'Payment initiation failed.' });
     }
 });
+
+
 
 
 // MPESA Callback handler for deposits
