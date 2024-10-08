@@ -125,10 +125,9 @@ app.get('/api/referrals/:email', async (req, res) => {
 });
 
 
-// Function to initiate the MPESA STK Push request
+// Function to initiate the MPESA STK Push request using Till Number
 async function initiateSTKPush(token, phoneNumber, amount) {
-    const businessShortCode = '400200'; // Your Paybill number
-    const accountReference = '860211'; // Your account number
+    const businessShortCode = '860211'; // Your Till Number
 
     const url = 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'; // Use live URL for production
 
@@ -138,23 +137,24 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     };
 
     const payload = {
-        BusinessShortCode: businessShortCode, // Paybill number
+        BusinessShortCode: businessShortCode, // Till Number
         Password: generatePassword(businessShortCode),
         Timestamp: getCurrentTimestamp(),
-        TransactionType: 'CustomerPayBillOnline', // For Paybill transactions
+        TransactionType: 'CustomerBuyGoodsOnline', // For Till Number transactions
         Amount: amount,
         PartyA: phoneNumber, // The customer's phone number
-        PartyB: businessShortCode, // Paybill number
+        PartyB: businessShortCode, // Till Number
         PhoneNumber: phoneNumber,
         CallBackURL: 'https://yourdomain.com/api/callback', // Replace with your actual callback URL
-        AccountReference: accountReference, // Your account number
-        TransactionDesc: `Payment to account ${accountReference}` // Optional description
+        AccountReference: phoneNumber, // You can use the phone number or any other reference
+        TransactionDesc: `Payment to till number ${businessShortCode}` // Optional description
     };
 
     const response = await axios.post(url, payload, { headers });
     return response.data;
-            }
-            
+}
+
+
 
 // MPESA STK Push API endpoint for deposits
 app.post('/api/pay', async (req, res) => {
@@ -185,8 +185,6 @@ app.post('/api/pay', async (req, res) => {
         res.status(500).json({ error: 'Payment initiation failed.' });
     }
 });
-
-
 
 
 // MPESA Callback handler for deposits
@@ -239,6 +237,8 @@ app.post('/api/callback', async (req, res) => {
         res.status(400).send('Invalid callback data');
     }
 });
+
+
 
 // MPESA Withdrawal Request
 app.post('/api/withdraw', async (req, res) => {
