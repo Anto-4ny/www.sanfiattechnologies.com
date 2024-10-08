@@ -239,12 +239,19 @@ app.post('/api/callback', async (req, res) => {
 });
 
 
-
 // MPESA Withdrawal Request
 app.post('/api/withdraw', async (req, res) => {
     const { email, phoneNumber, amount } = req.body;
 
     try {
+        // Check if today is Friday
+        const today = new Date();
+        const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 5 = Friday
+
+        if (dayOfWeek !== 5) { // 5 means Friday
+            return res.status(400).json({ error: 'Withdrawals can only be made on Fridays.' });
+        }
+
         // Fetch user balance
         const userDoc = await db.collection('users').doc(email).get();
         if (!userDoc.exists) {
@@ -296,7 +303,7 @@ async function initiateWithdrawal(token, phoneNumber, amount) {
         SecurityCredential: process.env.SECURITY_CREDENTIAL,
         CommandID: 'BusinessPayment',
         Amount: amount,
-        PartyA: '400200', // Replace with your shortcode
+        PartyA: '860211', // Till number for withdrawal
         PartyB: phoneNumber,
         Remarks: 'Withdrawal',
         QueueTimeOutURL: 'https://your-domain.com/callback', // Replace with your callback URL
@@ -312,6 +319,8 @@ async function initiateWithdrawal(token, phoneNumber, amount) {
     });
     return response.data;
 }
+
+
 
 // Function to get MPESA access token
 async function getAccessToken() {
