@@ -737,16 +737,13 @@ button:hover {
     transition: background-color 0.3s ease; /* Smooth hover effect */
 }
 
-/* Hover effect for the button */
-.post-btn:hover {
-    background-color: #218838; /* Darker green on hover */
-}
-
-/* Ensure the button is centered within its container */
-.Button a {
-    display: inline-block;
-    text-align: center;
-    text-decoration: none; /* Removes underline from link */
+.Button {
+    position: fixed; /* Fixed position for the button */
+    bottom: 20px; /* Distance from the bottom */
+    right: 20px; /* Distance from the right */
+    background-color: #007bff; /* Button color */
+    border-radius: 50%; /* Round button */
+    padding: 10px; /* Padding */
 }
 
 
