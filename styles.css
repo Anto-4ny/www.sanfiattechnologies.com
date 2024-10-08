@@ -721,7 +721,7 @@ button:hover {
 /* Style for the floating button */
 .Button {
     position: fixed; /* Fixes the button in place */
-    bottom: 20px; /* Distance from the bottom of the screen */
+    bottom: 35px; /* Distance from the bottom of the screen */
     right: 20px; /* Distance from the right side of the screen */
     z-index: 9999; /* Ensures the button stays on top of other content */
 }
@@ -730,7 +730,7 @@ button:hover {
     background-color: #28a745; /* Button background color */
     color: white; /* Icon color */
     padding: 15px; /* Space around the icon */
-    border-radius: 50%; /* Makes the button circular */
+    border-radius: 20%; /* Makes the button circular */
     font-size: 24px; /* Icon size */
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     cursor: pointer; /* Changes the cursor to pointer when hovered */
@@ -742,7 +742,7 @@ button:hover {
     bottom: 20px; /* Distance from the bottom */
     right: 20px; /* Distance from the right */
     background-color: #007bff; /* Button color */
-    border-radius: 50%; /* Round button */
+    border-radius: 20%; /* Round button */
     padding: 10px; /* Padding */
 }
 
