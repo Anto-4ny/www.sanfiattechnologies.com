@@ -285,7 +285,7 @@ onAuthStateChanged(auth, async (user) => {
         // Attach the scroll event listener
         window.addEventListener('scroll', handleScroll);
 
-window.addEventListener('scroll', function() {
+window.addEventListener('scroll', function () {
     const infoBoxes = document.querySelectorAll('.info-box');
     infoBoxes.forEach(box => {
         const boxPosition = box.getBoundingClientRect().top;
@@ -297,13 +297,80 @@ window.addEventListener('scroll', function() {
 });
 
 function updateProgressBar(selector, percentage) {
-    const progressBar = document.querySelector(selector + ' .progress-bar::after');
-    progressBar.style.width = percentage + '%';
+    const progressBar = document.querySelector(selector + ' .progress-bar');
+    if (progressBar) {
+        progressBar.style.width = percentage + '%';
+    }
 }
 
 // Update progress bars (for example, based on user's data)
-updateProgressBar('#referral-box', 70);  // Update to actual user data
-updateProgressBar('#views-box', 50);     // Example percentage
+document.addEventListener('DOMContentLoaded', function () {
+    updateProgressBar('#referral-box', 70);  // Example: update to actual user data
+    updateProgressBar('#views-box', 50);     // Example percentage
+});
+
+// Referral link and sharing functionality
+document.addEventListener('DOMContentLoaded', function () {
+    // Assume referral link is fetched or generated dynamically
+    const referralLink = "https://anto-4ny.github.io/www.sanfiattechnologies.com/signup?referral=your-user-id"; // Replace with actual dynamic referral link
+
+    // Set referral link in the HTML
+    document.getElementById('referral-link').textContent = referralLink;
+
+    // Copy referral link to clipboard
+    document.getElementById('copy-link-button').addEventListener('click', function () {
+        const tempInput = document.createElement('input');
+        document.body.appendChild(tempInput);
+        tempInput.value = referralLink;
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Referral link copied to clipboard!');
+    });
+
+    // WhatsApp sharing functionality
+    document.getElementById('whatsapp-share-button').addEventListener('click', function (e) {
+        e.preventDefault();
+        const encodedMessage = encodeURIComponent(
+            `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits!`
+        );
+        const whatsappURL = `https://wa.me/?text=${encodedMessage}`;
+        window.open(whatsappURL, '_blank');
+    });
+});
+
+// Fetch referred users and display
+document.addEventListener('DOMContentLoaded', async function () {
+    const email = "user-email@example.com"; // Replace this with actual logged-in user email
+    const referralList = document.getElementById('referral-list');
+
+    // Function to fetch referred users
+    async function fetchReferredUsers() {
+        try {
+            const response = await fetch(`/get-referrals?email=${email}`);
+            const referrals = await response.json();
+
+            if (response.ok) {
+                // Display the list of referred users
+                referralList.innerHTML = '';
+                referrals.forEach(referral => {
+                    const listItem = document.createElement('li');
+                    const status = referral.hasPaidFee ? 'Paid' : 'Not Paid';
+                    listItem.textContent = `Email: ${referral.email}, Phone: ${referral.phoneNumber}, Status: ${status}`;
+                    referralList.appendChild(listItem);
+                });
+            } else {
+                referralList.textContent = 'Failed to load referrals';
+            }
+        } catch (error) {
+            console.error('Error fetching referrals:', error);
+            referralList.textContent = 'Refer people by sharing your referral link above.';
+        }
+    }
+
+    // Fetch and display referred users
+    fetchReferredUsers();
+});
 
 
     
@@ -338,71 +405,6 @@ document.querySelectorAll('.has-submenu').forEach(function(item) {
 });
 
 
-// Referal links
-document.addEventListener('DOMContentLoaded', function () {
-    // Fetch the referral link (Assume it's passed or loaded from the backend)
-    const referralLink = "https://anto-4ny.github.io/www.sanfiattechnologies.com/signup?referral=your-user-id"; // Replace with dynamic user link
-
-    // Set referral link in the HTML
-    document.getElementById('referral-link').textContent = referralLink;
-
-    // Copy referral link to clipboard
-    document.getElementById('copy-link-button').addEventListener('click', function () {
-        const tempInput = document.createElement('input');
-        document.body.appendChild(tempInput);
-        tempInput.value = referralLink;
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        alert('Referral link copied to clipboard!');
-    });
-
-    // WhatsApp sharing functionality
-    document.getElementById('whatsapp-share-button').addEventListener('click', function (e) {
-        e.preventDefault();
-
-        const encodedMessage = encodeURIComponent(
-            `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits!`
-        );
-
-        const whatsappURL = `https://wa.me/?text=${encodedMessage}`;
-        window.open(whatsappURL, '_blank');
-    });
-});
-
-//referred users
-document.addEventListener('DOMContentLoaded', async function () {
-    const email = "user-email@example.com"; // Replace this with actual logged-in user email
-    const referralSection = document.getElementById('referrals-section');
-    const referralList = document.getElementById('referral-list');
-
-    // Function to fetch referred users
-    async function fetchReferredUsers() {
-        try {
-            const response = await fetch(`/get-referrals?email=${email}`);
-            const referrals = await response.json();
-
-            if (response.ok) {
-                // Display the list of referred users
-                referralList.innerHTML = '';
-                referrals.forEach(referral => {
-                    const listItem = document.createElement('li');
-                    const status = referral.hasPaidFee ? 'Paid' : 'Not Paid';
-                    listItem.textContent = `Email: ${referral.email}, Phone: ${referral.phoneNumber}, Status: ${status}`;
-                    referralList.appendChild(listItem);
-                });
-            } else {
-                referralList.textContent = 'Failed to load referrals';
-            }
-        } catch (error) {
-            console.error('Error fetching referrals:', error);
-            referralList.textContent = 'Refer people by sharing your referral link above.';
-        }
-    }
-
-    // Fetch and display referred users
-    fetchReferredUsers();
-});
 
 
 // Get current date
