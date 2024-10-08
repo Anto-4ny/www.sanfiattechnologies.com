@@ -315,13 +315,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const referralLink = "https://anto-4ny.github.io/www.sanfiattechnologies.com/signup?referral=your-user-id"; // Replace with actual dynamic referral link
 
     // Set referral link in the HTML
-    document.getElementById('referral-link').textContent = referralLink;
+    const referralLinkElement = document.getElementById('referral-link');
+    referralLinkElement.textContent = referralLink;
 
     // Copy referral link to clipboard
     document.getElementById('copy-link-button').addEventListener('click', function () {
         const tempInput = document.createElement('input');
-        document.body.appendChild(tempInput);
         tempInput.value = referralLink;
+        document.body.appendChild(tempInput);
         tempInput.select();
         document.execCommand('copy');
         document.body.removeChild(tempInput);
@@ -331,13 +332,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // WhatsApp sharing functionality
     document.getElementById('whatsapp-share-button').addEventListener('click', function (e) {
         e.preventDefault();
-        const encodedMessage = encodeURIComponent(
-            `Hey, sign up using my referral link: ${referralLink} and enjoy the benefitsof earning with me at Sanfiat Technologies!`
-        );
-        const whatsappURL = `https://wa.me/?text=${encodedMessage}`;
+        const message = `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits of earning with me at Sanfiat Technologies!`;
+        const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappURL, '_blank');
     });
 });
+
 
 // Make sure Firebase is initialized in your app
 document.addEventListener('DOMContentLoaded', async function () {
