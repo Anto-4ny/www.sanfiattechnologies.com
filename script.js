@@ -284,6 +284,28 @@ onAuthStateChanged(auth, async (user) => {
 
         // Attach the scroll event listener
         window.addEventListener('scroll', handleScroll);
+
+window.addEventListener('scroll', function() {
+    const infoBoxes = document.querySelectorAll('.info-box');
+    infoBoxes.forEach(box => {
+        const boxPosition = box.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        if (boxPosition < windowHeight - 50) {
+            box.classList.add('show');
+        }
+    });
+});
+
+function updateProgressBar(selector, percentage) {
+    const progressBar = document.querySelector(selector + ' .progress-bar::after');
+    progressBar.style.width = percentage + '%';
+}
+
+// Update progress bars (for example, based on user's data)
+updateProgressBar('#referral-box', 70);  // Update to actual user data
+updateProgressBar('#views-box', 50);     // Example percentage
+
+
     
 // Toggle mobile navigation
 document.getElementById('hamburger-icon').addEventListener('click', function(event) {
