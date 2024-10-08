@@ -221,19 +221,52 @@ main {
     text-align: center;
 }
 
-#referral-link {
-    margin: 10px 0;
+/* Style for the referral link and container */
+.referral-container {
+    display: flex;
+    align-items: center;
 }
 
-#copy-link-button, #whatsapp-share-button {
-    cursor: pointer;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    margin: 5px;
+.referral-link {
+    width: 50%; /* Show half of the link */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    padding: 5px;
+    background-color: #f5f5f5;
 }
+
+/* Copy button styles */
+#copy-link-button {
+    padding: 8px 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#copy-link-button:hover {
+    background-color: #218838;
+}
+
+/* WhatsApp share button styles */
+#whatsapp-share-button {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: #25d366;
+    font-weight: bold;
+}
+
+#whatsapp-share-button img {
+    margin-right: 5px;
+}
+
+
 #upload-section {
     background-color: white;
     border-radius: 8px;
