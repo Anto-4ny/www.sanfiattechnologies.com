@@ -332,47 +332,57 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('whatsapp-share-button').addEventListener('click', function (e) {
         e.preventDefault();
         const encodedMessage = encodeURIComponent(
-            `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits!`
+            `Hey, sign up using my referral link: ${referralLink} and enjoy the benefitsof earning with me at Sanfiat Technologies!`
         );
         const whatsappURL = `https://wa.me/?text=${encodedMessage}`;
         window.open(whatsappURL, '_blank');
     });
 });
 
-// Fetch referred users and display
+// Make sure Firebase is initialized in your app
 document.addEventListener('DOMContentLoaded', async function () {
-    const email = "user-email@example.com"; // Replace this with actual logged-in user email
     const referralList = document.getElementById('referral-list');
 
-    // Function to fetch referred users
-    async function fetchReferredUsers() {
-        try {
-            const response = await fetch(`/get-referrals?email=${email}`);
-            const referrals = await response.json();
+    // Check if a user is signed in
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // User is signed in, get the email
+            const email = user.email;
 
-            if (response.ok) {
-                // Display the list of referred users
-                referralList.innerHTML = '';
-                referrals.forEach(referral => {
-                    const listItem = document.createElement('li');
-                    const status = referral.hasPaidFee ? 'Paid' : 'Not Paid';
-                    listItem.textContent = `Email: ${referral.email}, Phone: ${referral.phoneNumber}, Status: ${status}`;
-                    referralList.appendChild(listItem);
-                });
-            } else {
-                referralList.textContent = 'Failed to load referrals';
+            // Function to fetch referred users based on user's email
+            async function fetchReferredUsers() {
+                try {
+                    const response = await fetch(`/get-referrals?email=${email}`);
+                    const referrals = await response.json();
+
+                    if (response.ok) {
+                        // Display the list of referred users
+                        referralList.innerHTML = '';
+                        referrals.forEach(referral => {
+                            const listItem = document.createElement('li');
+                            const status = referral.hasPaidFee ? 'Paid' : 'Not Paid';
+                            listItem.textContent = `Email: ${referral.email}, Phone: ${referral.phoneNumber}, Status: ${status}`;
+                            referralList.appendChild(listItem);
+                        });
+                    } else {
+                        referralList.textContent = 'Failed to load referrals';
+                    }
+                } catch (error) {
+                    console.error('Error fetching referrals:', error);
+                    referralList.textContent = 'Refer people by sharing your referral link above.';
+                }
             }
-        } catch (error) {
-            console.error('Error fetching referrals:', error);
-            referralList.textContent = 'Refer people by sharing your referral link above.';
+
+            // Fetch and display referred users
+            fetchReferredUsers();
+
+        } else {
+            // No user is signed in, redirect to login or handle accordingly
+            alert("Please log in to view referrals.");
         }
-    }
-
-    // Fetch and display referred users
-    fetchReferredUsers();
+    });
 });
-
-
+                          
     
 // Toggle mobile navigation
 document.getElementById('hamburger-icon').addEventListener('click', function(event) {
