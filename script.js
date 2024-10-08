@@ -263,38 +263,22 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-
-        // JavaScript for pop-in effect when scrolling
-        const paymentBox = document.querySelector('.payment-box');
-        const confirmationBox = document.querySelector('.confirmation-box');
-
-        // Function to handle scrolling pop-in effect
-        const handleScroll = () => {
-            const paymentBoxTop = paymentBox.getBoundingClientRect().top;
-            const confirmationBoxTop = confirmationBox.getBoundingClientRect().top;
-            const triggerHeight = window.innerHeight * 0.8; // Trigger pop-in when section is 80% in view
-
-            if (paymentBoxTop < triggerHeight) {
-                paymentBox.classList.add('visible');
-            }
-            if (confirmationBoxTop < triggerHeight) {
-                confirmationBox.classList.add('visible');
-            }
-        };
-
-        // Attach the scroll event listener
-        window.addEventListener('scroll', handleScroll);
-
-window.addEventListener('scroll', function () {
+// JavaScript for automatic pop-in effect
+document.addEventListener('DOMContentLoaded', function () {
+    // Select elements you want to animate
+    const paymentBox = document.querySelector('.payment-box');
+    const confirmationBox = document.querySelector('.confirmation-box');
     const infoBoxes = document.querySelectorAll('.info-box');
+
+    // Add 'visible' class to each box to trigger animation on page load
+    if (paymentBox) paymentBox.classList.add('visible');
+    if (confirmationBox) confirmationBox.classList.add('visible');
     infoBoxes.forEach(box => {
-        const boxPosition = box.getBoundingClientRect().top;
-        const windowHeight = window.innerHeight;
-        if (boxPosition < windowHeight - 50) {
-            box.classList.add('show');
-        }
+        box.classList.add('show');
     });
 });
+
+
 
 function updateProgressBar(selector, percentage) {
     const progressBar = document.querySelector(selector + ' .progress-bar');
