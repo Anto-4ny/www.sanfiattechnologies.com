@@ -672,7 +672,7 @@ button:hover {
 .footer {
     display: flex;
     justify-content: space-around; /* Adjust alignment as needed */
-    background-color: transparent; /* Footer background color */
+    background-color: DDE8FO; /* Footer background color */
     padding: 10px 0; /* Padding around the footer */
     border-top: 1px solid #ddd; /* Top border for the footer */
     position: fixed; /* Fixed position */
