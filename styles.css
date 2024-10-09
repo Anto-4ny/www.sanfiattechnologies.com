@@ -672,7 +672,7 @@ button:hover {
 .footer {
     display: flex;
     justify-content: space-around; /* Adjust alignment as needed */
-    background-color: #DDE8FO; /* Footer background color */
+    background-color: #DDE8F0; /* Footer background color */
     padding: 10px 0; /* Padding around the footer */
     border-top: 1px solid #ddd; /* Top border for the footer */
     position: fixed; /* Fixed position */
@@ -692,7 +692,7 @@ button:hover {
 .footer-icon {
     width: 60px; /* Set a fixed width for icons */
     height: 60px; /* Set a fixed height for icons */
-    margin-bottom: 5px; /* Space between icon and text */
+    margin-bottom: 2px; /* Space between icon and text */
 }
 
 .footer-item a {
