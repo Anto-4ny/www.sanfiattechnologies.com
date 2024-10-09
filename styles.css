@@ -672,7 +672,7 @@ button:hover {
 .footer {
     display: flex;
     justify-content: space-around; /* Adjust alignment as needed */
-    background-color: #fff; /* Footer background color */
+    background-color: transparent; /* Footer background color */
     padding: 10px 0; /* Padding around the footer */
     border-top: 1px solid #ddd; /* Top border for the footer */
     position: fixed; /* Fixed position */
@@ -690,8 +690,8 @@ button:hover {
 }
 
 .footer-icon {
-    width: 40px; /* Set a fixed width for icons */
-    height: 40px; /* Set a fixed height for icons */
+    width: 60px; /* Set a fixed width for icons */
+    height: 60px; /* Set a fixed height for icons */
     margin-bottom: 5px; /* Space between icon and text */
 }
 
@@ -714,14 +714,14 @@ button:hover {
     }
 
     .footer-item {
-        margin-bottom: 10px; /* Space between items */
+        margin-bottom: 5px; /* Space between items */
     }
 }
 
 /* Style for the floating button */
 .Button {
     position: fixed; /* Fixes the button in place */
-    bottom: 35px; /* Distance from the bottom of the screen */
+    bottom: 45px; /* Distance from the bottom of the screen */
     right: 20px; /* Distance from the right side of the screen */
     z-index: 9999; /* Ensures the button stays on top of other content */
 }
@@ -735,15 +735,6 @@ button:hover {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     cursor: pointer; /* Changes the cursor to pointer when hovered */
     transition: background-color 0.3s ease; /* Smooth hover effect */
-}
-
-.Button {
-    position: fixed; /* Fixed position for the button */
-    bottom: 20px; /* Distance from the bottom */
-    right: 20px; /* Distance from the right */
-    background-color: #007bff; /* Button color */
-    border-radius: 20%; /* Round button */
-    padding: 10px; /* Padding */
 }
 
 
