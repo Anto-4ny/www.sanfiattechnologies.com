@@ -313,12 +313,40 @@ document.addEventListener('DOMContentLoaded', function () {
         alert('Referral link copied to clipboard!');
     });
 
+document.addEventListener('DOMContentLoaded', function () {
+    const referralLink = "https://anto-4ny.github.io/www.sanfiattechnologies.com/signup?referral=your-user-id"; // Replace with actual dynamic referral link
+    const message = `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits of earning with me at Sanfiat Technologies!`;
+    
     // WhatsApp sharing functionality
     document.getElementById('whatsapp-share-button').addEventListener('click', function (e) {
         e.preventDefault();
-        const message = `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits of earning with me at Sanfiat Technologies!`;
         const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappURL, '_blank');
+    });
+
+    // Facebook sharing functionality
+    document.getElementById('facebook-share-button').addEventListener('click', function (e) {
+        e.preventDefault();
+        const facebookURL = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}&quote=${encodeURIComponent(message)}`;
+        window.open(facebookURL, '_blank');
+    });
+
+    // Instagram sharing functionality (Instagram does not have a direct web-based API for sharing links, but you can prompt the user to copy and share the message manually)
+    document.getElementById('instagram-share-button').addEventListener('click', function (e) {
+        e.preventDefault();
+        alert("Copy this message and share it on Instagram: " + message);
+    });
+
+    // TikTok sharing functionality (Similar to Instagram, TikTok does not support direct sharing from the web)
+    document.getElementById('tiktok-share-button').addEventListener('click', function (e) {
+        e.preventDefault();
+        alert("Copy this message and share it on TikTok: " + message);
+    });
+
+    // YouTube sharing functionality (YouTube does not have direct message sharing, but you can direct to a YouTube post or custom sharing message)
+    document.getElementById('youtube-share-button').addEventListener('click', function (e) {
+        e.preventDefault();
+        alert("Copy this message and share it on YouTube: " + message);
     });
 });
 
