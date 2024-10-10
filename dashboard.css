@@ -252,7 +252,7 @@ main {
     background-color: #218838;
 }
 
-/* WhatsApp share button styles */
+/* WhatsApp share button styles 
 #whatsapp-share-button {
     margin-top: 10px;
     display: inline-flex;
@@ -264,7 +264,7 @@ main {
 
 #whatsapp-share-button img {
     margin-right: 5px;
-}
+}*/
 
 /* Base styles for the boxes (before animation) */
 .payment-box, .confirmation-box, .info-box {
