@@ -680,7 +680,7 @@ button:hover {
     left: 0; /* Align to the left edge */
     width: 100%; /* Full width */
     z-index: 1000; /* Ensure it stays on top of other elements */
-    margin-top: 20px;
+    margin-top: 100px;
 }
 
 .footer-item {
@@ -712,6 +712,7 @@ button:hover {
     .footer {
         flex-direction: row; /* Stack items vertically on small screens */
         align-items: center; /* Center items */
+        margin-top: 100px;
     }
 
     .footer-item {
