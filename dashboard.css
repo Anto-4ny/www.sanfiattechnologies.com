@@ -262,9 +262,6 @@ main {
     font-weight: bold;
 }
 
-#whatsapp-share-button img {
-    margin-right: 5px;
-}*/
 
 /* Base styles for the boxes (before animation) */
 .payment-box, .confirmation-box, .info-box {
