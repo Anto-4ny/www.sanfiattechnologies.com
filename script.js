@@ -312,6 +312,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.removeChild(tempInput);
         alert('Referral link copied to clipboard!');
     });
+    
 // WhatsApp sharing functionality
     document.getElementById('whatsapp-share-button').addEventListener('click', function (e) {
         e.preventDefault();
@@ -319,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappURL, '_blank');
     });
-
+});
 
 // Make sure Firebase is initialized in your app
 document.addEventListener('DOMContentLoaded', async function () {
