@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="profile.css"> <!-- Link to your custom CSS -->
+</head>
+<body>
+
+    <div class="profile-container">
+        <!-- Profile Picture and User Name -->
+        <div class="profile-header">
+            <div class="profile-picture">
+                <img id="profile-pic" src="default-profile.png" alt="Profile Picture"> <!-- Default picture -->
+                <input type="file" id="profile-pic-input" style="display: none;">
+                <button id="upload-pic-btn">Change Profile Picture</button>
+            </div>
+            <div class="profile-info">
+                <h2 id="user-name">User Name</h2>
+                <button id="follow-btn">Follow</button>
+                <button id="message-btn">Message</button>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="profile-details">
+            <h3>Details</h3>
+            <p><strong>Full Name:</strong> <span id="full-name">Loading...</span></p>
+            <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+            <p><strong>Phone Number:</strong> <span id="phone-number">Loading...</span></p>
+            <p><strong>Referral By:</strong> <span id="referral-by">Loading...</span></p>
+            <p><strong>Referral Link:</strong> <span id="referral-link">Loading...</span></p>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
+    <script src="profile.js"></script> <!-- Link to your custom JS -->
+</body>
+              </html>
+  
