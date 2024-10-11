@@ -560,3 +560,85 @@ firebase.auth().onAuthStateChanged(function(user) {
 });
 
 
+// Get DOM elements
+const profilePic = document.getElementById('profile-pic');
+const profilePicInput = document.getElementById('profile-pic-input');
+const uploadPicBtn = document.getElementById('upload-pic-btn');
+const userName = document.getElementById('user-name');
+const fullName = document.getElementById('full-name');
+const email = document.getElementById('email');
+const phoneNumber = document.getElementById('phone-number');
+const referralBy = document.getElementById('referral-by');
+const referralLink = document.getElementById('referral-link');
+
+// Assume the user is authenticated and we have their user ID
+const userId = 'exampleUserId'; // Replace with the actual logged-in user ID
+
+// Load user data from Firestore
+const loadUserProfile = async () => {
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (userDoc.exists) {
+        const userData = userDoc.data();
+        userName.innerText = userData.fullName || 'User Name';
+        fullName.innerText = userData.fullName || 'N/A';
+        email.innerText = userData.email || 'N/A';
+        phoneNumber.innerText = userData.phoneNumber || 'N/A';
+        referralBy.innerText = userData.referralBy || 'N/A';
+        referralLink.innerText = userData.referralLink || 'N/A';
+
+        // Load profile picture if available
+        if (userData.profilePicUrl) {
+            profilePic.src = userData.profilePicUrl;
+        }
+    } else {
+        console.log('No user data found');
+    }
+};
+
+// Profile picture upload
+uploadPicBtn.addEventListener('click', () => {
+    profilePicInput.click(); // Trigger file input
+});
+
+profilePicInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        // Upload file to Firebase Storage
+        const storageRef = storage.ref(`profilePictures/${userId}`);
+        await storageRef.put(file);
+
+        // Get the download URL
+        const profilePicUrl = await storageRef.getDownloadURL();
+
+        // Update user's profile picture URL in Firestore
+        await db.collection('users').doc(userId).update({
+            profilePicUrl
+        });
+
+        // Update profile picture on the page
+        profilePic.src = profilePicUrl;
+        alert('Profile picture updated successfully!');
+    }
+});
+
+// Automatically update profile data when changed in Firestore
+db.collection('users').doc(userId).onSnapshot((doc) => {
+    if (doc.exists) {
+        const userData = doc.data();
+        userName.innerText = userData.fullName || 'User Name';
+        fullName.innerText = userData.fullName || 'N/A';
+        email.innerText = userData.email || 'N/A';
+        phoneNumber.innerText = userData.phoneNumber || 'N/A';
+        referralBy.innerText = userData.referralBy || 'N/A';
+        referralLink.innerText = userData.referralLink || 'N/A';
+
+        // Update profile picture if available
+        if (userData.profilePicUrl) {
+            profilePic.src = userData.profilePicUrl;
+        }
+    }
+});
+
+// Load the user profile when the page is loaded
+window.onload = loadUserProfile;
+        
