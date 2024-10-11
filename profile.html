@@ -97,57 +97,66 @@
         </button>
         </nav>
  </header>
-<div class="profile-container">
-    <!-- Profile Picture Section -->
-    <div class="profile-pic-section">
-        <div class="profile-pic-wrapper">
-            <img id="profile-picture" src="default-avatar.png" alt="Profile Picture">
-            <button id="change-pic-btn"><i class="fa fa-camera"></i> Change Picture</button>
-        </div>
-        <input type="file" id="upload-profile-pic" style="display:none;">
-    </div>
-
-    <!-- Follow and Message Buttons -->
-    <div class="action-buttons">
-        <button id="follow-btn"><i class="fa fa-user-plus"></i> Follow</button>
-        <button id="message-btn"><i class="fa fa-envelope"></i> Message</button>
-    </div>
-
-    <!-- User Info Section -->
-    <div class="info-section">
-        <div class="info-box name-box">
-            <span class="icon"><i class="fa fa-user"></i></span>
-            <p id="firstName" style="color: black;">Name: </p>
+    <div class="profile-container">
+        <!-- Profile Picture Section -->
+        <div class="profile-pic-section">
+            <div class="profile-pic-wrapper">
+                <img id="profile-picture" src="default-avatar.png" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%;">
+                <button id="change-pic-btn"><i class="fa fa-camera"></i> Change Picture</button>
+            </div>
+            <input type="file" id="upload-profile-pic" style="display:none;">
         </div>
 
-        <div class="info-box referral-count-box">
-            <span class="icon"><i class="fa fa-id-badge"></i></span>
-            <p id="referral-count" style="color: black;">Referral Count: </p>
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button id="follow-btn"><i class="fa fa-user-plus"></i> Follow</button>
+            <button id="message-btn"><i class="fa fa-envelope"></i> Message</button>
         </div>
-        <div class="info-box email-box">
-            <span class="icon"><i class="fa fa-envelope"></i></span>
-            <p id="email" style="color: black;">Email: </p>
-            <button id="copy-email-btn"><i class="fa fa-copy"></i> Copy</button>
-        </div>
+                  <!-- User Info Section -->
+        <div class="info-section">
+            <div class="info-box name-box">
+                <i class="fa fa-user"></i> <!-- Icon for Name -->
+                <p id="firstName">Full Name: </p>
+                <button id="copy-name-btn"><i class="fa fa-copy"></i> Copy</button>
+            </div>
 
-        <div class="info-box phone-box">
-            <span class="icon"><i class="fa fa-phone"></i></span>
-            <p id="phone-number" style="color: black;">Phone Number: </p>
-        </div>
+            <div class="info-box email-box">
+                <i class="fa fa-envelope"></i> <!-- Icon for Email -->
+                <p id="user-email">Email: </p>
+                <button id="copy-email-btn"><i class="fa fa-copy"></i> Copy Email</button>
+            </div>
 
-        <div class="info-box referral-box">
-            <span class="icon"><i class="fa fa-user-friends"></i></span>
-            <p id="referral-by" style="color: black;">Referred By: </p>
-        </div>
+            <div class="info-box referral-count-box">
+                <i class="fa fa-users"></i> <!-- Icon for Referrals -->
+                <p id="referral-count">Referral Count: </p>
+            </div>
 
-        <div class="info-box referral-link-box">
-            <span class="icon"><i class="fa fa-link"></i></span>
-            <p id="referral-link" style="color: black;">Referral Link: </p>
-            <button id="copy-link-btn"><i class="fa fa-copy"></i> Copy Link</button>
+            <div class="info-box total-views-box">
+                <i class="fa fa-eye"></i> <!-- Icon for Views -->
+                <p id="total-views">Total Views: </p>
+            </div>
+            <div class="info-box total-earnings-box">
+                <i class="fa fa-dollar-sign"></i> <!-- Icon for Earnings -->
+                <p id="total-earnings">Total Earnings: </p>
+            </div>
+
+            <div class="info-box amount-paid-box">
+                <i class="fa fa-money-bill-wave"></i> <!-- Icon for Amount Paid -->
+                <p id="amount-paid">Amount Paid: </p>
+            </div>
+
+            <div class="info-box package-status-box">
+                <i class="fa fa-box"></i> <!-- Icon for Package Status -->
+                <p id="package-status">Package Status: </p>
+            </div>
+
+            <div class="info-box referral-link-box">
+                <i class="fa fa-link"></i> <!-- Icon for Referral Link -->
+                <p id="referral-link">Referral Link: </p>
+                <button id="copy-link-btn"><i class="fa fa-copy"></i> Copy Link</button>
+            </div>
         </div>
-    </div>
-</div>
-    
+    </div
 
     <footer>
     <div class="footer">
