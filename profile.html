@@ -179,6 +179,85 @@
         </a>
     </div>
     </footer>
+    <script>
+// Get DOM elements
+const profilePic = document.getElementById('profile-pic');
+const profilePicInput = document.getElementById('profile-pic-input');
+const uploadPicBtn = document.getElementById('upload-pic-btn');
+const userName = document.getElementById('user-name');
+const fullName = document.getElementById('full-name');
+const email = document.getElementById('email');
+const phoneNumber = document.getElementById('phone-number');
+const referralBy = document.getElementById('referral-by');
+const referralLink = document.getElementById('referral-link');
+const copyEmailBtn = document.getElementById('copy-email-btn');
+const copyReferralBtn = document.getElementById('copy-referral-btn');
+
+// Assume the user is authenticated and we have their user ID
+const userId = 'userId'; // Replace with the actual logged-in user ID
+
+// Load user data from Firestore
+const loadUserProfile = async () => {
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (userDoc.exists) {
+        const userData = userDoc.data();
+        const userFullName = `${userData.firstName} ${userData.lastName}`;
+        userName.innerText = userFullName;
+        email.innerText = `${userData.email.slice(0, 15)}...`; // Show part of the email
+        phoneNumber.innerText = userData.phoneNumber || 'N/A';
+        referralBy.innerText = userData.referralBy || 'N/A';
+        referralLink.innerText = `${userData.referralLink.slice(0, 15)}...`; // Show part of referral link
+
+        // Load profile picture if available
+        if (userData.profilePicUrl) {
+            profilePic.src = userData.profilePicUrl;
+        }
+    } else {
+        console.log('No user data found');
+    }
+};
+
+// Profile picture upload
+uploadPicBtn.addEventListener('click', () => {
+    profilePicInput.click(); // Trigger file input
+});
+
+profilePicInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const storageRef = storage.ref(`profilePictures/${userId}`);
+        await storageRef.put(file); // Upload the file to Firebase Storage
+        const downloadURL = await storageRef.getDownloadURL();
+        
+        // Update Firestore with the new profile picture URL
+        await db.collection('users').doc(userId).update({
+            profilePicUrl: downloadURL
+        });
+        
+        profilePic.src = downloadURL; // Update the profile picture on the page
+    }
+});
+
+// Copy email and referral link functionality
+const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+    }).catch((err) => {
+        console.error('Could not copy text: ', err);
+    });
+};
+
+copyEmailBtn.addEventListener('click', () => {
+    copyToClipboard(email.innerText);
+});
+
+copyReferralBtn.addEventListener('click', () => {
+    copyToClipboard(referralLink.innerText);
+});
+
+// Load the user profile when the page loads
+window.onload = loadUserProfile;
+</script>
 
     <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
