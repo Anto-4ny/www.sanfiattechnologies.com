@@ -207,70 +207,94 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Function to update both dashboard and profile fields
+// Function to update user info on both dashboard and profile
 const updateUserInfo = (userData) => {
-    // Dashboard fields
+    // Get the DOM elements for user info
     const firstNameElement = document.getElementById('firstName');
     const userEmailElement = document.getElementById('user-email');
     const referralCountElement = document.getElementById('referral-count');
     const totalViewsElement = document.getElementById('total-views');
     const totalEarningsElement = document.getElementById('total-earnings');
     const amountPaidElement = document.getElementById('amount-paid');
-    const packageStatusElement = document.getElementById('package-status'); // New element for package status
-    
-    // Profile fields
-    const profileNameElement = document.getElementById('profile-name');
-    const profileEmailElement = document.getElementById('profile-email');
-    const profileReferralsElement = document.getElementById('profile-referrals');
-    const profileTotalViewsElement = document.getElementById('profile-total-views');
-    const profilePackageElement = document.getElementById('profile-package-status');
-    
-    // Update dashboard fields if they exist
-    if (firstNameElement) firstNameElement.textContent = userData.firstName || 'No name';
-    if (userEmailElement) userEmailElement.textContent = userData.email || 'No email';
-    if (referralCountElement) referralCountElement.textContent = userData.referrals || 0;
-    if (totalViewsElement) totalViewsElement.textContent = userData.totalViews || 0;
-    if (totalEarningsElement) totalEarningsElement.textContent = userData.totalEarnings || 0;
-    if (amountPaidElement) amountPaidElement.textContent = userData.amountPaid || 0;
-    if (packageStatusElement) packageStatusElement.textContent = userData.packageStatus || 'No active package';
-    
-    // Update profile fields if they exist
-    if (profileNameElement) profileNameElement.textContent = userData.firstName || 'No name';
-    if (profileEmailElement) profileEmailElement.textContent = userData.email || 'No email';
-    if (profileReferralsElement) profileReferralsElement.textContent = userData.referrals || 0;
-    if (profileTotalViewsElement) profileTotalViewsElement.textContent = userData.totalViews || 0;
-    if (profilePackageElement) profilePackageElement.textContent = userData.packageStatus || 'No active package';
+    const packageStatusElement = document.getElementById('package-status');
+    const referralLinkElement = document.getElementById('referral-link');
+
+    // Update fields with user data
+    if (userData) {
+        firstNameElement.textContent = userData.firstName || 'No name';
+        userEmailElement.textContent = userData.email || 'No email';
+        referralCountElement.textContent = userData.referrals || 0;
+        totalViewsElement.textContent = userData.totalViews || 0;
+        totalEarningsElement.textContent = userData.totalEarnings || 0;
+        amountPaidElement.textContent = userData.amountPaid || 0;
+        packageStatusElement.textContent = userData.packageStatus || 'No active package';
+        referralLinkElement.textContent = userData.referralLink || 'No referral link';
+    }
 };
 
-// Function to fetch user data from Firestore and update pages
-const fetchAndUpdateUserData = async (user) => {
+// Event listener for copying email
+document.getElementById('copy-email-btn').addEventListener('click', () => {
+    const emailText = document.getElementById('user-email').textContent;
+    navigator.clipboard.writeText(emailText).then(() => {
+        alert('Email copied to clipboard!');
+    });
+});
+
+// Event listener for copying referral link
+document.getElementById('copy-link-btn').addEventListener('click', () => {
+    const linkText = document.getElementById('referral-link').textContent;
+    navigator.clipboard.writeText(linkText).then(() => {
+        alert('Referral link copied to clipboard!');
+    });
+});
+
+// Event listener for uploading profile picture
+document.getElementById('change-pic-btn').addEventListener('click', () => {
+    document.getElementById('upload-profile-pic').click();
+});
+
+// Handle the file upload
+document.getElementById('upload-profile-pic').addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById('profile-picture').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Firebase auth state change listener
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userEmail = user.email;
+
+        // Fetch user data from Firestore
         const userDocRef = doc(db, 'users', user.uid);
         const userSnapshot = await getDoc(userDocRef);
 
         if (userSnapshot.exists()) {
             const userData = userSnapshot.data();
-            userData.email = userEmail; // Add email for display
-            userData.firstName = userData.firstName || 'No name'; // Default values
-            userData.packageStatus = userData.packageStatus || 'No active package'; // Default values
+            userData.email = userEmail; // Add email to userData for easier display
 
-            // Update the fields on both dashboard and profile pages
+            // Fetch additional user details
+            userData.firstName = userData.firstName || 'No name';
+            userData.packageStatus = userData.packageStatus || 'No active package';
+            userData.referralLink = userData.referralLink || 'No referral link';
+
+            // Update the dashboard and profile with fetched user data
             updateUserInfo(userData);
         } else {
             console.log('No user data found in Firestore.');
-            updateUserInfo({ email: userEmail }); // Update basic email if no user data is found
+            updateUserInfo({ email: userEmail });
         }
     } else {
-        console.log('User not logged in, redirecting to login page.');
+        // User is not logged in, redirect to the login section
         document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
     }
-};
-
-// Listen for auth state changes
-onAuthStateChanged(auth, async (user) => {
-    await fetchAndUpdateUserData(user);
 });
+
                            
 // JavaScript for automatic pop-in effect
 document.addEventListener('DOMContentLoaded', function () {
