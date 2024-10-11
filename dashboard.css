@@ -292,9 +292,6 @@ main {
     margin-top: 10px;
     display: flex;
     align-items: center;
-    text-decoration: none;
-    color: #25d366;
-    font-weight: bold;
 }
 
 #whatsapp-share-button i {
@@ -373,17 +370,10 @@ main {
 }
 
 
-#copy-link-button:hover, #whatsapp-share-button:hover {
+#copy-link-button:hover:hover {
     background-color: #0056b3;
 }
 
-#whatsapp-share-button {
-    background-color: #25d366;
-}
-
-#whatsapp-share-button:hover {
-    background-color: #1da855;
-}
 
 /* Responsive Styles */
 @media (max-width: 768px) {
