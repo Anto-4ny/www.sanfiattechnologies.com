@@ -322,7 +322,28 @@ function updateProgressBar(selector, percentage) {
         progressBar.style.width = percentage + '%';
     }
 }
+
+// Event listener for saving profile changes
+document.getElementById('save-profile-btn').addEventListener('click', async () => {
+    const userId = auth.currentUser.uid; // Get the currently logged-in user's ID
+    const updatedData = {
+        firstName: document.getElementById('firstName').textContent,
+        email: document.getElementById('user-email').textContent,
+        referrals: document.getElementById('referral-count').textContent,
+        totalViews: document.getElementById('total-views').textContent,
+        totalEarnings: document.getElementById('total-earnings').textContent,
+        amountPaid: document.getElementById('amount-paid').textContent,
+        packageStatus: document.getElementById('package-status').textContent,
+        referralLink: document.getElementById('referral-link').textContent
+    };
+
+    // Update Firestore with the new data
+    const userDocRef = doc(db, 'users', userId);
+    await setDoc(userDocRef, updatedData, { merge: true });
     
+    alert('Profile updated successfully!');
+});
+
 
 // Referral link and sharing functionality
 document.addEventListener('DOMContentLoaded', function () {
