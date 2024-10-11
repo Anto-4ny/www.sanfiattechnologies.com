@@ -207,10 +207,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
-// Function to update dashboard fields
-const updateDashboard = (userData) => {
-    // Get the DOM elements for user info
+// Function to update both dashboard and profile fields
+const updateUserInfo = (userData) => {
+    // Dashboard fields
     const firstNameElement = document.getElementById('firstName');
     const userEmailElement = document.getElementById('user-email');
     const referralCountElement = document.getElementById('referral-count');
@@ -218,51 +217,61 @@ const updateDashboard = (userData) => {
     const totalEarningsElement = document.getElementById('total-earnings');
     const amountPaidElement = document.getElementById('amount-paid');
     const packageStatusElement = document.getElementById('package-status'); // New element for package status
-
-    // Update fields with user data
-    if (userData) {
-        firstNameElement.textContent = userData.firstName || 'No name'; // Update first name
-        userEmailElement.textContent = userData.email || 'No email';
-        referralCountElement.textContent = userData.referrals || 0;
-        totalViewsElement.textContent = userData.totalViews || 0;
-        totalEarningsElement.textContent = userData.totalEarnings || 0;
-        amountPaidElement.textContent = userData.amountPaid || 0;
-
-        // Update package status
-        packageStatusElement.textContent = userData.packageStatus || 'No active package';
-    }
+    
+    // Profile fields
+    const profileNameElement = document.getElementById('profile-name');
+    const profileEmailElement = document.getElementById('profile-email');
+    const profileReferralsElement = document.getElementById('profile-referrals');
+    const profileTotalViewsElement = document.getElementById('profile-total-views');
+    const profilePackageElement = document.getElementById('profile-package-status');
+    
+    // Update dashboard fields if they exist
+    if (firstNameElement) firstNameElement.textContent = userData.firstName || 'No name';
+    if (userEmailElement) userEmailElement.textContent = userData.email || 'No email';
+    if (referralCountElement) referralCountElement.textContent = userData.referrals || 0;
+    if (totalViewsElement) totalViewsElement.textContent = userData.totalViews || 0;
+    if (totalEarningsElement) totalEarningsElement.textContent = userData.totalEarnings || 0;
+    if (amountPaidElement) amountPaidElement.textContent = userData.amountPaid || 0;
+    if (packageStatusElement) packageStatusElement.textContent = userData.packageStatus || 'No active package';
+    
+    // Update profile fields if they exist
+    if (profileNameElement) profileNameElement.textContent = userData.firstName || 'No name';
+    if (profileEmailElement) profileEmailElement.textContent = userData.email || 'No email';
+    if (profileReferralsElement) profileReferralsElement.textContent = userData.referrals || 0;
+    if (profileTotalViewsElement) profileTotalViewsElement.textContent = userData.totalViews || 0;
+    if (profilePackageElement) profilePackageElement.textContent = userData.packageStatus || 'No active package';
 };
 
-onAuthStateChanged(auth, async (user) => {
+// Function to fetch user data from Firestore and update pages
+const fetchAndUpdateUserData = async (user) => {
     if (user) {
-        // User is logged in
         const userEmail = user.email;
-
-        // Fetch user data from Firestore
         const userDocRef = doc(db, 'users', user.uid);
         const userSnapshot = await getDoc(userDocRef);
 
         if (userSnapshot.exists()) {
             const userData = userSnapshot.data();
-            userData.email = userEmail; // Add email to userData for easier display
+            userData.email = userEmail; // Add email for display
+            userData.firstName = userData.firstName || 'No name'; // Default values
+            userData.packageStatus = userData.packageStatus || 'No active package'; // Default values
 
-            // Fetch additional user details like firstName and packageStatus
-            userData.firstName = userData.firstName || 'No name'; // Ensure first name is included
-            userData.packageStatus = userData.packageStatus || 'No active package'; // Ensure package status is included
-
-            // Update the dashboard with fetched user data
-            updateDashboard(userData);
+            // Update the fields on both dashboard and profile pages
+            updateUserInfo(userData);
         } else {
             console.log('No user data found in Firestore.');
-            // Update dashboard with basic info if no data found
-            updateDashboard({ email: userEmail });
+            updateUserInfo({ email: userEmail }); // Update basic email if no user data is found
         }
     } else {
-        // User is not logged in, redirect to the login section
+        console.log('User not logged in, redirecting to login page.');
         document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
     }
-});
+};
 
+// Listen for auth state changes
+onAuthStateChanged(auth, async (user) => {
+    await fetchAndUpdateUserData(user);
+});
+                           
 // JavaScript for automatic pop-in effect
 document.addEventListener('DOMContentLoaded', function () {
     // Select elements you want to animate
@@ -556,80 +565,5 @@ firebase.auth().onAuthStateChanged(function(user) {
     } else {
         // No user is signed in, handle accordingly (e.g., redirect to login)
         console.log('No user is signed in');
-    }
-});
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
-
-    const user = auth.currentUser;
-    if (user) {
-        const userId = user.uid;
-        const userDoc = await db.collection('users').doc(userId).get();
-        const userData = userDoc.data();
-
-        // Display full name and username
-        const fullName = `${userData.firstName} ${userData.lastName}`;
-        const username = `${userData.firstName}${userData.lastName}`;
-        document.getElementById('full-name').textContent = `Full Name: ${fullName}`;
-        document.getElementById('username').textContent = `Username: ${username}`;
-
-        // Display email and handle "copy email" button
-        const email = userData.email;
-        document.getElementById('email').textContent = `Email: ${email}`;
-        document.getElementById('copy-email-btn').addEventListener('click', () => {
-            navigator.clipboard.writeText(email);
-            alert('Email copied to clipboard!');
-        });
-
-        // Display phone number if available
-        const phoneNumber = userData.phoneNumber || 'Not provided';
-        document.getElementById('phone-number').textContent = `Phone Number: ${phoneNumber}`;
-
-        // Display referral info
-        const referralBy = userData.referralBy || 'Not available';
-        document.getElementById('referral-by').textContent = `Referred By: ${referralBy}`;
-
-        const referralLink = userData.referralLink || 'Not available';
-        document.getElementById('referral-link').textContent = `Referral Link: ${referralLink}`;
-        document.getElementById('copy-link-btn').addEventListener('click', () => {
-            navigator.clipboard.writeText(referralLink);
-            alert('Referral link copied to clipboard!');
-        });
-
-        // Display profile picture or default image
-        const profilePicUrl = userData.profilePicUrl || 'default-avatar.png';
-        document.getElementById('profile-picture').src = profilePicUrl;
-
-        // Profile picture upload functionality
-        document.getElementById('change-pic-btn').addEventListener('click', () => {
-            document.getElementById('upload-profile-pic').click();
-        });
-
-        document.getElementById('upload-profile-pic').addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const storageRef = storage.ref(`profilePictures/${userId}`);
-                try {
-                    // Upload the image to Firebase Storage
-                    const uploadTaskSnapshot = await storageRef.put(file);
-
-                    // Get the image URL and update in Firestore
-                    const downloadURL = await uploadTaskSnapshot.ref.getDownloadURL();
-                    await db.collection('users').doc(userId).update({ profilePicUrl: downloadURL });
-
-                    // Update the profile picture on the page
-                    document.getElementById('profile-picture').src = downloadURL;
-                    alert('Profile picture updated successfully!');
-                } catch (error) {
-                    console.error('Error uploading profile picture:', error);
-                    alert('Failed to upload profile picture.');
-                }
-            }
-        });
-    } else {
-        window.location.href = 'login.html'; // Redirect to login if the user is not logged in
     }
 });
