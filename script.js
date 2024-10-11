@@ -207,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+
 // Function to update user info on both dashboard and profile
 const updateUserInfo = (userData) => {
     // Get the DOM elements for user info
@@ -293,10 +294,8 @@ onAuthStateChanged(auth, async (user) => {
         // User is not logged in, redirect to the login section
         document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
     }
-  });
 });
 
-                           
 // JavaScript for automatic pop-in effect
 document.addEventListener('DOMContentLoaded', function () {
     // Select elements you want to animate
@@ -310,22 +309,20 @@ document.addEventListener('DOMContentLoaded', function () {
     infoBoxes.forEach(box => {
         box.classList.add('show');
     });
+
+    // Update progress bars (for example, based on user's data)
+    updateProgressBar('#referral-box', 70);  // Example: update to actual user data
+    updateProgressBar('#views-box', 50);     // Example percentage
 });
 
-
-
+// Function to update the progress bar
 function updateProgressBar(selector, percentage) {
     const progressBar = document.querySelector(selector + ' .progress-bar');
     if (progressBar) {
         progressBar.style.width = percentage + '%';
     }
 }
-
-// Update progress bars (for example, based on user's data)
-document.addEventListener('DOMContentLoaded', function () {
-    updateProgressBar('#referral-box', 70);  // Example: update to actual user data
-    updateProgressBar('#views-box', 50);     // Example percentage
-});
+    
 
 // Referral link and sharing functionality
 document.addEventListener('DOMContentLoaded', function () {
