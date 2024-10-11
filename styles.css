@@ -668,6 +668,57 @@ button:hover {
 }
 
 
+.profile-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profile-picture img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+}
+
+.profile-info h2 {
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+button {
+    padding: 10px 15px;
+    margin: 10px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.profile-details h3 {
+    margin-top: 20px;
+    font-size: 20px;
+}
+
+.profile-details p {
+    font-size: 18px;
+    margin: 10px 0;
+    }
+    
 
 .footer {
     display: flex;
