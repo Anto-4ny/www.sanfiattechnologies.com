@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
- // Function to update dashboard fields
+// Function to update dashboard fields
 const updateDashboard = (userData) => {
     // Get the DOM elements for user info
     const firstNameElement = document.getElementById('firstName');
@@ -218,7 +218,7 @@ const updateDashboard = (userData) => {
     const totalEarningsElement = document.getElementById('total-earnings');
     const amountPaidElement = document.getElementById('amount-paid');
     const packageStatusElement = document.getElementById('package-status');
-    
+
     // Update fields with user data
     if (userData) {
         firstNameElement.textContent = userData.firstName || 'No name';
@@ -232,9 +232,12 @@ const updateDashboard = (userData) => {
         // Update progress bars with percentage values
         updateProgressBar('#referral-box', (userData.referrals || 0) * 10); // Adjust as necessary
         updateProgressBar('#views-box', (userData.totalViews || 0) * 2); // Example multiplier
+        updateProgressBar('#earnings-box', (userData.totalEarnings || 0) / 100); // Example multiplier for earnings
+        updateProgressBar('#amount-box', (userData.amountPaid || 0) / 100); // Example multiplier for amount paid
     }
 };
 
+// Auth state change listener
 onAuthStateChanged(auth, async (user) => {
     const fetchAndUpdateUserData = async (user) => {
         const loadingElement = document.getElementById('loading'); // Assume you have a loading spinner
@@ -314,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.removeChild(tempInput);
         alert('Referral link copied to clipboard!');
     });
-    
+
     document.getElementById('whatsapp-share-button').addEventListener('click', function (e) {
         e.preventDefault();
         const message = `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits of earning with me at Sanfiat Technologies!`;
@@ -322,6 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
         window.open(whatsappURL, '_blank');
     });
 });
+                
         
 
 // Make sure Firebase is initialized in your app
