@@ -293,6 +293,7 @@ onAuthStateChanged(auth, async (user) => {
         // User is not logged in, redirect to the login section
         document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
     }
+  });
 });
 
                            
