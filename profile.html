@@ -97,14 +97,14 @@
         </button>
         </nav>
  </header>
-<body>
-
 <div class="profile-container">
-    <!-- Profile Picture -->
+    <!-- Profile Picture Section -->
     <div class="profile-pic-section">
-        <img id="profile-picture" src="default-avatar.png" alt="Profile Picture">
+        <div class="profile-pic-wrapper">
+            <img id="profile-picture" src="default-avatar.png" alt="Profile Picture">
+            <button id="change-pic-btn"><i class="fa fa-camera"></i> Change Picture</button>
+        </div>
         <input type="file" id="upload-profile-pic" style="display:none;">
-        <button id="change-pic-btn">Change Profile Picture</button>
     </div>
 
     <!-- Follow and Message Buttons -->
@@ -124,11 +124,10 @@
             <span class="icon"><i class="fa fa-id-badge"></i></span>
             <p id="username">Username: </p>
         </div>
-
         <div class="info-box email-box">
             <span class="icon"><i class="fa fa-envelope"></i></span>
             <p id="email">Email: </p>
-            <button id="copy-email-btn">Copy Email</button>
+            <button id="copy-email-btn"><i class="fa fa-copy"></i> Copy</button>
         </div>
 
         <div class="info-box phone-box">
@@ -144,10 +143,11 @@
         <div class="info-box referral-link-box">
             <span class="icon"><i class="fa fa-link"></i></span>
             <p id="referral-link">Referral Link: </p>
-            <button id="copy-link-btn">Copy Link</button>
+            <button id="copy-link-btn"><i class="fa fa-copy"></i> Copy Link</button>
         </div>
     </div>
 </div>
+    
 
     <footer>
     <div class="footer">
