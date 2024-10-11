@@ -208,8 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// Function to update user info on both dashboard and profile
-const updateUserInfo = (userData) => {
+// Function to update dashboard fields
+const updateDashboard = (userData) => {
     // Get the DOM elements for user info
     const firstNameElement = document.getElementById('firstName');
     const userEmailElement = document.getElementById('user-email');
@@ -218,8 +218,7 @@ const updateUserInfo = (userData) => {
     const totalEarningsElement = document.getElementById('total-earnings');
     const amountPaidElement = document.getElementById('amount-paid');
     const packageStatusElement = document.getElementById('package-status');
-    const referralLinkElement = document.getElementById('referral-link');
-
+    
     // Update fields with user data
     if (userData) {
         firstNameElement.textContent = userData.firstName || 'No name';
@@ -229,72 +228,68 @@ const updateUserInfo = (userData) => {
         totalEarningsElement.textContent = userData.totalEarnings || 0;
         amountPaidElement.textContent = userData.amountPaid || 0;
         packageStatusElement.textContent = userData.packageStatus || 'No active package';
-        referralLinkElement.textContent = userData.referralLink || 'No referral link';
+
+        // Example: Update progress bars if you have percentage values
+        document.getElementById('name-progress').style.width = `${userData.referrals * 10}%`; // Adjust as necessary
+        // Repeat for other progress bars
     }
 };
 
-// Event listener for copying email
-document.getElementById('copy-email-btn').addEventListener('click', () => {
-    const emailText = document.getElementById('user-email').textContent;
-    navigator.clipboard.writeText(emailText).then(() => {
-        alert('Email copied to clipboard!');
-    });
-});
-
-// Event listener for copying referral link
-document.getElementById('copy-link-btn').addEventListener('click', () => {
-    const linkText = document.getElementById('referral-link').textContent;
-    navigator.clipboard.writeText(linkText).then(() => {
-        alert('Referral link copied to clipboard!');
-    });
-});
-
-// Event listener for uploading profile picture
-document.getElementById('change-pic-btn').addEventListener('click', () => {
-    document.getElementById('upload-profile-pic').click();
-});
-
-// Handle the file upload
-document.getElementById('upload-profile-pic').addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            document.getElementById('profile-picture').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-// Firebase auth state change listener
 onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        const userEmail = user.email;
+    // Function to fetch user data from Firestore and update pages
+    const fetchAndUpdateUserData = async (user) => {
+        const loadingElement = document.getElementById('loading'); // Assume you have a loading spinner
+        loadingElement.style.display = 'block'; // Show loading state
 
-        // Fetch user data from Firestore
-        const userDocRef = doc(db, 'users', user.uid);
-        const userSnapshot = await getDoc(userDocRef);
+        if (user) {
+            const userEmail = user.email;
 
-        if (userSnapshot.exists()) {
-            const userData = userSnapshot.data();
-            userData.email = userEmail; // Add email to userData for easier display
+            try {
+                // Fetch user data from Firestore
+                const userDocRef = doc(db, 'users', user.uid);
+                const userSnapshot = await getDoc(userDocRef);
 
-            // Fetch additional user details
-            userData.firstName = userData.firstName || 'No name';
-            userData.packageStatus = userData.packageStatus || 'No active package';
-            userData.referralLink = userData.referralLink || 'No referral link';
+                if (userSnapshot.exists()) {
+                    const userData = userSnapshot.data();
+                    userData.email = userEmail; // Add email to userData for easier display
+                    userData.firstName = userData.firstName || 'No name'; // Ensure first name is included
+                    userData.packageStatus = userData.packageStatus || 'No active package'; // Ensure package status is included
 
-            // Update the dashboard and profile with fetched user data
-            updateUserInfo(userData);
+                    // Update the dashboard with fetched user data
+                    updateDashboard(userData);
+                } else {
+                    console.log('No user data found in Firestore.');
+                    // Update dashboard with basic info if no data found
+                    updateDashboard({ email: userEmail });
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            } finally {
+                loadingElement.style.display = 'none'; // Hide loading state
+            }
         } else {
-            console.log('No user data found in Firestore.');
-            updateUserInfo({ email: userEmail });
+            // User is not logged in, redirect to the login section
+            document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
         }
-    } else {
-        // User is not logged in, redirect to the login section
-        document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
-    }
+    };
+
+    fetchAndUpdateUserData(user);
 });
+
+// Function to copy referral link
+const copyReferralLink = () => {
+    const referralLinkElement = document.getElementById('referral-link');
+    navigator.clipboard.writeText(referralLinkElement.textContent)
+        .then(() => {
+            alert('Referral link copied to clipboard!');
+        })
+        .catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+};
+
+document.getElementById('copy-link-button').addEventListener('click', copyReferralLink);
+                   
 
 // JavaScript for automatic pop-in effect
 document.addEventListener('DOMContentLoaded', function () {
