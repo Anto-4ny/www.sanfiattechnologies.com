@@ -277,11 +277,11 @@ main {
 .profile-icon {
   position: absolute;
   top: 50%;
-  right: 50px; /* 10px from the right */
+  right: 80px; /* 10px from the right */
   transform: translateY(-50%); /* Centers the icon vertically */
   font-size: 30px; /* Adjust the size of the icon */
   cursor: pointer; /* Makes the icon clickable */
-  color: #333; /* Adjust the color as needed */
+  color: blue; /* Adjust the color as needed */
 }
 
 .profile-icon i {
