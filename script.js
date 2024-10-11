@@ -207,7 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
 // Function to update dashboard fields
 const updateDashboard = (userData) => {
     // Get the DOM elements for user info
@@ -229,14 +228,13 @@ const updateDashboard = (userData) => {
         amountPaidElement.textContent = userData.amountPaid || 0;
         packageStatusElement.textContent = userData.packageStatus || 'No active package';
 
-        // Example: Update progress bars if you have percentage values
-        document.getElementById('name-progress').style.width = `${userData.referrals * 10}%`; // Adjust as necessary
-        // Repeat for other progress bars
+        // Update progress bars with percentage values
+        updateProgressBar('#referral-box', (userData.referrals || 0) * 10); // Adjust as necessary
+        updateProgressBar('#views-box', (userData.totalViews || 0) * 2); // Example multiplier
     }
 };
 
 onAuthStateChanged(auth, async (user) => {
-    // Function to fetch user data from Firestore and update pages
     const fetchAndUpdateUserData = async (user) => {
         const loadingElement = document.getElementById('loading'); // Assume you have a loading spinner
         loadingElement.style.display = 'block'; // Show loading state
@@ -251,15 +249,10 @@ onAuthStateChanged(auth, async (user) => {
 
                 if (userSnapshot.exists()) {
                     const userData = userSnapshot.data();
-                    userData.email = userEmail; // Add email to userData for easier display
-                    userData.firstName = userData.firstName || 'No name'; // Ensure first name is included
-                    userData.packageStatus = userData.packageStatus || 'No active package'; // Ensure package status is included
-
-                    // Update the dashboard with fetched user data
+                    userData.email = userEmail; // Add email for easier display
                     updateDashboard(userData);
                 } else {
                     console.log('No user data found in Firestore.');
-                    // Update dashboard with basic info if no data found
                     updateDashboard({ email: userEmail });
                 }
             } catch (error) {
@@ -276,22 +269,20 @@ onAuthStateChanged(auth, async (user) => {
     fetchAndUpdateUserData(user);
 });
 
-// JavaScript for automatic pop-in effect
+// Automatic pop-in effect on page load
 document.addEventListener('DOMContentLoaded', function () {
-    // Select elements you want to animate
     const paymentBox = document.querySelector('.payment-box');
     const confirmationBox = document.querySelector('.confirmation-box');
     const infoBoxes = document.querySelectorAll('.info-box');
 
-    // Add 'visible' class to each box to trigger animation on page load
     if (paymentBox) paymentBox.classList.add('visible');
     if (confirmationBox) confirmationBox.classList.add('visible');
     infoBoxes.forEach(box => {
         box.classList.add('show');
     });
 
-    // Update progress bars (for example, based on user's data)
-    updateProgressBar('#referral-box', 70);  // Example: update to actual user data
+    // Example progress update based on user data (should be updated dynamically)
+    updateProgressBar('#referral-box', 70);  // Update based on actual user data
     updateProgressBar('#views-box', 50);     // Example percentage
 });
 
@@ -299,20 +290,20 @@ document.addEventListener('DOMContentLoaded', function () {
 function updateProgressBar(selector, percentage) {
     const progressBar = document.querySelector(selector + ' .progress-bar');
     if (progressBar) {
+        // Ensure percentage does not exceed 100%
+        percentage = Math.min(Math.max(percentage, 0), 100);
         progressBar.style.width = percentage + '%';
     }
 }
 
 // Referral link and sharing functionality
 document.addEventListener('DOMContentLoaded', function () {
-    // Assume referral link is fetched or generated dynamically
-    const referralLink = "https://anto-4ny.github.io/www.sanfiattechnologies.com/signup?referral=your-user-id"; // Replace with actual dynamic referral link
+    const userID = "your-user-id"; // Replace with actual user ID from user data
+    const referralLink = `https://anto-4ny.github.io/www.sanfiattechnologies.com/signup?referral=${userID}`;
 
-    // Set referral link in the HTML
     const referralLinkElement = document.getElementById('referral-link');
     referralLinkElement.textContent = referralLink;
 
-    // Copy referral link to clipboard
     document.getElementById('copy-link-button').addEventListener('click', function () {
         const tempInput = document.createElement('input');
         tempInput.value = referralLink;
@@ -323,7 +314,6 @@ document.addEventListener('DOMContentLoaded', function () {
         alert('Referral link copied to clipboard!');
     });
     
-// WhatsApp sharing functionality
     document.getElementById('whatsapp-share-button').addEventListener('click', function (e) {
         e.preventDefault();
         const message = `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits of earning with me at Sanfiat Technologies!`;
@@ -331,6 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
         window.open(whatsappURL, '_blank');
     });
 });
+        
 
 // Make sure Firebase is initialized in your app
 document.addEventListener('DOMContentLoaded', async function () {
