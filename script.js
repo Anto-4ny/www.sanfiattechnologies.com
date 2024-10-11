@@ -558,3 +558,78 @@ firebase.auth().onAuthStateChanged(function(user) {
         console.log('No user is signed in');
     }
 });
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    const user = auth.currentUser;
+    if (user) {
+        const userId = user.uid;
+        const userDoc = await db.collection('users').doc(userId).get();
+        const userData = userDoc.data();
+
+        // Display full name and username
+        const fullName = `${userData.firstName} ${userData.lastName}`;
+        const username = `${userData.firstName}${userData.lastName}`;
+        document.getElementById('full-name').textContent = `Full Name: ${fullName}`;
+        document.getElementById('username').textContent = `Username: ${username}`;
+
+        // Display email and handle "copy email" button
+        const email = userData.email;
+        document.getElementById('email').textContent = `Email: ${email}`;
+        document.getElementById('copy-email-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(email);
+            alert('Email copied to clipboard!');
+        });
+
+        // Display phone number if available
+        const phoneNumber = userData.phoneNumber || 'Not provided';
+        document.getElementById('phone-number').textContent = `Phone Number: ${phoneNumber}`;
+
+        // Display referral info
+        const referralBy = userData.referralBy || 'Not available';
+        document.getElementById('referral-by').textContent = `Referred By: ${referralBy}`;
+
+        const referralLink = userData.referralLink || 'Not available';
+        document.getElementById('referral-link').textContent = `Referral Link: ${referralLink}`;
+        document.getElementById('copy-link-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(referralLink);
+            alert('Referral link copied to clipboard!');
+        });
+
+        // Display profile picture or default image
+        const profilePicUrl = userData.profilePicUrl || 'default-avatar.png';
+        document.getElementById('profile-picture').src = profilePicUrl;
+
+        // Profile picture upload functionality
+        document.getElementById('change-pic-btn').addEventListener('click', () => {
+            document.getElementById('upload-profile-pic').click();
+        });
+
+        document.getElementById('upload-profile-pic').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const storageRef = storage.ref(`profilePictures/${userId}`);
+                try {
+                    // Upload the image to Firebase Storage
+                    const uploadTaskSnapshot = await storageRef.put(file);
+
+                    // Get the image URL and update in Firestore
+                    const downloadURL = await uploadTaskSnapshot.ref.getDownloadURL();
+                    await db.collection('users').doc(userId).update({ profilePicUrl: downloadURL });
+
+                    // Update the profile picture on the page
+                    document.getElementById('profile-picture').src = downloadURL;
+                    alert('Profile picture updated successfully!');
+                } catch (error) {
+                    console.error('Error uploading profile picture:', error);
+                    alert('Failed to upload profile picture.');
+                }
+            }
+        });
+    } else {
+        window.location.href = 'login.html'; // Redirect to login if the user is not logged in
+    }
+});
