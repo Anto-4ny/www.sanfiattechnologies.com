@@ -223,7 +223,101 @@
         </a>
     </div>
     </footer>
-    
+    <script>
+        // Assuming you have initialized Firebase and Firestore
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// Function to fetch and display user data
+const fetchUserProfile = async (userId) => {
+    try {
+        const userDocRef = db.collection('users').doc(userId);
+        const userSnapshot = await userDocRef.get();
+
+        if (userSnapshot.exists) {
+            const userData = userSnapshot.data();
+            // Populate profile fields with user data
+            document.getElementById('user-full-name').textContent = userData.fullName || 'No name';
+            document.getElementById('user-email').textContent = userData.email || 'No email';
+            document.getElementById('user-referral-count').textContent = userData.referralCount || 0;
+            document.getElementById('user-total-views').textContent = userData.totalViews || 0;
+            document.getElementById('user-total-earnings').textContent = userData.totalEarnings || 0;
+            document.getElementById('user-amount-paid').textContent = userData.amountPaid || 0;
+            document.getElementById('user-package-status').textContent = userData.packageStatus || 'No active package';
+        } else {
+            console.log('No user data found in Firestore.');
+        }
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+    }
+};
+
+// Function to save updated user data
+const saveUserProfile = async (userId) => {
+    try {
+        const userDocRef = db.collection('users').doc(userId);
+        const updatedData = {
+            fullName: document.getElementById('user-full-name').textContent,
+            // Email, referral count, total views, etc. remain unchanged as they're not editable
+            // If needed to change, make respective fields editable
+        };
+
+        await userDocRef.update(updatedData);
+        console.log('User profile updated successfully.');
+        alert('Profile updated successfully.');
+    } catch (error) {
+        console.error('Error updating user profile:', error);
+    }
+};
+
+// Event listener for saving profile changes
+document.getElementById('save-user-profile-btn').addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (user) {
+        await saveUserProfile(user.uid);
+    } else {
+        alert('User not logged in.');
+    }
+});
+
+// Fetch user profile data on page load
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        await fetchUserProfile(user.uid);
+    } else {
+        console.log('User not logged in.');
+        // Redirect to login page or show login section if needed
+    }
+});
+
+// Optional: Handle profile picture upload (if needed)
+document.getElementById('change-profile-pic-btn').addEventListener('click', () => {
+    document.getElementById('upload-user-profile-pic').click();
+});
+
+document.getElementById('upload-user-profile-pic').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const user = auth.currentUser;
+        const storageRef = firebase.storage().ref();
+
+        // Upload profile picture
+        const profilePicRef = storageRef.child(`profile_pictures/${user.uid}.jpg`);
+        await profilePicRef.put(file);
+
+        // Get the download URL
+        const downloadURL = await profilePicRef.getDownloadURL();
+        
+        // Update user's profile picture URL in Firestore
+        const userDocRef = db.collection('users').doc(user.uid);
+        await userDocRef.update({ profilePicture: downloadURL });
+        
+        // Update the displayed profile picture
+        document.getElementById('user-profile-picture').src = downloadURL;
+        alert('Profile picture updated successfully.');
+    }
+});
+            </script>
 
     <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
