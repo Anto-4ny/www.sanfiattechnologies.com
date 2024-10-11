@@ -193,11 +193,8 @@ const referralLink = document.getElementById('referral-link');
 const copyEmailBtn = document.getElementById('copy-email-btn');
 const copyReferralBtn = document.getElementById('copy-referral-btn');
 
-// Assume the user is authenticated and we have their user ID
-const userId = 'userId'; // Replace with the actual logged-in user ID
-
-// Load user data from Firestore
-const loadUserProfile = async () => {
+// Function to load user profile from Firestore
+const loadUserProfile = async (userId) => {
     const userDoc = await db.collection('users').doc(userId).get();
     if (userDoc.exists) {
         const userData = userDoc.data();
@@ -217,7 +214,22 @@ const loadUserProfile = async () => {
     }
 };
 
-// Profile picture upload
+// Check if the user is logged in
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        // User is signed in, get the user ID (UID)
+        const userId = user.uid;
+
+        // Load the user profile using their UID
+        loadUserProfile(userId);
+    } else {
+        // No user is signed in, redirect to login page or show a message
+        console.log('User not signed in');
+        window.location.href = 'login.html'; // Redirect to login page
+    }
+});
+
+// Profile picture upload functionality
 uploadPicBtn.addEventListener('click', () => {
     profilePicInput.click(); // Trigger file input
 });
@@ -225,16 +237,20 @@ uploadPicBtn.addEventListener('click', () => {
 profilePicInput.addEventListener('change', async (event) => {
     const file = event.target.files[0];
     if (file) {
-        const storageRef = storage.ref(`profilePictures/${userId}`);
-        await storageRef.put(file); // Upload the file to Firebase Storage
-        const downloadURL = await storageRef.getDownloadURL();
-        
-        // Update Firestore with the new profile picture URL
-        await db.collection('users').doc(userId).update({
-            profilePicUrl: downloadURL
-        });
-        
-        profilePic.src = downloadURL; // Update the profile picture on the page
+        const user = auth.currentUser; // Get the current logged-in user
+        if (user) {
+            const userId = user.uid; // Get the UID
+            const storageRef = storage.ref(`profilePictures/${userId}`);
+            await storageRef.put(file); // Upload the file to Firebase Storage
+            const downloadURL = await storageRef.getDownloadURL();
+
+            // Update Firestore with the new profile picture URL
+            await db.collection('users').doc(userId).update({
+                profilePicUrl: downloadURL
+            });
+
+            profilePic.src = downloadURL; // Update the profile picture on the page
+        }
     }
 });
 
@@ -254,9 +270,6 @@ copyEmailBtn.addEventListener('click', () => {
 copyReferralBtn.addEventListener('click', () => {
     copyToClipboard(referralLink.innerText);
 });
-
-// Load the user profile when the page loads
-window.onload = loadUserProfile;
 </script>
 
     <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
