@@ -560,6 +560,8 @@ firebase.auth().onAuthStateChanged(function(user) {
 });
 
 
+
+
 // Get DOM elements
 const profilePic = document.getElementById('profile-pic');
 const profilePicInput = document.getElementById('profile-pic-input');
@@ -570,21 +572,23 @@ const email = document.getElementById('email');
 const phoneNumber = document.getElementById('phone-number');
 const referralBy = document.getElementById('referral-by');
 const referralLink = document.getElementById('referral-link');
+const copyEmailBtn = document.getElementById('copy-email-btn');
+const copyReferralBtn = document.getElementById('copy-referral-btn');
 
 // Assume the user is authenticated and we have their user ID
-const userId = 'exampleUserId'; // Replace with the actual logged-in user ID
+const userId = 'userId'; // Replace with the actual logged-in user ID
 
 // Load user data from Firestore
 const loadUserProfile = async () => {
     const userDoc = await db.collection('users').doc(userId).get();
     if (userDoc.exists) {
         const userData = userDoc.data();
-        userName.innerText = userData.fullName || 'User Name';
-        fullName.innerText = userData.fullName || 'N/A';
-        email.innerText = userData.email || 'N/A';
+        const userFullName = `${userData.firstName} ${userData.lastName}`;
+        userName.innerText = userFullName;
+        email.innerText = `${userData.email.slice(0, 15)}...`; // Show part of the email
         phoneNumber.innerText = userData.phoneNumber || 'N/A';
         referralBy.innerText = userData.referralBy || 'N/A';
-        referralLink.innerText = userData.referralLink || 'N/A';
+        referralLink.innerText = `${userData.referralLink.slice(0, 15)}...`; // Show part of referral link
 
         // Load profile picture if available
         if (userData.profilePicUrl) {
@@ -603,42 +607,35 @@ uploadPicBtn.addEventListener('click', () => {
 profilePicInput.addEventListener('change', async (event) => {
     const file = event.target.files[0];
     if (file) {
-        // Upload file to Firebase Storage
         const storageRef = storage.ref(`profilePictures/${userId}`);
-        await storageRef.put(file);
-
-        // Get the download URL
-        const profilePicUrl = await storageRef.getDownloadURL();
-
-        // Update user's profile picture URL in Firestore
-        await db.collection('users').doc(userId).update({
-            profilePicUrl
-        });
-
-        // Update profile picture on the page
-        profilePic.src = profilePicUrl;
-        alert('Profile picture updated successfully!');
-    }
-});
-
-// Automatically update profile data when changed in Firestore
-db.collection('users').doc(userId).onSnapshot((doc) => {
-    if (doc.exists) {
-        const userData = doc.data();
-        userName.innerText = userData.fullName || 'User Name';
-        fullName.innerText = userData.fullName || 'N/A';
-        email.innerText = userData.email || 'N/A';
-        phoneNumber.innerText = userData.phoneNumber || 'N/A';
-        referralBy.innerText = userData.referralBy || 'N/A';
-        referralLink.innerText = userData.referralLink || 'N/A';
-
-        // Update profile picture if available
-        if (userData.profilePicUrl) {
-            profilePic.src = userData.profilePicUrl;
-        }
-    }
-});
-
-// Load the user profile when the page is loaded
-window.onload = loadUserProfile;
+        await storageRef.put(file); // Upload the file to Firebase Storage
+        const downloadURL = await storageRef.getDownloadURL();
         
+        // Update Firestore with the new profile picture URL
+        await db.collection('users').doc(userId).update({
+            profilePicUrl: downloadURL
+        });
+        
+        profilePic.src = downloadURL; // Update the profile picture on the page
+    }
+});
+
+// Copy email and referral link functionality
+const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+    }).catch((err) => {
+        console.error('Could not copy text: ', err);
+    });
+};
+
+copyEmailBtn.addEventListener('click', () => {
+    copyToClipboard(email.innerText);
+});
+
+copyReferralBtn.addEventListener('click', () => {
+    copyToClipboard(referralLink.innerText);
+});
+
+// Load the user profile when the page loads
+window.onload = loadUserProfile;
