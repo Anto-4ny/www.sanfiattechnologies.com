@@ -96,34 +96,47 @@
     <i class="fas fa-sign-out-alt"></i> Log Out
         </button>
         </nav>
-                               </header>
+ </header>
 <body>
-
-    <div class="profile-container">
-        <!-- Profile Picture and User Name -->
+<div class="profile-container">
+        <!-- Profile Picture, Follow, and Message Buttons -->
         <div class="profile-header">
             <div class="profile-picture">
                 <img id="profile-pic" src="default-profile.png" alt="Profile Picture"> <!-- Default picture -->
                 <input type="file" id="profile-pic-input" style="display: none;">
                 <button id="upload-pic-btn">Change Profile Picture</button>
             </div>
-            <div class="profile-info">
-                <h2 id="user-name">User Name</h2>
-                <button id="follow-btn">Follow</button>
-                <button id="message-btn">Message</button>
+            <div class="profile-actions">
+                <button id="follow-btn"><i class="fas fa-user-plus"></i> Follow</button>
+                <button id="message-btn"><i class="fas fa-envelope"></i> Message</button>
             </div>
         </div>
 
-        <!-- Additional Information -->
+        <!-- User Info -->
         <div class="profile-details">
-            <h3>Details</h3>
-            <p><strong>Full Name:</strong> <span id="full-name">Loading...</span></p>
-            <p><strong>Email:</strong> <span id="email">Loading...</span></p>
-            <p><strong>Phone Number:</strong> <span id="phone-number">Loading...</span></p>
-            <p><strong>Referral By:</strong> <span id="referral-by">Loading...</span></p>
-            <p><strong>Referral Link:</strong> <span id="referral-link">Loading...</span></p>
+            <div class="info-box" id="name-box">
+                <span class="info-icon"><i class="fas fa-user"></i></span>
+                <p><strong>Name:</strong> <span id="user-name">Loading...</span></p>
+            </div>
+            <div class="info-box" id="email-box">
+                <span class="info-icon"><i class="fas fa-envelope"></i></span>
+                <p><strong>Email:</strong> <span id="email">Loading...</span> <button class="copy-btn" id="copy-email-btn">Copy</button></p>
+            </div>
+            <div class="info-box" id="phone-box">
+                <span class="info-icon"><i class="fas fa-phone"></i></span>
+                <p><strong>Phone Number:</strong> <span id="phone-number">Loading...</span></p>
+            </div>
+            <div class="info-box" id="referral-box">
+                <span class="info-icon"><i class="fas fa-link"></i></span>
+                <p><strong>Referral Link:</strong> <span id="referral-link">Loading...</span> <button class="copy-btn" id="copy-referral-btn">Copy</button></p>
+            </div>
+            <div class="info-box" id="referral-by-box">
+                <span class="info-icon"><i class="fas fa-users"></i></span>
+                <p><strong>Referred By:</strong> <span id="referral-by">Loading...</span></p>
+            </div>
         </div>
-    </div>
+                       </div>
+    
     <footer>
     <div class="footer">
         <div class="footer-item">
