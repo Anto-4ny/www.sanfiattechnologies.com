@@ -35,8 +35,8 @@ app.get('/withdrawal', (req, res) => {
 });
 
 // Route to serve registration.html
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'registration.html'));
+app.get('/index', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Referral link generation for new users
