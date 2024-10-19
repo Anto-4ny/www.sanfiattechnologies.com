@@ -127,7 +127,7 @@ app.get('/api/referrals/:email', async (req, res) => {
 
 // Function to initiate the MPESA STK Push request using Till Number
 async function initiateSTKPush(token, phoneNumber, amount) {
-    const businessShortCode = '860211'; // Your Till Number
+    const businessShortCode = '4904474'; // Your Till Number
 
     const url = 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'; // Use live URL for production
 
