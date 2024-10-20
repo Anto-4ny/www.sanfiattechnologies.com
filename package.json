@@ -1,7 +1,7 @@
 {
   "name": "www.sanfiattechnologies.com",
   "version": "1.0.0",
-  "main": "server.js",  // Change this if your main file isn't script.js
+  "main": "server.js", 
   "dependencies": {
     "axios": "^1.7.2",
     "body-parser": "^1.20.2",
@@ -9,7 +9,7 @@
     "firebase": "^10.12.4"
   },
   "scripts": {
-    "start": "node server.js"  // Ensure this matches your main backend file
+    "start": "node server.js" 
   },
   "keywords": [],
   "author": "",
