@@ -124,11 +124,9 @@ app.get('/api/referrals/:email', async (req, res) => {
     }
 });
 
-
 // Function to initiate the MPESA STK Push request using Till Number
 async function initiateSTKPush(token, phoneNumber, amount) {
     const businessShortCode = '4904474'; // Your Till Number
-
     const url = 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'; // Use live URL for production
 
     const headers = {
@@ -146,15 +144,19 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         PartyB: businessShortCode, // Till Number
         PhoneNumber: phoneNumber,
         CallBackURL: 'https://yourdomain.com/api/callback', // Replace with your actual callback URL
-        AccountReference: phoneNumber, // You can use the phone number or any other reference
-        TransactionDesc: `Payment to till number ${businessShortCode}` // Optional description
+        AccountReference: phoneNumber,
+        TransactionDesc: `Payment to till number ${businessShortCode}`
     };
 
-    const response = await axios.post(url, payload, { headers });
-    return response.data;
+    try {
+        const response = await axios.post(url, payload, { headers });
+        console.log("STK Response:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("STK Push Error:", error.response ? error.response.data : error.message);
+        throw error;
+    }
 }
-
-
 
 // MPESA STK Push API endpoint for deposits
 app.post('/api/pay', async (req, res) => {
@@ -185,6 +187,7 @@ app.post('/api/pay', async (req, res) => {
         res.status(500).json({ error: 'Payment initiation failed.' });
     }
 });
+
 
 
 // MPESA Callback handler for deposits
