@@ -152,14 +152,14 @@ input {
         </nav>
     </header>                         
     <body>
-<!-- <div id="payment-popup" class="popup">
+<!--<div id="payment-popup" class="popup"> 
     <div class="popup-content">
         <h2>Activate Your Account</h2>
         <p>Your account needs to be activated to access all features.</p>
         <button id="activate-btn" class="activate-btn">Activate Account</button>
         <div id="payment-section" class="payment-section" style="display: none;">
             <label for="phone-number">Enter your MPESA Number:</label>
-            <input type="text" id="phone-number" placeholder="07XXXXXXXX" required>
+            <input type="text" id="phone-number" placeholder="07XXXXXXXX" required pattern="^07\d{8}$">
             <label for="amount">Amount:</label>
             <input type="text" id="amount" value="250" readonly>
             <button id="pay-btn" class="pay-btn">Pay Now</button>
@@ -294,9 +294,7 @@ input {
         // Function to check if the user has paid
 const checkUserPaymentStatus = async () => {
     const userId = localStorage.getItem('userId');  // Assuming userId is stored after login
-    if (!userId) {
-        return false;  // No user logged in
-    }
+    if (!userId) return false;  // No user logged in
 
     const userDoc = await firestore.collection('users').doc(userId).get();
     if (userDoc.exists && userDoc.data().paymentStatus) {
@@ -326,40 +324,35 @@ const showPaymentPopup = () => {
     // Show the payment section and pay button after clicking "Activate Account"
     const activateButton = document.getElementById('activate-btn');
     activateButton.addEventListener('click', () => {
-        paymentSection.style.display = 'block'; // Show payment section
+        paymentSection.style.display = 'block';
     });
 
     // Handle pay button click and initiate MPESA payment
     const payButton = document.getElementById('pay-btn');
     payButton.addEventListener('click', () => {
-        const phoneNumber = document.getElementById('phone-number').value; // Corrected ID
-
-        if (phoneNumber) {
-            // Call the backend to initiate the MPESA payment
-            fetch('/initiate-payment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    phoneNumber: phoneNumber,
-                    amount: 250 // Amount to pay
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("MPESA payment initiated. Please check your phone.");
-                } else {
-                    alert("Payment failed: " + data.message);
-                }
-            })
-            .catch(error => console.error('Error:', error));
+        const phoneNumber = document.getElementById('phone-number').value.trim();
+        if (phoneNumber.match(/^07\d{8}$/)) {
+            initiatePayment(phoneNumber);
         } else {
-            alert("Please enter your MPESA phone number.");
+            alert("Please enter a valid MPESA phone number (07XXXXXXXX).");
         }
     });
 };
+
+// Function to initiate payment process
+const initiatePayment = (phoneNumber) => {
+    fetch('/api/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch(error => console.error("Payment Error:", error));
+};
+
     </script>
     
         <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
