@@ -213,7 +213,7 @@ app.post('/api/callback', async (req, res) => {
 
                 paymentRef.forEach(async (doc) => {
                     await db.collection('payments').doc(doc.id).update({
-                        status: ResultCode === 0 ? 'Success' : 'Failed', // ResultCode 0 means success
+                        status: ResultCode === 0 ? 'Success' : 'Failed',
                         mpesaCode: mpesaCode || 'N/A'
                     });
 
@@ -240,6 +240,7 @@ app.post('/api/callback', async (req, res) => {
         res.status(400).send('Invalid callback data');
     }
 });
+
 
 
 // MPESA Withdrawal Request
