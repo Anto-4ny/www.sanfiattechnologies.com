@@ -44,14 +44,22 @@ document.addEventListener('DOMContentLoaded', () => {
         loginSection.classList.remove('hidden');
     });
 
-    // Toggle password visibility
-    const togglePasswordVisibility = (input, eyeIcon) => {
-        eyeIcon.addEventListener('click', () => {
-            const type = input.type === 'password' ? 'text' : 'password';
-            input.type = type;
-            eyeIcon.textContent = type === 'password' ? '👁️' : '🙈';
-        });
-    };
+const togglePasswordVisibility = (input, eyeIcon) => {
+    eyeIcon.addEventListener('click', () => {
+        const type = input.type === 'password' ? 'text' : 'password';
+        input.type = type;
+
+        // Toggle Font Awesome classes
+        if (type === 'password') {
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        } else {
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        }
+    });
+};
+
 
     togglePasswordVisibility(document.getElementById('login-password'), toggleLoginPassword);
     togglePasswordVisibility(document.getElementById('signup-password'), toggleSignupPassword);
