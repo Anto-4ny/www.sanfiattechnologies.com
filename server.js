@@ -123,33 +123,29 @@ app.get('/api/referrals/:email', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch referrals.' });
     }
 });
-
-// Function to initiate the MPESA STK Push request using Till Number
+//Function to Initiate MPESA STK Push Request
 async function initiateSTKPush(token, phoneNumber, amount) {
-    const businessShortCode = '4904474'; // Your Till Number
-    const url = 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'; // Use live URL for production
-
     const headers = {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
     };
 
     const payload = {
-        BusinessShortCode: businessShortCode, // Till Number
-        Password: generatePassword(businessShortCode),
+        BusinessShortCode: process.env.BUSINESS_SHORT_CODE, // From .env
+        Password: generatePassword(process.env.BUSINESS_SHORT_CODE),
         Timestamp: getCurrentTimestamp(),
         TransactionType: 'CustomerBuyGoodsOnline', // For Till Number transactions
         Amount: amount,
-        PartyA: phoneNumber, // The customer's phone number
-        PartyB: businessShortCode, // Till Number
+        PartyA: phoneNumber,
+        PartyB: process.env.BUSINESS_SHORT_CODE, // Till Number
         PhoneNumber: phoneNumber,
-        CallBackURL: 'https://yourdomain.com/api/callback', // Replace with your actual callback URL
+        CallBackURL: process.env.CALLBACK_URL, // From .env
         AccountReference: phoneNumber,
-        TransactionDesc: `Payment to till number ${businessShortCode}`
+        TransactionDesc: `Payment to till number ${process.env.BUSINESS_SHORT_CODE}`,
     };
 
     try {
-        const response = await axios.post(url, payload, { headers });
+        const response = await axios.post(process.env.STK_PUSH_URL, payload, { headers });
         console.log("STK Response:", response.data);
         return response.data;
     } catch (error) {
@@ -158,29 +154,29 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     }
 }
 
-// MPESA STK Push API endpoint for deposits
+//Payment Initiation Endpoint
 app.post('/api/pay', async (req, res) => {
     const { phoneNumber, email } = req.body;
-    const amount = 250; // Amount to be paid
+    const amount = 250; // Fixed amount for payment
 
     try {
-        const token = await getAccessToken(); // Function to get OAuth token
+        const token = await getAccessToken(); // Get OAuth token
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
 
-        // Add initial payment status to Firestore as pending
+        // Save payment status as "Pending" in Firestore
         const paymentDoc = await db.collection('payments').add({
             email,
             phoneNumber,
             amount,
             status: 'Pending',
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
-            mpesaCheckoutRequestID: stkResponse.CheckoutRequestID // Save CheckoutRequestID to track later
+            mpesaCheckoutRequestID: stkResponse.CheckoutRequestID,
         });
 
         res.status(200).json({
             message: 'Payment initiated. Please enter your MPESA PIN.',
             paymentId: paymentDoc.id,
-            stkResponse
+            stkResponse,
         });
     } catch (error) {
         console.error('Error initiating payment:', error);
@@ -188,9 +184,7 @@ app.post('/api/pay', async (req, res) => {
     }
 });
 
-
-
-// MPESA Callback handler for deposits
+//Callback Handler for STK Push
 app.post('/api/callback', async (req, res) => {
     const { Body } = req.body;
     const { stkCallback } = Body;
@@ -199,13 +193,11 @@ app.post('/api/callback', async (req, res) => {
         const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
 
         try {
-            // Find and update the payment using the CheckoutRequestID
             const paymentRef = await db.collection('payments')
                 .where('mpesaCheckoutRequestID', '==', CheckoutRequestID)
                 .get();
 
             if (!paymentRef.empty) {
-                // Extract MPESA transaction details (e.g., transaction code)
                 let mpesaCode = '';
                 if (CallbackMetadata && CallbackMetadata.Item) {
                     mpesaCode = CallbackMetadata.Item.find(item => item.Name === 'MpesaReceiptNumber')?.Value || '';
@@ -214,14 +206,13 @@ app.post('/api/callback', async (req, res) => {
                 paymentRef.forEach(async (doc) => {
                     await db.collection('payments').doc(doc.id).update({
                         status: ResultCode === 0 ? 'Success' : 'Failed',
-                        mpesaCode: mpesaCode || 'N/A'
+                        mpesaCode: mpesaCode || 'N/A',
                     });
 
                     if (ResultCode === 0) {
-                        // Mark the user as having paid registration fee
                         const paymentData = doc.data();
                         await db.collection('users').doc(paymentData.email).update({
-                            paidRegistration: true
+                            paidRegistration: true,
                         });
                     }
                 });
@@ -241,22 +232,19 @@ app.post('/api/callback', async (req, res) => {
     }
 });
 
+//withdrawal endpoint
 
-
-// MPESA Withdrawal Request
 app.post('/api/withdraw', async (req, res) => {
     const { email, phoneNumber, amount } = req.body;
 
     try {
-        // Check if today is Friday
         const today = new Date();
-        const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 5 = Friday
+        const dayOfWeek = today.getDay();
 
-        if (dayOfWeek !== 5) { // 5 means Friday
+        if (dayOfWeek !== 5) { // Allow withdrawals only on Fridays
             return res.status(400).json({ error: 'Withdrawals can only be made on Fridays.' });
         }
 
-        // Fetch user balance
         const userDoc = await db.collection('users').doc(email).get();
         if (!userDoc.exists) {
             return res.status(404).json({ error: 'User not found.' });
@@ -265,34 +253,28 @@ app.post('/api/withdraw', async (req, res) => {
         const userData = userDoc.data();
         const currentBalance = userData.balance || 0;
 
-        // Check if the user has enough balance to withdraw
         if (currentBalance < amount) {
             return res.status(400).json({ error: 'Insufficient balance.' });
         }
 
-        // Deduct the amount from the user's balance
         const newBalance = currentBalance - amount;
-        await db.collection('users').doc(email).update({
-            balance: newBalance
-        });
+        await db.collection('users').doc(email).update({ balance: newBalance });
 
-        // Process the MPESA withdrawal (simulated for sandbox environment)
         const token = await getAccessToken();
         const withdrawalResponse = await initiateWithdrawal(token, phoneNumber, amount);
 
-        // Save the withdrawal transaction in Firestore
         await db.collection('withdrawals').add({
             email,
             phoneNumber,
             amount,
             status: 'Pending',
             mpesaTransactionID: withdrawalResponse.ConversationID,
-            timestamp: admin.firestore.FieldValue.serverTimestamp()
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
         });
 
         res.status(200).json({
             message: 'Withdrawal initiated. Please wait for confirmation.',
-            withdrawalResponse
+            withdrawalResponse,
         });
     } catch (error) {
         console.error('Error initiating withdrawal:', error);
@@ -300,42 +282,22 @@ app.post('/api/withdraw', async (req, res) => {
     }
 });
 
-// Function to initiate MPESA Withdrawal (B2C Request)
-async function initiateWithdrawal(token, phoneNumber, amount) {
-    const payload = {
-        InitiatorName: process.env.INITIATOR_NAME,
-        SecurityCredential: process.env.SECURITY_CREDENTIAL,
-        CommandID: 'BusinessPayment',
-        Amount: amount,
-        PartyA: '860211', // Till number for withdrawal
-        PartyB: phoneNumber,
-        Remarks: 'Withdrawal',
-        QueueTimeOutURL: 'https://your-domain.com/callback', // Replace with your callback URL
-        ResultURL: 'https://your-domain.com/callback', // Replace with your callback URL
-        Occasion: 'Withdrawal'
-    };
-
-    const response = await axios.post('https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest', payload, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    });
-    return response.data;
-}
-
-
-
-// Function to get MPESA access token
+//Get Access Token
 async function getAccessToken() {
-    const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
-        auth: {
-            username: process.env.LIVE_APP_CONSUMER_KEY,
-            password: process.env.LIVE_APP_CONSUMER_SECRET
-        }
-    });
-    return response.data.access_token;
+    try {
+        const response = await axios.get(`${process.env.OAUTH_TOKEN_URL}?grant_type=client_credentials`, {
+            auth: {
+                username: process.env.LIVE_APP_CONSUMER_KEY,
+                password: process.env.LIVE_APP_CONSUMER_SECRET,
+            },
+        });
+        return response.data.access_token;
+    } catch (error) {
+        console.error('Error fetching access token:', error);
+        throw error;
+    }
 }
+
 
 // Start the Express server
 app.listen(PORT, () => {
