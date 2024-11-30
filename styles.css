@@ -844,62 +844,6 @@ button:hover {
 }
 /*bonuses page*/
 
-.bonus-box {
-    width: 100%;
-    max-width: 300px;
-    margin: 20px;
-    position: relative;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    text-align: center;
-}
-
-.bonus-box .badge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: gold;
-    color: white;
-    font-weight: bold;
-    padding: 5px 10px;
-    transform: rotate(45deg);
-    transform-origin: top right;
-}
-
-.bonus-content {
-    padding: 20px;
-    background: url('bonus-bg.jpg') no-repeat center center / cover;
-}
-
-.bonus-info {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.price {
-    color: #28a745;
-    font-size: 1.5em;
-    margin: 10px 0;
-}
-
-button {
-    padding: 10px 20px;
-    margin-top: 10px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-}
-
-button:hover {
-    background: #0056b3;
-}
-
 #purchase-status-welcome, #purchase-status-cashback {
     color: red;
     font-weight: bold;
