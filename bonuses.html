@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonuses</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="scripts.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Bonuses</h1>
+    </header>
+    <main>
+        <section id="welcome-bonus">
+            <div class="bonus-box">
+                <div class="badge">NEW</div>
+                <div class="bonus-content">
+                    <div class="bonus-info">
+                        <h2>Welcome Bonus</h2>
+                        <p class="price">KES 5,000</p>
+                    </div>
+                    <button onclick="claimBonus(450, 'welcome')">Click to Claim Welcome Bonus</button>
+                </div>
+            </div>
+            <p id="purchase-status-welcome"></p>
+        </section>
+
+        <section id="cashback-bonus">
+            <div class="bonus-box">
+                <div class="badge">NEW</div>
+                <div class="bonus-content">
+                    <div class="bonus-info">
+                        <h2>Cashback Bonus</h2>
+                        <p class="price">KES 5,000</p>
+                    </div>
+                    <button onclick="claimBonus(500, 'cashback-5000')">Claim Cashback Bonus</button>
+                </div>
+            </div>
+
+            <div class="bonus-box">
+                <div class="badge">NEW</div>
+                <div class="bonus-content">
+                    <div class="bonus-info">
+                        <h2>Cashback Bonus</h2>
+                        <p class="price">KES 10,000</p>
+                    </div>
+                    <button onclick="claimBonus(1200, 'cashback-10000')">Claim Cashback Bonus</button>
+                </div>
+            </div>
+            <p id="purchase-status-cashback"></p>
+        </section>
+    </main>
+</body>
+</html>
