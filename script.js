@@ -679,10 +679,11 @@ function claimBonus(amount, bonusType) {
         purchaseStatus.textContent = `Bonus purchased successfully! You can purchase again if you'd like.`;
         purchaseStatus.style.color = 'green';
     } else {
-        purchaseStatus.textContent = `Error: Insufficient balance to claim the bonus. Please top up your account with a deposit of at least KES 1,000 to claim the Welcome Bonus.`;
+        purchaseStatus.textContent = `Error: Insufficient balance to claim the bonus. Please top up your account with a deposit of at least KES 1,000 to claim the bonus.`;
         purchaseStatus.style.color = 'red';
         setTimeout(() => {
             window.location.href = 'deposit.html';
         }, 3000);
     }
 }
+
