@@ -221,7 +221,7 @@ function claimBonus(amount, bonusType) {
     if (userBalance >= amount) {
         userBalance -= amount;
         alert('Congratulations! You have successfully claimed the bonus.');
-        purchaseStatus.textContent = `Bonus purchased successfully! You can purchase again if you'd like.`;
+        purchaseStatus.textContent = `Bonus claimed successfully! You can use the bonus to spin and win cash prizes.`;
         purchaseStatus.style.color = 'green';
     } else {
         purchaseStatus.textContent = `Error: Insufficient balance to claim the bonus. Please top up your account with a deposit of at least KES 1,000 to claim the bonus.`;
