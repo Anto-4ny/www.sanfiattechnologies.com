@@ -127,19 +127,44 @@ main {
         </nav>
     </header>                         
     <body>
-       <main style="margin-bottom: 50px;"> <!-- Added spacing below -->
-        <section id="welcome-bonus" style="margin-bottom: 20px;"> <!-- Added spacing below the section -->
-            <div class="bonus-box" style="margin-bottom: 30px;"> <!-- Space below the box -->
-                <div class="badge">NEW</div>
+    <main style="margin-bottom: 50px;">
+        <section id="welcome-bonus" style="margin-bottom: 20px;">
+            <div class="bonus-box" style="
+                position: relative;
+                background-image: url('welcome-bg.jpg'); /* Add your background image */
+                background-size: cover;
+                background-position: center;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                overflow: hidden;
+                color: white;
+                text-align: center;
+                margin-bottom: 30px;
+            ">
+                <div class="badge" style="
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    background: gold;
+                    color: black;
+                    font-weight: bold;
+                    padding: 5px 15px;
+                    transform: rotate(45deg);
+                    transform-origin: top right;
+                    z-index: 2;
+                ">NEW</div>
                 <div class="bonus-content">
-                    <div class="bonus-info">
-                        <h2>Welcome Bonus</h2>
-                        <p class="price">KES 5,000</p>
-                    </div>
-                    <button onclick="claimBonus(450, 'welcome')">Click to Claim Welcome Bonus</button>
+                    <h2 style="margin: 0; font-size: 1.5rem;">Welcome Bonus</h2>
+                    <p class="price" style="font-size: 1.2rem; margin: 10px 0;">KES 5,000</p>
+                    <button 
+                        style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;" 
+                        onclick="claimBonus(450, 'welcome')">
+                        Click to Claim Welcome Bonus
+                    </button>
                 </div>
             </div>
-            <p id="purchase-status-welcome" style="margin-top: 20px;"></p> <!-- Space above status message -->
+            <p id="purchase-status-welcome" style="margin-top: 20px;"></p>
         </section>
     <footer>
     <div class="footer">
