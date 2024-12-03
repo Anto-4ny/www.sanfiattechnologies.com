@@ -15,10 +15,10 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
-    background-color: #fff; 
-    border-bottom: 1px solid #ddd;
-    position: relative;
+    padding: 10px;
+    background-color: #fff; /* Header background color */
+    border-bottom: 1px solid #ddd; /* Bottom border */
+    position: relative; /* Ensure correct positioning of mobile nav */
 }
 
 main {
@@ -28,7 +28,7 @@ main {
 /* Responsive Dashboard Section */
 #dashboard-section {
     margin: 20px auto;
-    max-width: 95%; /* Adjust for smaller screens */
+    max-width: 1200px;/* Adjust for smaller screens */
     padding: 10px;
     box-sizing: border-box;
 }
@@ -41,20 +41,33 @@ main {
 #user-info {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
 }
 
 .info-box {
     width: 100%;
+    position: relative;
     max-width: 300px;
-    padding: 15px;
+    padding: 20px;
     border-radius: 10px;
     color: white;
-    text-align: center;
+    margin: 20px 0;
+    overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.5s ease;
+    opacity: 0;
+    transform: translateY(30px);
 }
+
+/* Icons in each box */
+.info-box i {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    opacity: 0.2;
+    }
 
 /* Pop-in effect */
 .info-box.show {
@@ -70,6 +83,7 @@ main {
 }
 
 .progress-bar::after {
+    position: relative;
     content: '';
     display: block;
     height: 100%;
@@ -78,72 +92,147 @@ main {
     transition: width 0.4s ease;
 }
 
-/* Box Colors */
-#name-box { background-color: #3498db; }
-#email-box { background-color: #e74c3c; }
-#referral-box { background-color: #2ecc71; }
-#views-box { background-color: #f39c12; }
-#earnings-box { background-color: #8e44ad; }
-#amount-box { background-color: #e67e22; }
-#package-box { background-color: #1abc9c; }
 
-/* MPESA Payment Section */
-.payment-box {
-    background-color: #34b233;
-    color: white;
-    border-radius: 10px;
-    padding: 15px;
-    margin: 10px auto;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* Unique Box Colors */
+#name-box {
+    background-color: #3498db;
 }
+#email-box {
+    background-color: #e74c3c;
+}
+#referral-box {
+    background-color: #2ecc71;
+}
+#views-box {
+    background-color: #f39c12;
+}
+#earnings-box {
+    background-color: #8e44ad;
+}
+#amount-box {
+    background-color: #e67e22;
+}
+#package-box {
+    background-color: #1abc9c;
+}
+/* Spinner Styles */
+#loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Ensure it overlays everything */
+    }
 
-.confirmation-box {
-    background-color: #f2f2f2;
-    color: #333;
-    border-radius: 10px;
-    padding: 15px;
-    margin: 10px auto;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+.spinner {
+    border: 8px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 8px solid #3498db;
+    width: 60px;
+    height: 60px;
+    -webkit-animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
+    @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg);}
 
-/* Input fields and buttons */
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    #user-info {
+        justify-content: center;
+    }
+        }
+
+        /* General Box Styling */
+        .payment-box, .confirmation-box {
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        /* MPESA Colors for Payment Section */
+        .payment-box {
+            background-color: #34b233; /* MPESA green */
+            color: #fff;
+        }
+/* Different color for confirmation section */
+        .confirmation-box {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+/* MPESA image styling */
+        .mpesa-image {
+            display: block;
+            max-width: 100px;
+            margin: 10px 0;
+            }
+
+/* Input fields and buttons styling */
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
 
 input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
 }
-
 button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
+            padding: 12px;
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
 }
-
 button:hover {
-    background-color: #0056b3;
-}
+            background-color: #ddd;
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .payment-box, .confirmation-box {
+                padding: 15px;
+            }
+        input, button {
+                font-size: 14px;
+            }
+        }
+/* Pop-in effect for both sections */
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-/* Upload Section */
+            
+
 #upload-section {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin: 20px auto;
-    max-width: 600px;
+    margin: 20px 0;
+}
+#upload-section input {
+    display: block;
+    margin-bottom: 10px;
 }
 
 #upload-section h3 {
@@ -156,33 +245,126 @@ button:hover {
 #referral-link-section {
     background-color: white;
     border-radius: 8px;
-    padding: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .referral-container {
     display: flex;
-    justify-content: center;
     align-items: center;
     gap: 10px;
 }
 
 .referral-link {
-    flex: 1;
+    width: 50%; /* Show half of the link */
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    margin-right: 10px;
+    border: 1px solid #ddd;
     padding: 5px;
     background-color: #f5f5f5;
     border: 1px solid #ddd;
 }
+/* Copy button styles */
+#copy-link-button {
+    padding: 8px 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+#copy-link-button:hover {
+    background-color: #218838;
+}
+/* WhatsApp share button styles */
+#whatsapp-share-button {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+#whatsapp-share-button i {
+    margin-right: 10px; /* Adds space between the WhatsApp icon and the text */
+}
 
+/* Base styles for the boxes (before animation) */
+.payment-box, .confirmation-box, .info-box {
+    opacity: 0;
+    transform: translateY(50px); /* Slightly move down before popping in */
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Visible state (triggered when the 'visible' or 'show' class is added) */
+.payment-box.visible, .confirmation-box.visible, .info-box.show {
+    opacity: 1;
+    transform: translateY(0); /* Move to original position */
+}
+
+#upload-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px 0;
+    max-width: 600px;
+    margin: auto;
+}
+
+#upload-section h3 {
+    margin-top: 0;
+    font-size: 1.5em;
+    color: #333;
+}
+#upload-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+#upload-section input[type="number"], 
+#upload-section input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    }
+
+#upload-section input[type="number"] {
+    margin-bottom: 15px; /* Space between number input and file input */
+}
+#upload-section button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+#upload-section button:hover {
+    background-color: #0056b3;
+}
+
+#upload-status {
+    color: #333;
+    font-size: 1em;
+    margin-top: 10px;
+}
+
+#copy-link-button:hover:hover {
+    background-color: #0056b3;
+}
 /* Responsive Styles */
 @media (max-width: 768px) {
-    header {
+    #user-info {
         flex-direction: column;
-        text-align: center;
+        align-items: left;
     }
 
     #dashboard h2 {
@@ -190,30 +372,66 @@ button:hover {
     }
 
     .info-box {
-        max-width: 90%;
+        width: 90%;
+        max-width: 100%;
     }
 
     #upload-section, #referral-link-section {
-        width: 95%;
+        width: 90%;
+        max-width: 100%;
     }
 }
 
 @media (max-width: 480px) {
-    main {
-        padding: 10px;
-    }
+    #user-info {
+        flex-direction: column;
+            }
 
     .info-box {
-        max-width: 100%;
-        font-size: 0.9em;
+        width: 100%;
     }
+    header h1 {
+        font-size: 1.2em;
+    }
+}
 
-    button {
-        font-size: 0.9em;
-        padding: 8px;
+    /* Responsive Styles for Upload Section */
+@media (max-width: 768px) {
+    #upload-section {
+        padding: 15px; /* Reduce padding on smaller screens */
+        margin: 10px 0; /* Adjust margin for smaller screens */
+        max-width: 90%; 
     }
 
     #upload-section h3 {
-        font-size: 1.2em;
+        font-size: 1.3em; 
+    }
+    #upload-section input[type="number"], 
+    #upload-section input[type="file"] {
+        padding: 8px; 
+    }
+    #upload-section button {
+        padding: 8px 12px; 
+        font-size: 0.9em; 
+    }
+}
+
+@media (max-width: 480px) {
+    #upload-section {
+        padding: 10px; 
+        margin: 5px 0; 
+        max-width: 100%; 
+    }
+
+    #upload-section h3 {
+        font-size: 1.2em; 
+    }
+    #upload-section input[type="number"], 
+    #upload-section input[type="file"] {
+        padding: 6px; 
+    }
+    #upload-section button {
+        padding: 6px 10px; 
+        font-size: 0.8em; 
     }
 }
