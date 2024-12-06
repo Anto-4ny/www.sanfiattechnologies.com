@@ -386,6 +386,13 @@ document.getElementById('hamburger-icon').addEventListener('click', function(eve
     event.stopPropagation(); // Prevent event bubbling up to document
     var mobileNav = document.getElementById('mobile-nav');
     mobileNav.classList.toggle('show');
+    
+    // Prevent the main page from scrolling when the menu is open
+    if (mobileNav.classList.contains('show')) {
+        document.body.classList.add('menu-open');
+    } else {
+        document.body.classList.remove('menu-open');
+    }
 });
 
 // Close mobile navigation when clicking outside of it
@@ -396,6 +403,7 @@ document.addEventListener('click', function(event) {
     // Close the menu if clicking outside and menu is open
     if (mobileNav.classList.contains('show') && !mobileNav.contains(event.target) && event.target !== hamburgerIcon) {
         mobileNav.classList.remove('show');
+        document.body.classList.remove('menu-open'); // Re-enable scrolling
     }
 });
 
@@ -410,6 +418,7 @@ document.querySelectorAll('.has-submenu').forEach(function(item) {
         }
     });
 });
+
 
 
 
