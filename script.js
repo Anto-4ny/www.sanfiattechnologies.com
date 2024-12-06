@@ -380,46 +380,39 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 });
                           
-    
+
+
+// Get DOM elements
+const hamburgerIcon = document.getElementById('hamburger-icon');
+const mobileNav = document.getElementById('mobile-nav');
+
 // Toggle mobile navigation
-document.getElementById('hamburger-icon').addEventListener('click', function(event) {
-    event.stopPropagation(); // Prevent event bubbling up to document
-    var mobileNav = document.getElementById('mobile-nav');
-    mobileNav.classList.toggle('show');
-    
-    // Prevent the main page from scrolling when the menu is open
-    if (mobileNav.classList.contains('show')) {
-        document.body.classList.add('menu-open');
-    } else {
-        document.body.classList.remove('menu-open');
+hamburgerIcon.addEventListener('click', function (event) {
+    event.stopPropagation(); // Prevent event propagation
+    mobileNav.classList.toggle('show'); // Show/hide menu
+    document.body.classList.toggle('menu-open'); // Disable background scrolling
+});
+
+// Close menu if clicking outside of it
+document.addEventListener('click', function (event) {
+    if (
+        mobileNav.classList.contains('show') &&
+        !mobileNav.contains(event.target) &&
+        event.target !== hamburgerIcon
+    ) {
+        mobileNav.classList.remove('show'); // Hide menu
+        document.body.classList.remove('menu-open'); // Enable background scrolling
     }
 });
 
-// Close mobile navigation when clicking outside of it
-document.addEventListener('click', function(event) {
-    var mobileNav = document.getElementById('mobile-nav');
-    var hamburgerIcon = document.getElementById('hamburger-icon');
-
-    // Close the menu if clicking outside and menu is open
-    if (mobileNav.classList.contains('show') && !mobileNav.contains(event.target) && event.target !== hamburgerIcon) {
-        mobileNav.classList.remove('show');
-        document.body.classList.remove('menu-open'); // Re-enable scrolling
-    }
-});
-
-// Handle dropdown functionality for subcategories
-document.querySelectorAll('.has-submenu').forEach(function(item) {
-    item.addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent default link behavior
-        this.classList.toggle('active');
-        var submenu = this.nextElementSibling; // Find the next sibling which is the submenu div
-        if (submenu && submenu.classList.contains('submenu')) {
-            submenu.classList.toggle('show-submenu');
-        }
+// Handle submenu toggle
+document.querySelectorAll('.has-submenu').forEach(function (item) {
+    item.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent link navigation
+        const submenu = this.nextElementSibling;
+        submenu.classList.toggle('show-submenu'); // Show/hide submenu
     });
 });
-
-
 
 
 
