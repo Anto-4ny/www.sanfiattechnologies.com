@@ -383,14 +383,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 // DOM elements
 const hamburgerIcon = document.getElementById("hamburger-icon");
 const mobileNav = document.getElementById("mobile-nav");
-const content = document.getElementById("content");
 
 // Toggle mobile navigation
 hamburgerIcon.addEventListener("click", () => {
   mobileNav.classList.toggle("open");
-  document.body.style.marginTop = mobileNav.classList.contains("open")
-    ? `${mobileNav.scrollHeight}px`
-    : "0";
 });
 
 // Handle submenu toggle
@@ -402,6 +398,7 @@ document.querySelectorAll(".has-submenu").forEach((submenuToggle) => {
     submenuToggle.classList.toggle("active");
   });
 });
+
 
 // Get current date
 const today = new Date();
