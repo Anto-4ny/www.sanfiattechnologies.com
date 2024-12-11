@@ -21,6 +21,18 @@ body {
     height: 100vh; /* Ensure it covers the full view height */
 }
 
+/* Overlay for dimming the background */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 900;
+  display: none; /* Hidden initially */
+  transition: opacity 0.3s ease-in-out;
+}
 
 /* Header */
 header {
@@ -93,21 +105,20 @@ header {
   flex-direction: column;
   position: fixed;
   top: 0;
-  right: 0;
-  width: 50%;
+  left: -50%; /* Hidden initially */
+  width: 50%; /* Half the screen */
   height: 100%;
-  background-color: #333;
+  background-color: #444; /* Dark background */
   padding: 20px;
   color: #fff;
   overflow-y: auto; /* Scrollable to show all links */
-  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  transform: translateX(100%);
   transition: transform 0.3s ease-in-out;
 }
 
 .mobile-nav.open {
-  transform: translateX(0);
+  transform: translateX(100%);
 }
 
 .mobile-nav h3 {
@@ -116,18 +127,23 @@ header {
   color: #fff;
 }
 
+/* Links pop-in animation */
 .mobile-nav a {
   padding: 10px 15px;
   color: #fff;
   text-decoration: none;
   font-size: 16px;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #666;
+  opacity: 0;
+  transform: translateX(-20px);
+  animation: pop-in 0.3s ease forwards;
 }
 
 .mobile-nav a:hover {
   background-color: #575757;
 }
 
+/* Submenu */
 .submenu {
   display: none;
   flex-direction: column;
@@ -152,11 +168,18 @@ header {
   content: " ▲";
 }
 
-/* Content Section */
-#content {
-  padding: 80px 20px;
-  transition: margin-top 0.3s ease-in-out;
+/* Pop-in effect for links */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
+
 
 
 main {
