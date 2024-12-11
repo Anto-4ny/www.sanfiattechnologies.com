@@ -380,24 +380,30 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 });
                           
-// DOM elements
+
+// DOM Elements
 const hamburgerIcon = document.getElementById("hamburger-icon");
 const mobileNav = document.getElementById("mobile-nav");
 const overlay = document.getElementById("overlay");
 
-// Toggle mobile navigation
+// Toggle Mobile Navigation
 hamburgerIcon.addEventListener("click", () => {
   mobileNav.classList.toggle("open");
   overlay.style.display = mobileNav.classList.contains("open") ? "block" : "none";
+
+  // Add animation order to links
+  document.querySelectorAll(".mobile-nav a").forEach((link, index) => {
+    link.style.setProperty("--order", index);
+  });
 });
 
-// Close menu when clicking outside
+// Close Navigation on Overlay Click
 overlay.addEventListener("click", () => {
   mobileNav.classList.remove("open");
   overlay.style.display = "none";
 });
 
-// Handle submenu toggle
+// Handle Submenu Toggle
 document.querySelectorAll(".has-submenu").forEach((submenuToggle) => {
   submenuToggle.addEventListener("click", (e) => {
     e.preventDefault();
