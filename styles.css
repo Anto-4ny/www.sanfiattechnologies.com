@@ -53,6 +53,7 @@ header {
 #logo {
   height: 50px;
   cursor: pointer;
+  margin-left: 50px;
 }
 
 /* Notification Icon */
@@ -73,11 +74,12 @@ header {
   font-size: 12px;
   font-weight: bold;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: right;
+  margin-right: 
 }
 
 /* Profile Icon */
