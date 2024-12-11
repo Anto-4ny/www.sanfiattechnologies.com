@@ -1,14 +1,14 @@
-/* General Reset and Base Styles */
+/* General Reset and Base Styles 
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    background-image: url('images/ball-7280265_640.jpg'); /* Path to your background image */
+    background-image: url('images/ball-7280265_640.jpg'); 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    line-height: 1.6; /* Improve readability */
+    line-height: 1.6; 
 }
 
 header {
@@ -16,11 +16,11 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    background-color: #fff; /* Header background color */
-    border-bottom: 1px solid #ddd; /* Bottom border */
-    position: relative; /* Ensure correct positioning of mobile nav */
+    background-color: #fff; 
+    border-bottom: 1px solid #ddd; 
+    position: relative; 
 }
-
+*/
 main {
     padding: 20px;
 }
