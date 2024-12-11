@@ -4,6 +4,7 @@ body {
   margin: 0;
   padding: 0;
   transition: margin-top 0.3s ease-in-out;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 #responseMessage {
@@ -19,6 +20,7 @@ body {
     background-attachment: fixed; /* Optional, for a parallax-like effect */
     height: 100vh; /* Ensure it covers the full view height */
 }
+
 
 /* Header */
 header {
@@ -89,40 +91,41 @@ header {
 .mobile-nav {
   display: flex;
   flex-direction: column;
-  background-color: #f9f9f9;
-  padding: 20px;
   position: fixed;
   top: 0;
-  left: 0;
-  width: 100%;
-  max-height: 0;
-  overflow: hidden;
-  z-index: 999;
-  border-bottom: 2px solid #ddd;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: max-height 0.3s ease-in-out;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  background-color: #333;
+  padding: 20px;
+  color: #fff;
+  overflow-y: auto; /* Scrollable to show all links */
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
 }
 
 .mobile-nav.open {
-  max-height: 100vh;
+  transform: translateX(0);
 }
 
 .mobile-nav h3 {
   margin-bottom: 15px;
   font-size: 18px;
-  color: #333;
+  color: #fff;
 }
 
 .mobile-nav a {
   padding: 10px 15px;
-  color: #333;
+  color: #fff;
   text-decoration: none;
   font-size: 16px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #444;
 }
 
 .mobile-nav a:hover {
-  background-color: #e8f5e9;
+  background-color: #575757;
 }
 
 .submenu {
@@ -154,6 +157,7 @@ header {
   padding: 80px 20px;
   transition: margin-top 0.3s ease-in-out;
 }
+
 
 main {
     padding: 30px;
