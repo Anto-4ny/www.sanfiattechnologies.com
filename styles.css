@@ -53,7 +53,7 @@ header {
 #logo {
   height: 50px;
   cursor: pointer;
-  margin-left: 50px;
+  margin-left: 40px;
 }
 
 /* Notification Icon */
@@ -71,7 +71,7 @@ header {
   right: -10px;
   background: red;
   color: #fff;
-  font-size: 12px;
+  font-size: 32px;
   font-weight: bold;
   border-radius: 50%;
   width: 30px;
@@ -92,6 +92,7 @@ header {
 /* Hamburger Icon */
 .hamburger-menu {
   background: none;
+  margin-right: 50px;
   border: none;
   cursor: pointer;
 }
