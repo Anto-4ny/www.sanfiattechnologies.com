@@ -110,7 +110,7 @@ header {
   flex-direction: column;
   position: fixed;
   top: 0;
-  left: -100%; /* Hidden initially */
+  left: -60%; /* Hidden initially */
   width: 20%; /* Half the screen */
   height: 100%;
   background-color: #444; /* Dark background */
