@@ -2,7 +2,7 @@
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  padding: 0;
+  padding-top: 70px;
   transition: margin-top 0.3s ease-in-out;
   overflow-x: hidden; /* Prevent horizontal scrolling */
 }
@@ -21,19 +21,6 @@ body {
     height: 100vh; /* Ensure it covers the full view height */
 }
 
-/* Overlay for dimming the background */
-#overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 900;
-  display: none; /* Hidden initially */
-  transition: opacity 0.3s ease-in-out;
-}
-
 /* Header */
 header {
   display: flex;
@@ -47,6 +34,7 @@ header {
   width: 100%;
   z-index: 1000;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0;
 }
 
 /* Logo */
