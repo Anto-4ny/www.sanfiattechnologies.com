@@ -111,7 +111,7 @@ header {
   position: fixed;
   top: 0;
   left: -100%; /* Hidden initially */
-  width: 50%; /* Half the screen */
+  width: 20%; /* Half the screen */
   height: 100%;
   background-color: #444; /* Dark background */
   padding: 20px;
