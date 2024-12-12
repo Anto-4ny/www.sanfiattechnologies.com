@@ -666,3 +666,95 @@ document.getElementById('upload-user-profile-pic').addEventListener('change', as
     }
 });
 
+//SCREENSHOT UPLOAD PAGE
+// Validate view count
+const validateViews = (views) => views >= 5 && views <= 20;
+
+// Check if a user has uploaded in the last 24 hours
+const checkUploadCooldown = async (userId) => {
+  const uploadsRef = collection(db, "uploads");
+  const q = query(uploadsRef, where("userId", "==", userId), where("timestamp", ">", Timestamp.now().toDate().getTime() - 86400000));
+  const querySnapshot = await getDocs(q);
+  return !querySnapshot.empty; // Returns true if an upload was made in the last 24 hours
+};
+
+// Handle form submission
+document.getElementById("upload-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const views = parseInt(document.getElementById("views").value, 10);
+  const fileInput = document.getElementById("file-input");
+  const screenshot = fileInput.files[0];
+
+  if (!validateViews(views)) {
+    alert("Number of views must be between 5 and 20.");
+    return;
+  }
+
+  if (!screenshot) {
+    alert("Please upload a screenshot.");
+    return;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const userId = user.uid;
+
+      // Check if the user has an active package
+      const userDocRef = doc(db, "users", userId);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists() || !userDoc.data().packageStatus) {
+        alert("You must purchase a package to upload screenshots.");
+        return;
+      }
+
+      // Check if the user has uploaded in the last 24 hours
+      const hasUploaded = await checkUploadCooldown(userId);
+
+      if (hasUploaded) {
+        alert("You can only upload one screenshot every 24 hours.");
+        return;
+      }
+
+      // Upload screenshot and details to Firebase
+      const uploadsRef = collection(db, "uploads");
+      const uploadData = {
+        userId: userId,
+        views: views,
+        screenshotName: screenshot.name,
+        timestamp: Timestamp.now(),
+        approved: false, // Set to false initially until approved by admin
+      };
+
+      try {
+        await addDoc(uploadsRef, uploadData);
+        alert("Screenshot uploaded successfully! Awaiting admin approval.");
+      } catch (error) {
+        console.error("Error uploading screenshot:", error);
+        alert("Error uploading screenshot. Please try again.");
+      }
+    } else {
+      alert("You must be logged in to upload a screenshot.");
+    }
+  });
+});
+
+// Real-time update on user dashboard
+const updateDashboard = (userData) => {
+  document.getElementById("total-views").textContent = userData.totalViews || 0;
+  document.getElementById("total-earnings").textContent = userData.totalEarnings || 0;
+};
+
+// Monitor package purchase and update dashboard
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userDocRef = doc(db, "users", user.uid);
+    const userSnapshot = await getDoc(userDocRef);
+
+    if (userSnapshot.exists()) {
+      const userData = userSnapshot.data();
+      updateDashboard(userData);
+    }
+  }
+});
