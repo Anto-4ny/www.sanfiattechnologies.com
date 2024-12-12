@@ -616,10 +616,12 @@ catch (error)
     console.error('Error updating user profile:', error); 
 } 
                                           }; 
+
 // Event listener for saving profile changes 
 document.getElementById('save-user-profile-btn').addEventListener('click', async () => 
     { 
-        const user = auth.currentUser; if (user) 
+        const user = auth.currentUser; 
+        if (user) 
         {
             await saveUserProfile(user.uid); 
         }
@@ -660,104 +662,3 @@ document.getElementById('upload-user-profile-pic').addEventListener('change', as
             alert('Profile picture updated successfully.'); 
         }
     });
-// Validate view count
-const validateViews = (views) => views >= 5 && views <= 20;
-
-// Check if a user has uploaded in the last 24 hours
-const checkUploadCooldown = async (userId) => {
-  const uploadsRef = collection(db, "uploads");
-  const oneDayAgo = Timestamp.fromDate(new Date(Date.now() - 86400000)); // 24 hours ago
-  const q = query(uploadsRef, where("userId", "==", userId), where("timestamp", ">", oneDayAgo));
-  const querySnapshot = await getDocs(q);
-  return !querySnapshot.empty; // Returns true if an upload was made in the last 24 hours
-};
-
-// Handle form submission
-document.getElementById("upload-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const views = parseInt(document.getElementById("views").value, 10);
-  const fileInput = document.getElementById("file-input");
-  const screenshot = fileInput.files[0];
-
-  if (!validateViews(views)) {
-    alert("Number of views must be between 5 and 20.");
-    return;
-  }
-
-  if (!screenshot) {
-    alert("Please upload a screenshot.");
-    return;
-  }
-
-  // Check if the user is authenticated
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      const userId = user.uid;
-
-      // Check if the user has an active package
-      const userDocRef = doc(db, "users", userId);
-      const userDoc = await getDoc(userDocRef);
-
-      if (!userDoc.exists() || !userDoc.data().packageStatus) {
-        alert("You must purchase a package to upload screenshots.");
-        return;
-      }
-
-      // Check if the user has uploaded in the last 24 hours
-      const hasUploaded = await checkUploadCooldown(userId);
-
-      if (hasUploaded) {
-        alert("You can only upload one screenshot every 24 hours.");
-        return;
-      }
-
-      // Upload screenshot and details to Firebase
-      const uploadsRef = collection(db, "uploads");
-      const uploadData = {
-        userId: userId,
-        views: views,
-        screenshotName: screenshot.name,
-        timestamp: Timestamp.now(),
-        approved: false, // Set to false initially until approved by admin
-      };
-
-      try {
-        await addDoc(uploadsRef, uploadData);
-        alert("Screenshot uploaded successfully! Awaiting admin approval.");
-      } catch (error) {
-        console.error("Error uploading screenshot:", error);
-        alert("Error uploading screenshot. Please try again.");
-      }
-    } else {
-      alert("You must be logged in to upload a screenshot.");
-    }
-  });
-});
-
-// Function to update the user dashboard
-const updateDashboard = (userData) => {
-  const totalViewsElement = document.getElementById("total-views");
-  const totalEarningsElement = document.getElementById("total-earnings");
-
-  if (totalViewsElement) {
-    totalViewsElement.textContent = userData.totalViews || 0;
-  }
-
-  if (totalEarningsElement) {
-    totalEarningsElement.textContent = userData.totalEarnings || 0;
-  }
-};
-
-// Monitor package purchase and update dashboard
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userDocRef = doc(db, "users", user.uid);
-    const userSnapshot = await getDoc(userDocRef);
-
-    if (userSnapshot.exists()) {
-      const userData = userSnapshot.data();
-      updateDashboard(userData);
-    }
-  }
-});
