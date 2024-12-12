@@ -109,6 +109,20 @@ header {
   transition: transform 0.4s ease-in-out; /* Smooth slide-in effect */
 }
 
+/* Style scrollbar (optional, for a better look) */
+.mobile-nav::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mobile-nav::-webkit-scrollbar-thumb {
+  background-color: #575757; /* Custom scrollbar thumb color */
+  border-radius: 4px;
+}
+
+.mobile-nav::-webkit-scrollbar-track {
+  background-color: #444; /* Custom scrollbar track color */
+}
+
 .mobile-nav.open {
   display: flex;
   transform: translateX(0); /* Slide-in from the left */
