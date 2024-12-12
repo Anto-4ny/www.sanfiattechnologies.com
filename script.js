@@ -574,14 +574,14 @@ firebase.auth().onAuthStateChanged(function(user) {
     }
 });
 
-//SCREENSHOT UPLOAD PAGE
 // Validate view count
 const validateViews = (views) => views >= 5 && views <= 20;
 
 // Check if a user has uploaded in the last 24 hours
 const checkUploadCooldown = async (userId) => {
   const uploadsRef = collection(db, "uploads");
-  const q = query(uploadsRef, where("userId", "==", userId), where("timestamp", ">", Timestamp.now().toDate().getTime() - 86400000));
+  const oneDayAgo = Timestamp.fromDate(new Date(Date.now() - 86400000)); // 24 hours ago
+  const q = query(uploadsRef, where("userId", "==", userId), where("timestamp", ">", oneDayAgo));
   const querySnapshot = await getDocs(q);
   return !querySnapshot.empty; // Returns true if an upload was made in the last 24 hours
 };
@@ -604,6 +604,7 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
     return;
   }
 
+  // Check if the user is authenticated
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const userId = user.uid;
@@ -648,10 +649,18 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
   });
 });
 
-// Real-time update on user dashboard
+// Function to update the user dashboard
 const updateDashboard = (userData) => {
-  document.getElementById("total-views").textContent = userData.totalViews || 0;
-  document.getElementById("total-earnings").textContent = userData.totalEarnings || 0;
+  const totalViewsElement = document.getElementById("total-views");
+  const totalEarningsElement = document.getElementById("total-earnings");
+
+  if (totalViewsElement) {
+    totalViewsElement.textContent = userData.totalViews || 0;
+  }
+
+  if (totalEarningsElement) {
+    totalEarningsElement.textContent = userData.totalEarnings || 0;
+  }
 };
 
 // Monitor package purchase and update dashboard
