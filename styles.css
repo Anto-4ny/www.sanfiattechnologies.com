@@ -44,8 +44,9 @@ header {
 
 /* Logo */
 #logo {
-  height: 50px;
+  height: 70px;
   cursor: pointer;
+  left: 0;
 }
 
 /* Notification Icon */
