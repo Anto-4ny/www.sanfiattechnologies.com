@@ -186,29 +186,39 @@ input {
     
 </section>
                 
-    <section id="referral-link-section">
+<section id="referral-link-section" style="margin: 20px auto; padding: 20px; max-width: 600px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
     <h3>Your Referral Link</h3>
-    <div class="referral-container">
-        <p id="referral-link" class="referral-link"></p>
-        <button id="copy-link-button">Copy Link</button>
+    <div class="referral-container" style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
+        <p id="referral-link" class="referral-link" style="font-size: 14px; color: #333; background-color: #fff; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            https://example.com/referral-link
+        </p>
+        <button id="copy-link-button" style="background-color: #4caf50; color: white; border: none; border-radius: 4px; padding: 8px 12px; font-size: 14px; cursor: pointer; transition: background-color 0.3s;" 
+        onmouseover="this.style.backgroundColor='#45a049'" 
+        onmouseout="this.style.backgroundColor='#4caf50'">
+            Copy Link
+        </button>
     </div>
-    <a id="whatsapp-share-button" href="#" target="_blank" aria-label="Share on WhatsApp">
-    <i class="fab fa-whatsapp" style="font-size: 30px; color: #25D366;"></i>
-    Share on WhatsApp
+    <a id="whatsapp-share-button" href="#" target="_blank" aria-label="Share on WhatsApp" style="display: flex; align-items: center; margin-top: 15px; text-decoration: none; font-size: 16px;">
+        <i class="fab fa-whatsapp" style="font-size: 30px; color: #25D366; margin-right: 10px;"></i>
+        Share on WhatsApp
     </a>
-    
 </section>
 
-<section id="referrals-section">
-    <h3>Referred Users</h3>
-    <ul id="referral-list">
-        <!-- Referred users will be listed here -->
+<section id="referrals-section" style="margin: 20px auto; padding: 20px; max-width: 600px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+    <h3 style="font-size: 18px; color: #333; margin-bottom: 10px;">Referred Users</h3>
+    <ul id="referral-list" style="list-style-type: none; padding: 0; margin: 0;">
+        <li style="font-size: 14px; color: #555; padding: 10px; margin-bottom: 5px; border: 1px solid #ddd; border-radius: 4px; background-color: #fff; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">
+            <span>sanfiat@gmail.com</span>
+            <i class="fas fa-user referral-icon" style="font-size: 16px; color: #555;"></i>
+        </li>
+        <li style="font-size: 14px; color: #555; padding: 10px; margin-bottom: 5px; border: 1px solid #ddd; border-radius: 4px; background-color: #fff; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">
+            <span>sanfiattech@gmail.com</span>
+            <i class="fas fa-user referral-icon" style="font-size: 16px; color: #555;"></i>
+        </li>
+        <!-- Add more referred users here -->
     </ul>
 </section>
 
-    
-    
-</section>
 <footer>
     <div class="footer">
         <div class="footer-item">
