@@ -33,7 +33,7 @@ body {
     background-color: gold; /* Gold background */
     color: #000; /* Text color */
     display: flex;
-    align-items: center;
+    align-items: right;
     justify-content: center;
     font-weight: bold;
     font-size: 16px;
