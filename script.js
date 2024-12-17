@@ -280,18 +280,27 @@ onAuthStateChanged(auth, async (user) => {
 
     fetchAndUpdateUserData(user);
 });
+     // Function to fetch and display the current balance after payment
+        document.addEventListener("DOMContentLoaded", function () {
+            const balanceElement = document.getElementById("balance-amount");
 
-//balance
-    document.addEventListener("DOMContentLoaded", function () {
-        // Example balance value (Replace this with dynamic value from backend)
-        const balance = 1500; // Replace with real balance data
-        
-        // Update balance amount
-        document.getElementById("balance-amount").textContent = `${balance} Ksh`;
-    });
+            // Simulating the API call to fetch updated balance after successful payment
+            function fetchUpdatedBalance() {
+                fetch('/api/payment-status')  // Assuming you have an endpoint to get updated balance
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.newBalance) {
+                            balanceElement.textContent = `${data.newBalance} Ksh`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching balance:', error);
+                    });
+            }
 
-
-
+            // Call the function to update the balance (e.g., after payment is successful)
+            fetchUpdatedBalance();
+        });
 
 // Automatic pop-in effect on page load
 document.addEventListener('DOMContentLoaded', function () {
