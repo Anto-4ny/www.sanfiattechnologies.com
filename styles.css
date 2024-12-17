@@ -26,8 +26,51 @@ body {
     height: 100vh; /* Ensure it covers the full view height */
 }
 
-/* Header */
+/* Topmost Deposit Header */
+#deposit-header {
+  background-color: #28a745; /* Green background */
+  color: white;
+  height: 30px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1100; /* Higher z-index than the existing header */
+  display: flex;
+  align-items: center;
+  padding-left: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Balance Section */
+#balance-section {
+  margin-top: 120px; /* Adjust to fit under both headers */
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#balance-section i {
+  font-size: 24px;
+  color: #4CAF50; /* Icon color */
+}
+
+#balance-section span {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Existing Header Adjustments */
 header {
+  margin-top: 30px; /* To account for the deposit header */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -35,12 +78,12 @@ header {
   background-color: #4CAF50;
   color: #fff;
   position: fixed;
-  top: 0;
+  top: 30px; /* Position below the deposit header */
   width: 100%;
   z-index: 1000;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 0;
 }
+
 
 /* Logo */
 #logo {
