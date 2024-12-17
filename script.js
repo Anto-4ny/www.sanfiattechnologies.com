@@ -281,6 +281,18 @@ onAuthStateChanged(auth, async (user) => {
     fetchAndUpdateUserData(user);
 });
 
+//balance
+    document.addEventListener("DOMContentLoaded", function () {
+        // Example balance value (Replace this with dynamic value from backend)
+        const balance = 1500; // Replace with real balance data
+        
+        // Update balance amount
+        document.getElementById("balance-amount").textContent = `${balance} Ksh`;
+    });
+
+
+
+
 // Automatic pop-in effect on page load
 document.addEventListener('DOMContentLoaded', function () {
     const paymentBox = document.querySelector('.payment-box');
