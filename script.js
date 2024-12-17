@@ -215,7 +215,6 @@ const togglePasswordVisibility = (input, eyeIcon) => {
     });
 });
 
-
 // Function to update dashboard fields
 const updateDashboard = (userData) => {
     // Get the DOM elements for user info
@@ -229,12 +228,13 @@ const updateDashboard = (userData) => {
 
     // Update fields with user data
     if (userData) {
+        // Set the values for each element
         firstNameElement.textContent = userData.firstName || 'No name';
         userEmailElement.textContent = userData.email || 'No email';
         referralCountElement.textContent = userData.referrals || 0;
         totalViewsElement.textContent = userData.totalViews || 0;
         totalEarningsElement.textContent = userData.totalEarnings || 0;
-        amountPaidElement.textContent = userData.amountPaid || 0;
+        amountPaidElement.textContent = userData.amountPaid ? `${userData.amountPaid} Ksh` : '0 Ksh';
         packageStatusElement.textContent = userData.packageStatus || 'No active package';
 
         // Update progress bars with percentage values
@@ -242,8 +242,28 @@ const updateDashboard = (userData) => {
         updateProgressBar('#views-box', (userData.totalViews || 0) * 2); // Example multiplier
         updateProgressBar('#earnings-box', (userData.totalEarnings || 0) / 100); // Example multiplier for earnings
         updateProgressBar('#amount-box', (userData.amountPaid || 0) / 100); // Example multiplier for amount paid
+
+        // Additional handling for amountPaid and packageStatus if needed
+        if (userData.amountPaid && userData.packageStatus) {
+            // Example: You could change the package status or apply different styles based on amount paid
+            if (userData.amountPaid >= 1000) {
+                packageStatusElement.textContent = 'Premium Package Active';
+                // Apply additional logic if needed
+            } else {
+                packageStatusElement.textContent = 'Basic Package Active';
+            }
+        }
     }
 };
+
+// Function to update the progress bar (example)
+function updateProgressBar(elementId, percentage) {
+    const progressBar = document.querySelector(elementId);
+    if (progressBar) {
+        progressBar.style.width = `${Math.min(100, Math.max(0, percentage))}%`; // Ensure percentage is between 0-100
+    }
+}
+    
 
 // Auth state change listener
 onAuthStateChanged(auth, async (user) => {
