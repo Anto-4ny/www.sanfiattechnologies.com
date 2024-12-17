@@ -228,31 +228,29 @@ const updateDashboard = (userData) => {
 
     // Update fields with user data
     if (userData) {
-        // Set the values for each element
         firstNameElement.textContent = userData.firstName || 'No name';
         userEmailElement.textContent = userData.email || 'No email';
         referralCountElement.textContent = userData.referrals || 0;
         totalViewsElement.textContent = userData.totalViews || 0;
-        totalEarningsElement.textContent = userData.totalEarnings || 0;
+        totalEarningsElement.textContent = userData.totalEarnings || '0 Ksh';
         amountPaidElement.textContent = userData.amountPaid ? `${userData.amountPaid} Ksh` : '0 Ksh';
         packageStatusElement.textContent = userData.packageStatus || 'No active package';
 
-        // Update progress bars with percentage values
+        // Update progress bars
         updateProgressBar('#referral-box', (userData.referrals || 0) * 10); // Adjust as necessary
-        updateProgressBar('#views-box', (userData.totalViews || 0) * 2); // Example multiplier
-        updateProgressBar('#earnings-box', (userData.totalEarnings || 0) / 100); // Example multiplier for earnings
-        updateProgressBar('#amount-box', (userData.amountPaid || 0) / 100); // Example multiplier for amount paid
-        }
+        updateProgressBar('#views-box', (userData.totalViews || 0) * 2);
+        updateProgressBar('#earnings-box', (userData.totalEarnings || 0) / 100);
+        updateProgressBar('#amount-box', (userData.amountPaid || 0) / 100);
+    }
 };
 
-// Function to update the progress bar (example)
+// Function to update the progress bar
 function updateProgressBar(elementId, percentage) {
     const progressBar = document.querySelector(elementId);
     if (progressBar) {
         progressBar.style.width = `${Math.min(100, Math.max(0, percentage))}%`; // Ensure percentage is between 0-100
     }
-};
-    
+}
 
 // Auth state change listener
 onAuthStateChanged(auth, async (user) => {
@@ -289,27 +287,34 @@ onAuthStateChanged(auth, async (user) => {
 
     fetchAndUpdateUserData(user);
 });
-     // Function to fetch and display the current balance after payment
-        document.addEventListener("DOMContentLoaded", function () {
-            const balanceElement = document.getElementById("balance-amount");
 
-            // Simulating the API call to fetch updated balance after successful payment
-            function fetchUpdatedBalance() {
-                fetch('/api/payment-status')  // Assuming you have an endpoint to get updated balance
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.newBalance) {
-                            balanceElement.textContent = `${data.newBalance} Ksh`;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching balance:', error);
-                    });
-            }
+// Function to fetch and display the current balance
+document.addEventListener("DOMContentLoaded", function () {
+    const balanceElement = document.getElementById("balance-amount");
 
-            // Call the function to update the balance (e.g., after payment is successful)
-            fetchUpdatedBalance();
-        });
+    // Function to fetch updated balance from the backend
+    function fetchUpdatedBalance() {
+        fetch('/api/payment-status')  // Replace with your actual endpoint
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch balance');
+                return response.json();
+            })
+            .then(data => {
+                if (data.newBalance) {
+                    balanceElement.textContent = `${data.newBalance} Ksh`;
+                } else {
+                    balanceElement.textContent = '0 Ksh';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching balance:', error);
+                balanceElement.textContent = 'Error fetching balance';
+            });
+    }
+
+    fetchUpdatedBalance();
+});
+                                                   
 
 // Automatic pop-in effect on page load
 document.addEventListener('DOMContentLoaded', function () {
