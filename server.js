@@ -184,7 +184,7 @@ app.post('/api/pay', async (req, res) => {
     }
 });
 
-//Callback Handler for STK Push
+// Callback Handler for STK Push
 app.post('/api/callback', async (req, res) => {
     const { Body } = req.body;
     const { stkCallback } = Body;
@@ -204,20 +204,39 @@ app.post('/api/callback', async (req, res) => {
                 }
 
                 paymentRef.forEach(async (doc) => {
+                    const paymentData = doc.data();
+                    const updatedStatus = ResultCode === 0 ? 'Success' : 'Failed';
+
                     await db.collection('payments').doc(doc.id).update({
-                        status: ResultCode === 0 ? 'Success' : 'Failed',
+                        status: updatedStatus,
                         mpesaCode: mpesaCode || 'N/A',
                     });
 
-                    if (ResultCode === 0) {
-                        const paymentData = doc.data();
-                        await db.collection('users').doc(paymentData.email).update({
-                            paidRegistration: true,
-                        });
+                    if (updatedStatus === 'Success') {
+                        const userDocRef = db.collection('users').doc(paymentData.email);
+
+                        // Update the user balance in the users collection
+                        const userDoc = await userDocRef.get();
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+                            const newBalance = userData.balance + paymentData.amount;
+
+                            await userDocRef.update({
+                                balance: newBalance,
+                                paidRegistration: true,  // Assuming this is part of the registration process
+                            });
+
+                            // Send the updated balance to the frontend
+                            res.status(200).json({
+                                message: 'Payment successful',
+                                newBalance,
+                                mpesaCode: mpesaCode || 'N/A',
+                            });
+                        }
+                    } else {
+                        res.status(200).send('Payment failed');
                     }
                 });
-
-                res.status(200).send('Callback processed successfully');
             } else {
                 console.error('Payment not found for CheckoutRequestID:', CheckoutRequestID);
                 res.status(404).send('Payment not found');
@@ -231,6 +250,7 @@ app.post('/api/callback', async (req, res) => {
         res.status(400).send('Invalid callback data');
     }
 });
+            
 
 //withdrawal endpoint
 
