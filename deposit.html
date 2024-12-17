@@ -309,8 +309,8 @@
 
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
+    
     <script>
-   
 // Extract the package info from the URL query string
 function getQueryParams() {
     const queryString = window.location.search;
@@ -318,8 +318,11 @@ function getQueryParams() {
     const packageName = urlParams.get('packageName');
     const packagePrice = urlParams.get('packagePrice');
     
-    // Update the pay button with the correct package price
-    document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
+    // Update the pay button with the correct package price if a package exists
+    if (packagePrice) {
+        document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
+        document.getElementById('amount').value = packagePrice; // Pre-fill amount input
+    }
     
     return { packageName, packagePrice };
 }
@@ -327,78 +330,82 @@ function getQueryParams() {
 // Call the function to update the page with the package details
 const packageInfo = getQueryParams();
 
-        
-        // Handle Pay button click
-    document.getElementById("pay-button").addEventListener("click", async function() {
-        const phoneNumber = document.getElementById("phone-number").value;
-        
-        if (phoneNumber.length === 10) {
-            try {
-                // Make a POST request to initiate MPESA payment via the backend
-                const response = await fetch('/api/pay', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ phoneNumber: phoneNumber })
-                });
+// Set amount when suggested values are clicked
+function setAmount(amount) {
+    document.getElementById('amount').value = amount;
+}
 
-                const result = await response.json();
+// Handle Pay button click (process phone number and dynamic amount)
+document.getElementById("pay-button").addEventListener("click", async function() {
+    const phoneNumber = document.getElementById("phone-number").value;
+    const amount = document.getElementById("amount").value; // Capture amount from input
 
-                if (response.ok) {
-                    // Notify user about the STK push and inform about entering the MPESA PIN
-                    alert(result.message);
-                    console.log('STK Response:', result.stkResponse);
-                    // Store payment ID for future use (e.g., updating with payment code)
-                    sessionStorage.setItem('paymentId', result.paymentId);
-                } else {
-                    alert('Payment initiation failed. ' + result.error);
-                }
-            } catch (error) {
-                console.error('Error initiating payment:', error);
-                alert('Error initiating payment. Please try again.');
+    // Validate phone number and amount
+    if (phoneNumber.length === 10 && amount > 0) {
+        try {
+            // Make a POST request to initiate MPESA payment via the backend
+            const response = await fetch('/api/pay', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    phoneNumber: phoneNumber,
+                    amount: amount // Pass the dynamic amount
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Notify user about the STK push and inform about entering the MPESA PIN
+                alert(result.message);
+                console.log('STK Response:', result.stkResponse);
+                // Store payment ID for future use
+                sessionStorage.setItem('paymentId', result.paymentId);
+            } else {
+                alert('Payment initiation failed. ' + result.error);
             }
-        } else {
-            alert('Please enter a valid 10-digit phone number.');
+        } catch (error) {
+            console.error('Error initiating payment:', error);
+            alert('Error initiating payment. Please try again.');
         }
-    });
+    } else {
+        alert('Please enter a valid 10-digit phone number and a valid amount.');
+    }
+});
 
-    // Handle payment code submission
-    document.getElementById("submit-payment").addEventListener("click", async function() {
-        const paymentCode = document.getElementById("payment-confirmation").value;
-        const paymentId = sessionStorage.getItem('paymentId');
-        
-        if (paymentCode && paymentId) {
-            try {
-                // Make a POST request to update Firestore with the MPESA transaction code
-                const response = await fetch(`/api/payments/${paymentId}/update`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ mpesaCode: paymentCode })
-                });
+// Handle payment code submission
+document.getElementById("submit-payment").addEventListener("click", async function() {
+    const paymentCode = document.getElementById("payment-confirmation").value;
+    const paymentId = sessionStorage.getItem('paymentId');
+    
+    if (paymentCode && paymentId) {
+        try {
+            // Make a POST request to update Firestore with the MPESA transaction code
+            const response = await fetch(`/api/payments/${paymentId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ mpesaCode: paymentCode })
+            });
 
-                const result = await response.json();
-                if (response.ok) {
-                    document.getElementById("payment-status").textContent = "Payment submitted. Please wait for confirmation.";
-                } else {
-                    alert('Failed to update payment. ' + result.error);
-                }
-            } catch (error) {
-                console.error('Error updating payment:', error);
-                alert('Error updating payment. Please try again.');
+            const result = await response.json();
+            if (response.ok) {
+                document.getElementById("payment-status").textContent = "Payment submitted. Please wait for confirmation.";
+            } else {
+                alert('Failed to update payment. ' + result.error);
             }
-        } else {
-            alert('Please enter the MPESA transaction code.');
+        } catch (error) {
+            console.error('Error updating payment:', error);
+            alert('Error updating payment. Please try again.');
         }
-    });
-
-        function setAmount(amount) {
-  document.getElementById('amount').value = amount;
-        }
-            
-                                         </script>
+    } else {
+        alert('Please enter the MPESA transaction code.');
+    }
+});
+     </script>
     
 </body>
                             </html>
