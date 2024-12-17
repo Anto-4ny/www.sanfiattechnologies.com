@@ -244,7 +244,9 @@ header {
 
 main {
     padding: 30px;
-}
+    padding-top: 140px; /* Adjust based on header + balance height */
+    }
+
 
 /* Styles for the welcome section */
 .welcome-box {
