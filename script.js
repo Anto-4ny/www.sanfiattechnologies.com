@@ -251,7 +251,7 @@ function updateProgressBar(elementId, percentage) {
     if (progressBar) {
         progressBar.style.width = `${Math.min(100, Math.max(0, percentage))}%`; // Ensure percentage is between 0-100
     }
-}
+};
     
 
 // Auth state change listener
@@ -323,20 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
         box.classList.add('show');
     });
 
-    // Example progress update based on user data (should be updated dynamically)
-    updateProgressBar('#referral-box', 70);  // Update based on actual user data
-    updateProgressBar('#views-box', 50);     // Example percentage
-});
 
-// Function to update the progress bar
-function updateProgressBar(selector, percentage) {
-    const progressBar = document.querySelector(selector + ' .progress-bar');
-    if (progressBar) {
-        // Ensure percentage does not exceed 100%
-        percentage = Math.min(Math.max(percentage, 0), 100);
-        progressBar.style.width = percentage + '%';
-    }
-}
 
 // Referral link and sharing functionality
 document.addEventListener('DOMContentLoaded', function () {
