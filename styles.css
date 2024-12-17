@@ -2,7 +2,7 @@
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  padding-top: 80px;
+  padding-top: 60px;
   transition: margin-top 0.3s ease-in-out;
   overflow-x: hidden; /* Prevent horizontal scrolling */
   background-image: url('images/ball-7280265_640.jpg'); 
@@ -65,7 +65,7 @@ header {
     display: flex;
     align-items: center;
     position: fixed;
-    top: 60px; /* Positioned immediately below main header */
+    top: 76px; /* Positioned immediately below main header */
     right: 20px; /* Aligned to the right */
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -75,7 +75,7 @@ header {
 
 #balance-section i {
     margin-right: 5px;
-    font-size: 18px; /* Icon size */
+    font-size: 16px; /* Icon size */
 }
 
 #balance-section span {
@@ -244,8 +244,7 @@ header {
 
 main {
     padding: 30px;
-    padding-top: 140px; /* Adjust based on header + balance height */
-    }
+   }
 
 
 /* Styles for the welcome section */
