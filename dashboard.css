@@ -128,77 +128,8 @@
     }
     }
 
-/* General Box Styling */
-        .payment-box, .confirmation-box {
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            opacity: 0;
-            transform: translateY(50px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        /* MPESA Colors for Payment Section */
-        .payment-box {
-            background-color: #34b233; /* MPESA green */
-            color: #fff;
-        }
-/* Different color for confirmation section */
-        .confirmation-box {
-            background-color: #f2f2f2;
-            color: #333;
-        }
-/* MPESA image styling */
-        .mpesa-image {
-            display: block;
-            max-width: 100px;
-            margin: 10px 0;
-            }
-
-/* Input fields and buttons styling */
-        label {
-            display: block;
-            margin: 10px 0 5px;
-            font-weight: bold;
-        }
-
-input {
-       width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 2px solid #ccc;
-            border-radius: 5px;
 }
 
-button {
-            padding: 12px;
-            background-color: #1e88e5;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-}
-
-button:hover {
-            background-color: #ddd;
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .payment-box, .confirmation-box {
-                padding: 15px;
-            }
-        input, button {
-                font-size: 14px;
-            }
-        }
-/* Pop-in effect for both sections */
-        .visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
 
             
 
