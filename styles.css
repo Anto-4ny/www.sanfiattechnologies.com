@@ -29,7 +29,7 @@ body {
 /* Deposit Header */
 #deposit-header {
     width: 100%;
-    height: 40px; /* Small height for deposit header */
+    height: 30px; /* Small height for deposit header */
     background-color: gold; /* Gold background */
     color: #000; /* Text color */
     display: flex;
@@ -46,7 +46,7 @@ body {
 /* Main Header */
 header {
     width: 100%;
-    height: 60px; /* Maintain existing height */
+    height: 50px; /* Maintain existing height */
     background-color: #4CAF50; /* Green background */
     color: #fff;
     display: flex;
@@ -86,7 +86,7 @@ header {
 
 /* Logo */
 #logo {
-  height: 70px;
+  height: 50px;
   cursor: pointer;
   left: 0;
 }
