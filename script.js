@@ -242,18 +242,7 @@ const updateDashboard = (userData) => {
         updateProgressBar('#views-box', (userData.totalViews || 0) * 2); // Example multiplier
         updateProgressBar('#earnings-box', (userData.totalEarnings || 0) / 100); // Example multiplier for earnings
         updateProgressBar('#amount-box', (userData.amountPaid || 0) / 100); // Example multiplier for amount paid
-
-        // Additional handling for amountPaid and packageStatus if needed
-        if (userData.amountPaid && userData.packageStatus) {
-            // Example: You could change the package status or apply different styles based on amount paid
-            if (userData.amountPaid >= 1000) {
-                packageStatusElement.textContent = 'Premium Package Active';
-                // Apply additional logic if needed
-            } else {
-                packageStatusElement.textContent = 'Basic Package Active';
-            }
         }
-    }
 };
 
 // Function to update the progress bar (example)
