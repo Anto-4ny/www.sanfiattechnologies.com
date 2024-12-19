@@ -16,9 +16,4 @@
   "license": "ISC",
   "description": ""
 }
-"depcheck": {
-  "ignore": [
-    "express",
-    "firebase"
-  ]
-}
+
