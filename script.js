@@ -233,10 +233,10 @@ const updateDashboard = (userData) => {
         if (amountPaidElement) amountPaidElement.textContent = userData.amountPaid ? `${userData.amountPaid} Ksh` : '0 Ksh';
         if (packageStatusElement) packageStatusElement.textContent = userData.packageStatus || 'No active package';
 
-        updateProgressBar('#referral-box', (userData.referrals || 0) * 10);
-        updateProgressBar('#views-box', (userData.totalViews || 0) * 2);
-        updateProgressBar('#earnings-box', (userData.totalEarnings || 0) / 100);
-        updateProgressBar('#amount-box', (userData.amountPaid || 0) / 100);
+        updateProgressBar('#referral-box', (userData.referrals || 10) * 10);
+        updateProgressBar('#views-box', (userData.totalViews || 100) * 2);
+        updateProgressBar('#earnings-box', (userData.totalEarnings || 100) / 100);
+        updateProgressBar('#amount-box', (userData.amountPaid || 100) / 100);
     }
 };
 
