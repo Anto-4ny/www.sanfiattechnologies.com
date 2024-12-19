@@ -215,9 +215,7 @@ const togglePasswordVisibility = (input, eyeIcon) => {
     });
 });
 
-// Function to update dashboard fields
 const updateDashboard = (userData) => {
-    // Get the DOM elements for user info
     const firstNameElement = document.getElementById('firstName');
     const userEmailElement = document.getElementById('user-email');
     const referralCountElement = document.getElementById('referral-count');
@@ -226,75 +224,70 @@ const updateDashboard = (userData) => {
     const amountPaidElement = document.getElementById('amount-paid');
     const packageStatusElement = document.getElementById('package-status');
 
-    // Update fields with user data
     if (userData) {
-        firstNameElement.textContent = userData.firstName || 'No name';
-        userEmailElement.textContent = userData.email || 'No email';
-        referralCountElement.textContent = userData.referrals || 0;
-        totalViewsElement.textContent = userData.totalViews || 0;
-        totalEarningsElement.textContent = userData.totalEarnings || '0 Ksh';
-        amountPaidElement.textContent = userData.amountPaid ? `${userData.amountPaid} Ksh` : '0 Ksh';
-        packageStatusElement.textContent = userData.packageStatus || 'No active package';
+        if (firstNameElement) firstNameElement.textContent = userData.firstName || 'No name';
+        if (userEmailElement) userEmailElement.textContent = userData.email || 'No email';
+        if (referralCountElement) referralCountElement.textContent = userData.referrals || 0;
+        if (totalViewsElement) totalViewsElement.textContent = userData.totalViews || 0;
+        if (totalEarningsElement) totalEarningsElement.textContent = userData.totalEarnings || '0 Ksh';
+        if (amountPaidElement) amountPaidElement.textContent = userData.amountPaid ? `${userData.amountPaid} Ksh` : '0 Ksh';
+        if (packageStatusElement) packageStatusElement.textContent = userData.packageStatus || 'No active package';
 
-        // Update progress bars
-        updateProgressBar('#referral-box', (userData.referrals || 0) * 10); // Adjust as necessary
+        updateProgressBar('#referral-box', (userData.referrals || 0) * 10);
         updateProgressBar('#views-box', (userData.totalViews || 0) * 2);
         updateProgressBar('#earnings-box', (userData.totalEarnings || 0) / 100);
         updateProgressBar('#amount-box', (userData.amountPaid || 0) / 100);
     }
 };
 
-// Function to update the progress bar
 function updateProgressBar(elementId, percentage) {
     const progressBar = document.querySelector(elementId);
     if (progressBar) {
-        progressBar.style.width = `${Math.min(100, Math.max(0, percentage))}%`; // Ensure percentage is between 0-100
+        progressBar.style.width = `${Math.min(100, Math.max(0, percentage))}%`;
     }
 }
 
-// Auth state change listener
 onAuthStateChanged(auth, async (user) => {
+    if (!auth || !db) {
+        console.error("Firebase auth or db not initialized.");
+        return;
+    }
+
     const fetchAndUpdateUserData = async (user) => {
-        const loadingElement = document.getElementById('loading'); // Assume you have a loading spinner
-        loadingElement.style.display = 'block'; // Show loading state
+        const loadingElement = document.getElementById('loading');
+        if (loadingElement) loadingElement.style.display = 'block';
 
         if (user) {
-            const userEmail = user.email;
-
             try {
-                // Fetch user data from Firestore
                 const userDocRef = doc(db, 'users', user.uid);
                 const userSnapshot = await getDoc(userDocRef);
 
                 if (userSnapshot.exists()) {
                     const userData = userSnapshot.data();
-                    userData.email = userEmail; // Add email for easier display
+                    userData.email = user.email; 
                     updateDashboard(userData);
                 } else {
-                    console.log('No user data found in Firestore.');
-                    updateDashboard({ email: userEmail });
+                    updateDashboard({ email: user.email });
                 }
             } catch (error) {
                 console.error("Error fetching user data:", error);
             } finally {
-                loadingElement.style.display = 'none'; // Hide loading state
+                if (loadingElement) loadingElement.style.display = 'none';
             }
         } else {
-            // User is not logged in, redirect to the login section
-            document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
+            const loginSection = document.getElementById('login-section');
+            if (loginSection) loginSection.scrollIntoView({ behavior: 'smooth' });
         }
     };
 
     fetchAndUpdateUserData(user);
 });
 
-// Function to fetch and display the current balance
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     const balanceElement = document.getElementById("balance-amount");
 
-    // Function to fetch updated balance from the backend
     function fetchUpdatedBalance() {
-        fetch('/api/payment-status')  // Replace with your actual endpoint
+        fetch('/api/payment-status')
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch balance');
                 return response.json();
@@ -312,9 +305,9 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    fetchUpdatedBalance();
+    if (balanceElement) fetchUpdatedBalance();
 });
-                                                   
+                                     
 
 // Automatic pop-in effect on page load
 document.addEventListener('DOMContentLoaded', function () {
