@@ -588,5 +588,6 @@ firebase.auth().onAuthStateChanged(function(user) {
         console.log('No user is signed in');
     }
 });
-}
+});
+
                         
