@@ -1,14 +1,24 @@
 const admin = require('firebase-admin');
 const axios = require('axios');
-require('dotenv').config(); // Load environment variables from .env file
+require('dotenv').config(); // Load environment variables
 
-// Initialize Firebase Admin SDK
-admin.initializeApp();
+// Initialize Firebase Admin SDK (only initialize once globally)
+if (!admin.apps.length) {
+    admin.initializeApp();
+}
 const db = admin.firestore();
 
-// Helper to get the current timestamp in the format Safaricom expects
+// Helper to get the current timestamp in Safaricom's expected format
 function getCurrentTimestamp() {
-    return new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+    const now = new Date();
+    return (
+        now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0') +
+        String(now.getHours()).padStart(2, '0') +
+        String(now.getMinutes()).padStart(2, '0') +
+        String(now.getSeconds()).padStart(2, '0')
+    );
 }
 
 // Helper to generate the password for STK push
@@ -18,27 +28,27 @@ function generatePassword(shortCode) {
     return Buffer.from(password).toString('base64');
 }
 
-// Helper to get the OAuth token for MPESA
+// Fetch Access Token
 async function getAccessToken() {
-    console.log('Fetching access token...');
     try {
-        const response = await axios.get(`${process.env.OAUTH_TOKEN_URL}?grant_type=client_credentials`, {
-            auth: {
-                username: process.env.LIVE_APP_CONSUMER_KEY,
-                password: process.env.LIVE_APP_CONSUMER_SECRET,
-            },
-        });
-        console.log('Access Token:', response.data.access_token);
-        return response.data.access_token;
+        const { data } = await axios.get(
+            `${process.env.OAUTH_TOKEN_URL}?grant_type=client_credentials`,
+            {
+                auth: {
+                    username: process.env.LIVE_APP_CONSUMER_KEY,
+                    password: process.env.LIVE_APP_CONSUMER_SECRET,
+                },
+            }
+        );
+        return data.access_token;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
-        throw new Error('Failed to fetch access token. Please check your credentials.');
+        throw new Error('Failed to fetch access token');
     }
 }
 
-// Helper function to initiate the STK push
+// Initiate STK Push
 async function initiateSTKPush(token, phoneNumber, amount) {
-    console.log('Initiating STK Push...');
     const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -48,27 +58,26 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         BusinessShortCode: process.env.BUSINESS_SHORT_CODE,
         Password: generatePassword(process.env.BUSINESS_SHORT_CODE),
         Timestamp: getCurrentTimestamp(),
-        TransactionType: 'CustomerBuyGoodsOnline',
+        TransactionType: 'CustomerPayBillOnline', // Ensure correct type
         Amount: amount,
         PartyA: phoneNumber,
         PartyB: process.env.BUSINESS_SHORT_CODE,
         PhoneNumber: phoneNumber,
         CallBackURL: process.env.CALLBACK_URL,
         AccountReference: phoneNumber,
-        TransactionDesc: `Payment to till number ${process.env.BUSINESS_SHORT_CODE}`,
+        TransactionDesc: `Payment to till ${process.env.BUSINESS_SHORT_CODE}`,
     };
 
     try {
         const response = await axios.post(process.env.STK_PUSH_URL, payload, { headers });
-        console.log('STK Response:', response.data);
         return response.data;
     } catch (error) {
-        console.error('STK Push Error:', error.response?.data || error.message);
-        throw new Error('Failed to initiate STK push. Please check your payload and token.');
+        console.error('Error in STK Push:', error.response?.data || error.message);
+        throw new Error('Failed to initiate STK push');
     }
 }
 
-// Main handler function
+// Main Handler Function
 module.exports = async (req, res) => {
     const { phoneNumber, email } = req.body;
 
@@ -76,7 +85,7 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Phone number and email are required.' });
     }
 
-    const amount = 250; // Fixed amount for payment
+    const amount = 250;
 
     try {
         // Fetch access token
@@ -92,8 +101,8 @@ module.exports = async (req, res) => {
             amount,
             status: 'Pending',
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
-            mpesaCheckoutRequestID: stkResponse.CheckoutRequestID,
-            mpesaCode: '', // Empty until payment confirmation is received
+            mpesaCheckoutRequestID: stkResponse.CheckoutRequestID || '',
+            mpesaCode: '', // Will be updated on callback
         };
 
         const paymentDocRef = await db.collection('payments').add(paymentData);
@@ -105,6 +114,6 @@ module.exports = async (req, res) => {
         });
     } catch (error) {
         console.error('Error initiating payment:', error.message || error);
-        res.status(500).json({ error: 'Payment initiation failed. Please try again later.' });
+        res.status(500).json({ error: 'Payment initiation failed. Please try again.' });
     }
 };
