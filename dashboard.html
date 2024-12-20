@@ -134,7 +134,7 @@ input {
                 <button id="pay-btn" class="pay-btn">Pay Now</button>
             </div>
         </div>
-    </div>
+    </div>    
 
 <section id="dashboard">
             <div id="dashboard-section">
@@ -294,95 +294,113 @@ input {
     </div>
 </footer>
 <script>
-    const checkUserPaymentStatus = async () => {
-        try {
-            const userId = localStorage.getItem('userId');  
-            if (!userId) {
-                console.error('No user logged in');
-                return false;
-            }
-    
-            const userDoc = await firestore.collection('users').doc(userId).get();
-            if (userDoc.exists && userDoc.data().paymentStatus) {
-                return true;
-            } else {
-                console.error('User not found or payment status is false');
-                return false;
-            }
-        } catch (error) {
-            console.error('Error checking user payment status:', error);
+const checkUserPaymentStatus = async () => {
+    try {
+        const userId = localStorage.getItem('userId');  
+        if (!userId) {
+            console.error('No user logged in');
             return false;
         }
-    };
+
+        const userDoc = await firestore.collection('users').doc(userId).get();
+        if (userDoc.exists && userDoc.data().paymentStatus) {
+            return true;
+        } else {
+            console.error('User not found or payment status is false');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error checking user payment status:', error);
+        return false;
+    }
+};
+
+// Fetch email from Firebase
+const getUserEmail = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.error('No user logged in');
+        return null;
+    }
+
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (userDoc.exists) {
+        return userDoc.data().email;
+    }
+    return null;
+};
+
+// Redirect user based on payment status
+document.addEventListener('DOMContentLoaded', async () => {
+    const hasPaid = await checkUserPaymentStatus();
+    if (!hasPaid) {
+        showPaymentPopup();
+    }
+});
+
+// Function to show the payment popup
+const showPaymentPopup = () => {
+    const popup = document.getElementById('payment-popup');
+    popup.style.display = 'block';
     
-    // Redirect user based on payment status
-    document.addEventListener('DOMContentLoaded', async () => {
-        const hasPaid = await checkUserPaymentStatus();
-        if (!hasPaid) {
-            showPaymentPopup();
+    // Hide the payment section initially
+    const paymentSection = document.getElementById('payment-section');
+    paymentSection.style.display = 'none';
+
+    // Show the payment section and pay button after clicking "Activate Account"
+    const activateButton = document.getElementById('activate-btn');
+    activateButton.addEventListener('click', () => {
+        paymentSection.style.display = 'block';
+    });
+
+    // Handle pay button click and initiate MPESA payment
+    const payButton = document.getElementById('pay-btn');
+    payButton.addEventListener('click', async () => {
+        const phoneNumber = document.getElementById('phone-number').value.trim();
+        const email = await getUserEmail(); // Fetch email from Firebase
+
+        if (phoneNumber.match(/^07\d{8}$/) && email) {
+            initiatePayment(phoneNumber, email);  // Pass both phoneNumber and email
+        } else {
+            alert("Please enter a valid MPESA phone number and ensure you're logged in for email.");
         }
     });
+};
+
+// Initiate the payment process
+const initiatePayment = (phoneNumber, email) => {
+    console.log("Initiating payment with phone number:", phoneNumber, "and email:", email);
     
-    // Function to show the payment popup
-    const showPaymentPopup = () => {
-        const popup = document.getElementById('payment-popup');
-        popup.style.display = 'block';
-        
-        // Hide the payment section initially
-        const paymentSection = document.getElementById('payment-section');
-        paymentSection.style.display = 'none';
-    
-        // Show the payment section and pay button after clicking "Activate Account"
-        const activateButton = document.getElementById('activate-btn');
-        activateButton.addEventListener('click', () => {
-            paymentSection.style.display = 'block';
-        });
-    
-        // Handle pay button click and initiate MPESA payment
-        const payButton = document.getElementById('pay-btn');
-        payButton.addEventListener('click', () => {
-            const phoneNumber = document.getElementById('phone-number').value.trim();
-            if (phoneNumber.match(/^07\d{8}$/)) {
-                initiatePayment(phoneNumber);
-            } else {
-                alert("Please enter a valid MPESA phone number (07XXXXXXXX).");
-            }
-        });
-    };
-    
-    // Initiate the payment process
-    const initiatePayment = (phoneNumber) => {
-        console.log("Initiating payment with phone number:", phoneNumber);
-        
-        // Ensure phoneNumber is valid
-        if (!phoneNumber) {
-            alert("Please enter a valid phone number.");
-            return;
+    // Ensure phoneNumber and email are valid
+    if (!phoneNumber || !email) {
+        alert("Please enter a valid phone number and ensure you're logged in to provide your email.");
+        return;
+    }
+
+    fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber, email })  // Send both phone number and email
+    })
+    .then(async (response) => {
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("API Error Data:", errorData);
+            throw new Error(errorData.error || "Payment failed");
         }
-    
-        fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phoneNumber })  // Ensures correct JSON format
-        })
-        .then(async (response) => {
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("API Error Data:", errorData);
-                throw new Error(errorData.error || "Payment failed");
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Payment success response:", data);
-            alert(data.message || "Payment initiated successfully");
-        })
-        .catch(error => {
-            console.error("Payment Error:", error.message);
-            alert(`Error: ${error.message}`);
-        });
-    };
-    </script>   
+        return response.json();
+    })
+    .then(data => {
+        console.log("Payment success response:", data);
+        alert(data.message || "Payment initiated successfully");
+    })
+    .catch(error => {
+        console.error("Payment Error:", error.message);
+        alert(`Error: ${error.message}`);
+    });
+};
+</script>
+  
                 
         <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>

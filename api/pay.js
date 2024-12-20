@@ -77,12 +77,6 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     }
 }
 
-function generatePassword(shortCode) {
-    const timestamp = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
-    const password = `${shortCode}${process.env.LIVE_APP_PASSKEY}${timestamp}`;
-    return Buffer.from(password).toString('base64');
-}
-
 async function registerCallbackURLs(token) {
     const headers = {
         Authorization: `Bearer ${token}`,
@@ -106,7 +100,6 @@ async function registerCallbackURLs(token) {
     }
 }
 
-
 // Main Handler Function
 module.exports = async (req, res) => {
     const { phoneNumber, email } = req.body;
@@ -128,25 +121,17 @@ module.exports = async (req, res) => {
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
 
         // Save payment details in Firestore
-        const paymentData = {
-            phoneNumber,
+        await db.collection('payments').add({
             email,
+            phoneNumber,
             amount,
-            status: 'Pending',
-            timestamp: admin.firestore.FieldValue.serverTimestamp(),
-            mpesaCheckoutRequestID: stkResponse.CheckoutRequestID || '',
-            mpesaCode: '', // Will be updated on callback
-        };
-
-        const paymentDocRef = await db.collection('payments').add(paymentData);
-
-        res.status(200).json({
-            message: 'Payment initiated. Please enter your MPESA PIN.',
-            paymentId: paymentDocRef.id,
-            stkResponse,
+            status: 'initiated',
+            timestamp: new Date(),
         });
+
+        return res.status(200).json({ message: 'Payment initiated successfully', stkResponse });
     } catch (error) {
-        console.error('Error initiating payment:', error.message || error);
-        res.status(500).json({ error: 'Payment initiation failed. Please try again.' });
+        console.error('Error during payment process:', error);
+        return res.status(500).json({ error: error.message });
     }
 };

@@ -197,6 +197,16 @@ const togglePasswordVisibility = (input, eyeIcon) => {
             signupMessage.classList.add('error');
         }
     });
+    
+    const user = firebase.auth().currentUser;
+if (user) {
+    const userEmail = user.email;  // Get email from Firebase Authentication
+    firestore.collection('users').doc(user.uid).set({
+        email: userEmail,
+        paymentStatus: false,
+    });
+}
+
 
     // Handle logout and redirect to login section
     logoutButton.addEventListener('click', () => {

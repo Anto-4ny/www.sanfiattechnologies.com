@@ -351,7 +351,7 @@ document.getElementById("pay-button").addEventListener("click", async function()
     if (phoneNumber.length === 10 && amount > 0) {
         try {
             // Make a POST request to initiate MPESA payment via the backend
-            const response = await fetch('/api/pay', {
+            const response = await fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
