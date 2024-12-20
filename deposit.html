@@ -317,94 +317,90 @@
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
     
-    <script>
-    // Extract package info from query params
-    function getQueryParams() {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const packageName = urlParams.get('packageName');
-        const packagePrice = urlParams.get('packagePrice');
-        
-        if (packagePrice) {
-            document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
-            document.getElementById('amount').value = packagePrice;
-        }
+<script>
+  // Extract package info from query params
+function getQueryParams() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const packageName = urlParams.get('packageName');
+    const packagePrice = urlParams.get('packagePrice');
 
-        return { packageName, packagePrice };
+    if (packagePrice) {
+        document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
+        document.getElementById('amount').value = packagePrice;
     }
 
-    // Fetch user email
-    const getUserEmail = async () => {
-        const user = auth.currentUser;
-        if (user) {
-            return user.email;
-        } else {
-            console.error('No logged-in user found.');
-            return null;
-        }
-    };
+    return { packageName, packagePrice };
+}
 
-    // Handle payment
-    document.getElementById("pay-button").addEventListener("click", async function() {
-        const phoneNumber = document.getElementById("phone-number").value.trim();
-        const amount = document.getElementById("amount").value.trim();
-        const email = await getUserEmail();
+// Fetch user's email
+const getUserEmail = () => {
+    const user = auth.currentUser;
+    return user ? user.email : null;
+};
 
-        if (phoneNumber.match(/^07\d{8}$/) && amount > 0 && email) {
-            try {
-                const response = await fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phoneNumber, amount, email })
-                });
+// Handle payment
+document.getElementById("pay-button").addEventListener("click", async function () {
+    const phoneNumber = document.getElementById("phone-number").value.trim();
+    const amount = document.getElementById("amount").value.trim();
+    const email = getUserEmail();
 
-                const result = await response.json();
+    if (phoneNumber.match(/^07\d{8}$/) && amount > 0 && email) {
+        try {
+            const response = await fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phoneNumber, amount, email })
+            });
 
-                if (response.ok) {
-                    alert(result.message);
-                    sessionStorage.setItem('paymentId', result.paymentId);
-                } else {
-                    alert('Payment failed. ' + result.error);
-                }
-            } catch (error) {
-                console.error('Error initiating payment:', error);
-                alert('Payment initiation error. Try again.');
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message);
+                sessionStorage.setItem('paymentId', result.paymentId);
+            } else {
+                alert('Payment failed. ' + result.error);
             }
-        } else {
-            alert('Invalid phone number or amount.');
+        } catch (error) {
+            console.error('Error initiating payment:', error);
+            alert('Payment initiation error. Try again.');
         }
-    });
+    } else {
+        alert('Invalid phone number or amount.');
+    }
+});
 
-    // Handle payment code submission
-    document.getElementById("submit-payment").addEventListener("click", async function() {
-        const paymentCode = document.getElementById("payment-confirmation").value.trim();
-        const paymentId = sessionStorage.getItem('paymentId');
+// Handle payment code submission
+document.getElementById("submit-payment").addEventListener("click", async function () {
+    const paymentCode = document.getElementById("payment-confirmation").value.trim();
+    const paymentId = sessionStorage.getItem('paymentId');
 
-        if (paymentCode && paymentId) {
-            try {
-                const response = await fetch(`/api/payments/${paymentId}/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mpesaCode: paymentCode })
-                });
+    if (paymentCode && paymentId) {
+        try {
+            const response = await fetch(`/api/payments/${paymentId}/update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mpesaCode: paymentCode })
+            });
 
-                const result = await response.json();
-                if (response.ok) {
-                    document.getElementById("payment-status").textContent = "Payment confirmed.";
-                } else {
-                    alert('Payment update failed. ' + result.error);
-                }
-            } catch (error) {
-                console.error('Error updating payment:', error);
-                alert('Error updating payment. Try again.');
+            const result = await response.json();
+            if (response.ok) {
+                document.getElementById("payment-status").textContent = "Payment confirmed.";
+            } else {
+                alert('Payment update failed. ' + result.error);
             }
-        } else {
-            alert('Please enter the MPESA transaction code.');
+        } catch (error) {
+            console.error('Error updating payment:', error);
+            alert('Error updating payment. Try again.');
         }
-    });
+    } else {
+        alert('Please enter the MPESA transaction code.');
+    }
+});
 
-    // Run on page load
-    const packageInfo = getQueryParams();
+// Run on page load
+const packageInfo = getQueryParams();
+
 </script>
 
     
