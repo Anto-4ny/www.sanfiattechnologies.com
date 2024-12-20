@@ -21,9 +21,6 @@ function generatePassword(shortCode) {
 // Helper to get the OAuth token for MPESA
 async function getAccessToken() {
     console.log('Fetching access token...');
-    console.log('Consumer Key:', process.env.LIVE_APP_CONSUMER_KEY);
-    console.log('Consumer Secret:', process.env.LIVE_APP_CONSUMER_SECRET);
-
     try {
         const response = await axios.get(`${process.env.OAUTH_TOKEN_URL}?grant_type=client_credentials`, {
             auth: {
@@ -42,10 +39,6 @@ async function getAccessToken() {
 // Helper function to initiate the STK push
 async function initiateSTKPush(token, phoneNumber, amount) {
     console.log('Initiating STK Push...');
-    console.log('Token:', token);
-    console.log('Phone Number:', phoneNumber);
-    console.log('Amount:', amount);
-
     const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -64,8 +57,6 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         AccountReference: phoneNumber,
         TransactionDesc: `Payment to till number ${process.env.BUSINESS_SHORT_CODE}`,
     };
-
-    console.log('STK Push Payload:', JSON.stringify(payload, null, 2));
 
     try {
         const response = await axios.post(process.env.STK_PUSH_URL, payload, { headers });
@@ -95,19 +86,21 @@ module.exports = async (req, res) => {
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
 
         // Save payment details in Firestore
-        const paymentDoc = await db.collection('payments').add({
-            email,
+        const paymentData = {
             phoneNumber,
+            email,
             amount,
             status: 'Pending',
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
             mpesaCheckoutRequestID: stkResponse.CheckoutRequestID,
-        });
+            mpesaCode: '', // Empty until payment confirmation is received
+        };
 
-        // Send success response
+        const paymentDocRef = await db.collection('payments').add(paymentData);
+
         res.status(200).json({
             message: 'Payment initiated. Please enter your MPESA PIN.',
-            paymentId: paymentDoc.id,
+            paymentId: paymentDocRef.id,
             stkResponse,
         });
     } catch (error) {
