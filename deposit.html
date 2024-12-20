@@ -318,101 +318,95 @@
     <script type="module" src="script.js"></script>
     
     <script>
-// Extract the package info from the URL query string
-function getQueryParams() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const packageName = urlParams.get('packageName');
-    const packagePrice = urlParams.get('packagePrice');
-    
-    // Update the pay button with the correct package price if a package exists
-    if (packagePrice) {
-        document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
-        document.getElementById('amount').value = packagePrice; // Pre-fill amount input
-    }
-    
-    return { packageName, packagePrice };
-}
-
-// Call the function to update the page with the package details
-const packageInfo = getQueryParams();
-
-// Set amount when suggested values are clicked
-function setAmount(amount) {
-    document.getElementById('amount').value = amount;
-}
-
-// Handle Pay button click (process phone number and dynamic amount)
-document.getElementById("pay-button").addEventListener("click", async function() {
-    const phoneNumber = document.getElementById("phone-number").value;
-    const amount = document.getElementById("amount").value; // Capture amount from input
-
-    // Validate phone number and amount
-    if (phoneNumber.length === 10 && amount > 0) {
-        try {
-            // Make a POST request to initiate MPESA payment via the backend
-            const response = await fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    phoneNumber: phoneNumber,
-                    amount: amount // Pass the dynamic amount
-                })
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                // Notify user about the STK push and inform about entering the MPESA PIN
-                alert(result.message);
-                console.log('STK Response:', result.stkResponse);
-                // Store payment ID for future use
-                sessionStorage.setItem('paymentId', result.paymentId);
-            } else {
-                alert('Payment initiation failed. ' + result.error);
-            }
-        } catch (error) {
-            console.error('Error initiating payment:', error);
-            alert('Error initiating payment. Please try again.');
+    // Extract package info from query params
+    function getQueryParams() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const packageName = urlParams.get('packageName');
+        const packagePrice = urlParams.get('packagePrice');
+        
+        if (packagePrice) {
+            document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
+            document.getElementById('amount').value = packagePrice;
         }
-    } else {
-        alert('Please enter a valid 10-digit phone number and a valid amount.');
+
+        return { packageName, packagePrice };
     }
-});
 
-// Handle payment code submission
-document.getElementById("submit-payment").addEventListener("click", async function() {
-    const paymentCode = document.getElementById("payment-confirmation").value;
-    const paymentId = sessionStorage.getItem('paymentId');
-    
-    if (paymentCode && paymentId) {
-        try {
-            // Make a POST request to update Firestore with the MPESA transaction code
-            const response = await fetch(`/api/payments/${paymentId}/update`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ mpesaCode: paymentCode })
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                document.getElementById("payment-status").textContent = "Payment submitted. Please wait for confirmation.";
-            } else {
-                alert('Failed to update payment. ' + result.error);
-            }
-        } catch (error) {
-            console.error('Error updating payment:', error);
-            alert('Error updating payment. Please try again.');
+    // Fetch user email
+    const getUserEmail = async () => {
+        const user = auth.currentUser;
+        if (user) {
+            return user.email;
+        } else {
+            console.error('No logged-in user found.');
+            return null;
         }
-    } else {
-        alert('Please enter the MPESA transaction code.');
-    }
-});
-     </script>
+    };
+
+    // Handle payment
+    document.getElementById("pay-button").addEventListener("click", async function() {
+        const phoneNumber = document.getElementById("phone-number").value.trim();
+        const amount = document.getElementById("amount").value.trim();
+        const email = await getUserEmail();
+
+        if (phoneNumber.match(/^07\d{8}$/) && amount > 0 && email) {
+            try {
+                const response = await fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber, amount, email })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                    sessionStorage.setItem('paymentId', result.paymentId);
+                } else {
+                    alert('Payment failed. ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error initiating payment:', error);
+                alert('Payment initiation error. Try again.');
+            }
+        } else {
+            alert('Invalid phone number or amount.');
+        }
+    });
+
+    // Handle payment code submission
+    document.getElementById("submit-payment").addEventListener("click", async function() {
+        const paymentCode = document.getElementById("payment-confirmation").value.trim();
+        const paymentId = sessionStorage.getItem('paymentId');
+
+        if (paymentCode && paymentId) {
+            try {
+                const response = await fetch(`/api/payments/${paymentId}/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mpesaCode: paymentCode })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById("payment-status").textContent = "Payment confirmed.";
+                } else {
+                    alert('Payment update failed. ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error updating payment:', error);
+                alert('Error updating payment. Try again.');
+            }
+        } else {
+            alert('Please enter the MPESA transaction code.');
+        }
+    });
+
+    // Run on page load
+    const packageInfo = getQueryParams();
+</script>
+
     
 </body>
                             </html>
