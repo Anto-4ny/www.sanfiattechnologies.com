@@ -1,6 +1,5 @@
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin SDK
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.applicationDefault(),
@@ -14,20 +13,17 @@ module.exports = async (req, res) => {
     }
 
     try {
+        // Ensure body is parsed correctly
+        console.log('Request Body:', req.body); // Debugging line
+        
         const { Body } = req.body;
 
-        // Ensure required body fields are present
         if (!Body || !Body.stkCallback) {
-            return res.status(400).json({ error: 'Invalid request body - stkCallback is missing' });
+            return res.status(400).json({ error: 'Invalid request body' });
         }
 
         const { stkCallback } = Body;
         const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
-
-        // Ensure CheckoutRequestID and ResultCode are present
-        if (!CheckoutRequestID || ResultCode === undefined) {
-            return res.status(400).json({ error: 'CheckoutRequestID or ResultCode missing' });
-        }
 
         // Fetch payment record
         const paymentRef = await db
@@ -36,8 +32,8 @@ module.exports = async (req, res) => {
             .get();
 
         if (paymentRef.empty) {
-            console.error(`No payment record found for CheckoutRequestID: ${CheckoutRequestID}`);
-            return res.status(404).json({ error: 'Payment record not found' });
+            console.error('No payment record found for CheckoutRequestID:', CheckoutRequestID);
+            return res.status(404).send('Payment record not found');
         }
 
         let mpesaCode = '';
@@ -49,14 +45,13 @@ module.exports = async (req, res) => {
         const status = ResultCode === 0 ? 'Success' : 'Failed';
         const batch = db.batch();
 
-        // Update payment record status in Firestore
         paymentRef.forEach((doc) => {
             batch.update(doc.ref, { status, mpesaCode });
         });
 
         await batch.commit();
 
-        // If payment was successful, update user's balance
+        // Update user balance if successful
         if (status === 'Success') {
             const paymentData = paymentRef.docs[0].data(); // Assume one record
             const userDocRef = db.collection('users').doc(paymentData.email);
@@ -65,24 +60,13 @@ module.exports = async (req, res) => {
             if (userDoc.exists) {
                 const newBalance = (userDoc.data().balance || 0) + paymentData.amount;
                 await userDocRef.update({ balance: newBalance, paidRegistration: true });
-                return res.status(200).json({
-                    message: 'Payment successful',
-                    newBalance,
-                    mpesaCode,
-                    status,
-                });
-            } else {
-                console.error(`User not found for email: ${paymentData.email}`);
-                return res.status(404).json({ error: 'User not found' });
+                return res.status(200).json({ message: 'Payment successful', newBalance, mpesaCode });
             }
         }
 
         res.status(200).json({ message: 'Payment updated successfully', status });
     } catch (error) {
         console.error('Callback processing error:', error.message || error);
-        res.status(500).json({
-            error: 'Error processing callback',
-            details: error.message || error,
-        });
+        res.status(500).send('Error processing callback');
     }
 };
