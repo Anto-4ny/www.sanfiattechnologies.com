@@ -77,6 +77,13 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     }
 }
 
+function generatePassword(shortCode) {
+    const timestamp = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+    const password = `${shortCode}${process.env.LIVE_APP_PASSKEY}${timestamp}`;
+    return Buffer.from(password).toString('base64');
+}
+
+
 // Main Handler Function
 module.exports = async (req, res) => {
     const { phoneNumber, email } = req.body;
