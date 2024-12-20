@@ -360,7 +360,7 @@ input {
             return;
         }
     
-        fetch('/api/pay', {
+        fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ phoneNumber })  // Ensures correct JSON format
