@@ -45,7 +45,7 @@ module.exports = async (req, res) => {
 
         res.status(200).json({
             message: 'User registered successfully.',
-            referralLink: `https://your-domain.com/register?referralCode=${userReferralCode}`
+            referralLink: `https://sanfiattechnologies-3phuquypw-antonys-projects-2571442e.vercel.app/register?referralCode=${userReferralCode}`
         });
     } catch (error) {
         console.error('Error registering user:', error);

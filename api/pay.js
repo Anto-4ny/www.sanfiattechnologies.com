@@ -83,6 +83,29 @@ function generatePassword(shortCode) {
     return Buffer.from(password).toString('base64');
 }
 
+async function registerCallbackURLs(token) {
+    const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+    };
+
+    const payload = {
+        ShortCode: process.env.BUSINESS_SHORT_CODE, // Your shortcode (Paybill/Till number)
+        ResponseType: 'Completed', // The type of response expected from Safaricom
+        ConfirmationURL: process.env.CONFIRMATION_URL, // Callback URL for payment success
+        ValidationURL: process.env.VALIDATION_URL, // Callback URL for validation (if enabled)
+    };
+
+    try {
+        const response = await axios.post('https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl', payload, { headers });
+        console.log('Callback URLs registered successfully:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error registering callback URLs:', error.response?.data || error.message);
+        throw new Error('Failed to register callback URLs');
+    }
+}
+
 
 // Main Handler Function
 module.exports = async (req, res) => {
@@ -97,6 +120,9 @@ module.exports = async (req, res) => {
     try {
         // Fetch access token
         const token = await getAccessToken();
+
+        // Register Callback URLs (make sure they are registered before proceeding)
+        await registerCallbackURLs(token);
 
         // Initiate STK push
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
