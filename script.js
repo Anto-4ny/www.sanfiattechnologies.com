@@ -542,3 +542,6 @@ firebase.auth().onAuthStateChanged(function(user) {
     }
 });
 });
+// Expose Firebase objects globally
+window.auth = auth;
+window.db = db;
