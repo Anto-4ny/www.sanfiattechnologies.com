@@ -54,16 +54,6 @@ async function getAccessToken() {
         throw new Error('Failed to fetch access token');
     }
 }
-try {
-    console.log('Fetching access token...');
-    const token = await getAccessToken();
-    console.log('Access token fetched successfully:', token);
-} catch (error) {
-    console.error('Error fetching access token:', error.response?.data || error.message);
-    return res.status(500).json({ error: 'Failed to fetch access token' });
-}
-
-
 
 // Initiate STK Push
 async function initiateSTKPush(token, phoneNumber, amount) {
@@ -130,7 +120,7 @@ async function registerCallbackURLs(token) {
     }
 }
 
-// Main Handler Function
+// Main Handler Function (async to allow await)
 module.exports = async (req, res) => {
     const { phoneNumber, email } = req.body;
 
@@ -141,8 +131,10 @@ module.exports = async (req, res) => {
     const amount = 250;
 
     try {
-        // Fetch access token
+        console.log('Fetching access token...');
+        // Fetch access token (this is now done inside the async handler)
         const token = await getAccessToken();
+        console.log('Access token fetched successfully:', token);
 
         // Register Callback URLs (only register once in production, can be skipped if already done)
         await registerCallbackURLs(token);
