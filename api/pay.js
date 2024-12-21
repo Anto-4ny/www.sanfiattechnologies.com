@@ -31,18 +31,30 @@ function generatePassword(shortCode) {
 // Fetch Access Token
 async function getAccessToken() {
     try {
+        console.log('Fetching access token...');
+        console.log('OAUTH_TOKEN_URL:', process.env.OAUTH_TOKEN_URL);
+        console.log('Consumer Key:', process.env.LIVE_APP_CONSUMER_KEY);
+        console.log('Consumer Secret:', process.env.LIVE_APP_CONSUMER_SECRET);
+
         const { data } = await axios.get(
             `${process.env.OAUTH_TOKEN_URL}?grant_type=client_credentials`,
             {
-                auth: {
-                    username: process.env.LIVE_APP_CONSUMER_KEY,
-                    password: process.env.LIVE_APP_CONSUMER_SECRET,
+                headers: {
+                    Authorization: `Basic ${Buffer.from(
+                        `${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`
+                    ).toString('base64')}`,
                 },
             }
         );
+        console.log('Access Token Response:', data);
         return data.access_token;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Headers:', error.response.headers);
+            console.error('Data:', error.response.data);
+        }
         throw new Error('Failed to fetch access token');
     }
 }
@@ -70,13 +82,20 @@ async function initiateSTKPush(token, phoneNumber, amount) {
 
     try {
         const response = await axios.post(process.env.STK_PUSH_URL, payload, { headers });
+        console.log('STK Push Response:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error in STK Push:', error.response?.data || error.message);
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Headers:', error.response.headers);
+            console.error('Data:', error.response.data);
+        }
         throw new Error('Failed to initiate STK push');
     }
 }
 
+// Register Callback URLs
 async function registerCallbackURLs(token) {
     const headers = {
         Authorization: `Bearer ${token}`,
@@ -96,6 +115,11 @@ async function registerCallbackURLs(token) {
         return response.data;
     } catch (error) {
         console.error('Error registering callback URLs:', error.response?.data || error.message);
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Headers:', error.response.headers);
+            console.error('Data:', error.response.data);
+        }
         throw new Error('Failed to register callback URLs');
     }
 }
@@ -114,7 +138,7 @@ module.exports = async (req, res) => {
         // Fetch access token
         const token = await getAccessToken();
 
-        // Register Callback URLs (make sure they are registered before proceeding)
+        // Register Callback URLs (only register once in production, can be skipped if already done)
         await registerCallbackURLs(token);
 
         // Initiate STK push
