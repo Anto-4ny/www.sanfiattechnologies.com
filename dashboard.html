@@ -134,8 +134,7 @@ input {
                 <button id="pay-btn" class="pay-btn">Pay Now</button>
             </div>
         </div>
-    </div>    
-
+    </div>  
 <section id="dashboard">
             <div id="dashboard-section">
                 <section class="dashboard-welcome-box">
@@ -305,120 +304,120 @@ input {
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
     <script>
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-    
-    // Firebase configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyB7t1wWHhPYBitqKC4SJ8lqP1WMLDefCxo",
-        authDomain: "antocap-referrals.firebaseapp.com",
-        projectId: "antocap-referrals",
-        storageBucket: "antocap-referrals.appspot.com",
-        messagingSenderId: "1071760453747",
-        appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
-        measurementId: "G-EPLJB8MTRH"
-    };
-    
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    
-    // Function to check user's payment status
-    const checkUserPaymentStatus = async () => {
-        try {
-            const user = auth.currentUser;
-            if (!user) {
-                console.error("No user logged in");
-                window.location.href = "index.html"; // Redirect to login if no user
-                return false;
-            }
-    
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists() && userDoc.data().paymentStatus) {
-                return true;
-            } else {
-                console.error("Payment not completed.");
-                return false;
-            }
-        } catch (error) {
-            console.error("Error checking payment status:", error);
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyB7t1wWHhPYBitqKC4SJ8lqP1WMLDefCxo",
+    authDomain: "antocap-referrals.firebaseapp.com",
+    projectId: "antocap-referrals",
+    storageBucket: "antocap-referrals.appspot.com",
+    messagingSenderId: "1071760453747",
+    appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
+    measurementId: "G-EPLJB8MTRH"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Function to check user's payment status
+const checkUserPaymentStatus = async () => {
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            console.error("No user logged in");
+            window.location.href = "index.html"; // Redirect to login if no user
             return false;
         }
-    };
-    
-    // Function to fetch the current user's email
-    const getUserEmail = () => {
-        const user = auth.currentUser;
-        return user ? user.email : null;
-    };
-    
-    // Function to show the payment popup
-    const showPaymentPopup = () => {
-        const popup = document.getElementById("payment-popup");
-        popup.style.display = "block";
-    
-        // Show payment section when the user clicks "Activate Account"
-        document.getElementById("activate-btn").addEventListener("click", () => {
-            document.getElementById("payment-section").style.display = "block";
-        });
-    
-        // Handle payment
-        document.getElementById("pay-btn").addEventListener("click", async () => {
-            const phoneNumber = document.getElementById("phone-number").value.trim();
-            const email = getUserEmail();
-    
-            if (phoneNumber.match(/^07\d{8}$/) && email) {
-                initiatePayment(phoneNumber, email);
-            } else {
-                alert("Invalid phone number or email.");
-            }
-        });
-    };
-    
-    // Function to initiate payment
-    const initiatePayment = (phoneNumber, email) => {
-        fetch("https://www-sanfiattechnologies-com.vercel.app/api/pay", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phoneNumber, email }),
-        })
-            .then(async (response) => {
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "Payment failed");
-                }
-                return response.json();
-            })
-            .then((data) => {
-                alert(data.message || "Payment initiated successfully");
-            })
-            .catch((error) => {
-                console.error("Payment Error:", error.message);
-                alert(`Error: ${error.message}`);
-            });
-    };
-    
-    // Run on page load
-    document.addEventListener("DOMContentLoaded", () => {
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // Save user email in localStorage for cross-page access
-                localStorage.setItem("userEmail", user.email);
-    
-                // Check payment status and show popup if unpaid
-                const hasPaid = await checkUserPaymentStatus();
-                if (!hasPaid) {
-                    showPaymentPopup();
-                }
-            } else {
-                // Redirect to login page if not logged in
-                window.location.href = "index.html";
-            }
-        });
+
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists() && userDoc.data().paymentStatus) {
+            return true;
+        } else {
+            console.error("Payment not completed.");
+            return false;
+        }
+    } catch (error) {
+        console.error("Error checking payment status:", error);
+        return false;
+    }
+};
+
+// Function to fetch the current user's email
+const getUserEmail = () => {
+    const user = auth.currentUser;
+    return user ? user.email : null;
+};
+
+// Function to show the payment popup
+const showPaymentPopup = () => {
+    const popup = document.getElementById("payment-popup");
+    popup.style.display = "block";
+
+    // Show payment section when the user clicks "Activate Account"
+    document.getElementById("activate-btn").addEventListener("click", () => {
+        document.getElementById("payment-section").style.display = "block";
     });
-    
+
+    // Handle payment
+    document.getElementById("pay-btn").addEventListener("click", async () => {
+        const phoneNumber = document.getElementById("phone-number").value.trim();
+        const email = getUserEmail();
+
+        if (phoneNumber.match(/^07\d{8}$/) && email) {
+            initiatePayment(phoneNumber, email);
+        } else {
+            alert("Invalid phone number or email.");
+        }
+    });
+};
+
+// Function to initiate payment
+const initiatePayment = (phoneNumber, email) => {
+    fetch("https://www-sanfiattechnologies-com.vercel.app/api/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber, email }),
+    })
+        .then(async (response) => {
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Payment failed");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            alert(data.message || "Payment initiated successfully");
+        })
+        .catch((error) => {
+            console.error("Payment Error:", error.message);
+            alert(`Error: ${error.message}`);
+        });
+};
+
+// Run on page load
+document.addEventListener("DOMContentLoaded", () => {
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // Save user email in localStorage for cross-page access
+            localStorage.setItem("userEmail", user.email);
+
+            // Check payment status and show popup if unpaid
+            const hasPaid = await checkUserPaymentStatus();
+            if (!hasPaid) {
+                showPaymentPopup();
+            }
+        } else {
+            // Redirect to login page if not logged in
+            window.location.href = "index.html";
+        }
+    });
+});
+
     </script>
 </body>
 </html>
