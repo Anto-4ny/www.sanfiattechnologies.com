@@ -48,6 +48,11 @@ async function getAccessToken() {
             }
         );
 
+        // Check if access token exists in the response
+        if (!response.data.access_token) {
+            throw new Error('Access token not received');
+        }
+
         return response.data.access_token;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
@@ -90,9 +95,13 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         throw new Error('Failed to initiate STK push');
     }
 }
-
+ 
 // Register Callback URLs
 async function registerCallbackURLs(token) {
+    if (!token) {
+        throw new Error('Invalid or missing access token');
+    }
+
     const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -134,6 +143,10 @@ module.exports = async (req, res) => {
         console.log('Fetching access token...');
         // Fetch access token (this is now done inside the async handler)
         const token = await getAccessToken();
+
+        if (!token) {
+            return res.status(401).json({ error: 'Invalid access token' });
+        }
         console.log('Access token fetched successfully:', token);
 
         // Register Callback URLs (only register once in production, can be skipped if already done)
