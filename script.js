@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
 // Firebase configuration
@@ -23,7 +23,6 @@ const analytics = getAnalytics(app);
 document.addEventListener('DOMContentLoaded', () => {
     const loginSection = document.getElementById('login-section');
     const signupSection = document.getElementById('signup-section');
-    const passwordResetSection = document.getElementById('password-reset-section');
     const showSignupButton = document.getElementById('show-signup');
     const showLoginButton = document.getElementById('show-login');
     const loginMessage = document.getElementById('login-message');
@@ -31,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleLoginPassword = document.getElementById('toggle-login-password');
     const toggleSignupPassword = document.getElementById('toggle-signup-password');
     const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
-    const logoutButton = document.getElementById('logout-button');
 
     // Toggle between login and signup sections
     showSignupButton.addEventListener('click', () => {
@@ -44,23 +42,21 @@ document.addEventListener('DOMContentLoaded', () => {
         loginSection.classList.remove('hidden');
     });
 
-const togglePasswordVisibility = (input, eyeIcon) => {
-    eyeIcon.addEventListener('click', () => {
-        const type = input.type === 'password' ? 'text' : 'password';
-        input.type = type;
+    const togglePasswordVisibility = (input, eyeIcon) => {
+        eyeIcon.addEventListener('click', () => {
+            const type = input.type === 'password' ? 'text' : 'password';
+            input.type = type;
 
-        // Toggle Font Awesome classes
-        if (type === 'password') {
-            eyeIcon.classList.remove('fa-eye-slash');
-            eyeIcon.classList.add('fa-eye');
-        } else {
-            eyeIcon.classList.remove('fa-eye');
-            eyeIcon.classList.add('fa-eye-slash');
-        }
-    });
-};
-
-
+            // Toggle Font Awesome classes
+            if (type === 'password') {
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            } else {
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            }
+        });
+    };
     togglePasswordVisibility(document.getElementById('login-password'), toggleLoginPassword);
     togglePasswordVisibility(document.getElementById('signup-password'), toggleSignupPassword);
     togglePasswordVisibility(document.getElementById('confirm-password'), toggleConfirmPassword);
@@ -73,97 +69,18 @@ const togglePasswordVisibility = (input, eyeIcon) => {
         const password = document.getElementById('login-password').value;
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Retrieve and save user email in localStorage
+            localStorage.setItem('userEmail', user.email);
+
             window.location.href = 'dashboard.html'; // Redirect to dashboard if login is successful
         } catch (error) {
             loginMessage.textContent = error.message;
             loginMessage.classList.add('error');
         }
     });
-
-    // Show the password reset section
-    document.getElementById('forgot-password').addEventListener('click', () => {
-        loginSection.classList.add('hidden');
-        passwordResetSection.classList.remove('hidden');
-    });
-
-    // Handle the "Back to Login" button
-    document.getElementById('back-to-login').addEventListener('click', () => {
-        passwordResetSection.classList.add('hidden');
-        loginSection.classList.remove('hidden');
-    });
-
-    // Handle the password reset form submission
-    document.getElementById('password-reset-form').addEventListener('submit', (event) => {
-        event.preventDefault();
-        const email = document.getElementById('reset-email').value;
-
-        firebase.auth().sendPasswordResetEmail(email)
-            .then(() => {
-                document.getElementById('reset-message').textContent = "Reset link sent! Check your email.";
-            })
-            .catch((error) => {
-                document.getElementById('reset-message').textContent = "Error: " + error.message;
-            });
-    });
-
-    // Handling OTP Verification
-    document.getElementById('otp-verification-form').addEventListener('submit', (event) => {
-        event.preventDefault();
-        const otpCode = document.getElementById('otp-code').value;
-
-        firebase.auth().verifyPasswordResetCode(otpCode)
-            .then(() => {
-                document.getElementById('otp-message').textContent = "Code verified successfully!";
-                document.getElementById('new-password-form').classList.remove('hidden');
-                document.getElementById('otp-verification-form').classList.add('hidden');
-            })
-            .catch((error) => {
-                document.getElementById('otp-message').textContent = "Error: " + error.message;
-            });
-    });
-
-    // For setting New Password
-    document.getElementById('new-password-form').addEventListener('submit', (event) => {
-        event.preventDefault();
-        const newPassword = document.getElementById('new-password').value;
-        const confirmNewPassword = document.getElementById('confirm-new-password').value;
-
-        if (newPassword === confirmNewPassword) {
-            const otpCode = document.getElementById('otp-code').value;
-
-            firebase.auth().confirmPasswordReset(otpCode, newPassword)
-                .then(() => {
-                    document.getElementById('new-password-message').textContent = "Password has been reset successfully!";
-                    setTimeout(() => {
-                        passwordResetSection.classList.add('hidden');
-                        loginSection.classList.remove('hidden');
-                    }, 2000);
-                })
-                .catch((error) => {
-                    document.getElementById('new-password-message').textContent = "Error: " + error.message;
-                });
-        } else {
-            document.getElementById('new-password-message').textContent = "Passwords do not match.";
-        }
-    });
-
-    // Function to get URL parameters
-    function getUrlParameter(name) {
-        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-        const results = regex.exec(location.search);
-        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-    }
-
-    // On DOMContentLoaded, check for referral code in the URL
-    const referralCodeInput = document.getElementById('referral-code');
-    const referralCode = getUrlParameter('ref');
-
-    if (referralCode) {
-        referralCodeInput.value = referralCode;
-        referralCodeInput.disabled = true;
-    }
 
     // Handle registration
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
@@ -183,13 +100,18 @@ const togglePasswordVisibility = (input, eyeIcon) => {
 
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
+            const user = userCredential.user;
+            await updateProfile(user, { displayName: `${firstName} ${lastName}` });
 
-            await setDoc(doc(db, 'users', userCredential.user.uid), {
+            await setDoc(doc(db, 'users', user.uid), {
                 firstName,
                 lastName,
-                email
+                email,
+                paymentStatus: false
             });
+
+            // Save user email in localStorage
+            localStorage.setItem('userEmail', email);
 
             window.location.href = 'dashboard.html'; // Redirect after successful registration
         } catch (error) {
@@ -197,32 +119,38 @@ const togglePasswordVisibility = (input, eyeIcon) => {
             signupMessage.classList.add('error');
         }
     });
-    
-    const user = firebase.auth().currentUser;
-if (user) {
-    const userEmail = user.email;  // Get email from Firebase Authentication
-    firestore.collection('users').doc(user.uid).set({
-        email: userEmail,
-        paymentStatus: false,
-    });
-}
 
+    // Check and update payment status on each page
+    const checkPaymentStatus = async () => {
+        const userEmail = localStorage.getItem('userEmail');
+        if (!userEmail) {
+            window.location.href = 'index.html'; // Redirect to login if email is missing
+            return;
+        }
 
-    // Handle logout and redirect to login section
-    logoutButton.addEventListener('click', () => {
-        firebase.auth().signOut()
-            .then(() => {
-                alert("You have successfully logged out.");
-                document.getElementById('login-section').classList.remove('hidden');
-                signupSection.classList.add('hidden');
-                passwordResetSection.classList.add('hidden');
-                document.getElementById('home').classList.add('hidden');
-                loginSection.scrollIntoView({ behavior: 'smooth' });
-            })
-            .catch((error) => {
-                console.error("Error logging out: ", error);
-            });
-    });
+        try {
+            const q = query(collection(db, 'users'), where('email', '==', userEmail));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const userDoc = querySnapshot.docs[0];
+                const paymentStatus = userDoc.data().paymentStatus;
+
+                if (paymentStatus) {
+                    localStorage.setItem('paymentStatus', 'paid');
+                } else {
+                    localStorage.setItem('paymentStatus', 'not-paid');
+                    window.location.href = 'dashboard.html'; // Redirect to payment page
+                }
+            } else {
+                console.error('User document not found.');
+            }
+        } catch (error) {
+            console.error('Error checking payment status:', error);
+        }
+    };
+
+    checkPaymentStatus();
 });
 
 const updateDashboard = (userData) => {
@@ -331,12 +259,27 @@ document.addEventListener('DOMContentLoaded', function () {
         box.classList.add('show');
     });
 
+  // Function to get URL parameters
+  function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    const results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
 
+// On DOMContentLoaded, check for referral code in the URL
+const referralCodeInput = document.getElementById('referral-code');
+const referralCode = getUrlParameter('ref');
+
+if (referralCode) {
+    referralCodeInput.value = referralCode;
+    referralCodeInput.disabled = true;
+}
 
 // Referral link and sharing functionality
 document.addEventListener('DOMContentLoaded', function () {
-    const userID = "your-user-id"; // Replace with actual user ID from user data
-    const referralLink = `https://anto-4ny.github.io/www.sanfiattechnologies.com/signup?referral=${userID}`;
+    const userID = "userid"; // Replace with actual user ID from user data
+    const referralLink = `https://www-sanfiattechnologies-com.vercel.app/signup?referral=${userID}`;
 
     const referralLinkElement = document.getElementById('referral-link');
     referralLinkElement.textContent = referralLink;
