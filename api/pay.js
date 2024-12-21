@@ -31,33 +31,39 @@ function generatePassword(shortCode) {
 // Fetch Access Token
 async function getAccessToken() {
     try {
-        console.log('Fetching access token...');
-        console.log('OAUTH_TOKEN_URL:', process.env.OAUTH_TOKEN_URL);
-        console.log('Consumer Key:', process.env.LIVE_APP_CONSUMER_KEY);
-        console.log('Consumer Secret:', process.env.LIVE_APP_CONSUMER_SECRET);
-
-        const { data } = await axios.get(
-            `${process.env.OAUTH_TOKEN_URL}?grant_type=client_credentials`,
+        // Use `application/x-www-form-urlencoded` for the body content
+        const response = await axios.post(
+            process.env.OAUTH_TOKEN_URL, // URL remains the same
+            new URLSearchParams({
+                grant_type: 'client_credentials', // Correct the format of the body
+            }),
             {
+                auth: {
+                    username: process.env.LIVE_APP_CONSUMER_KEY, // Your Consumer Key
+                    password: process.env.LIVE_APP_CONSUMER_SECRET, // Your Consumer Secret
+                },
                 headers: {
-                    Authorization: `Basic ${Buffer.from(
-                        `${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`
-                    ).toString('base64')}`,
+                    'Content-Type': 'application/x-www-form-urlencoded', // Ensure correct content type
                 },
             }
         );
-        console.log('Access Token Response:', data);
-        return data.access_token;
+
+        return response.data.access_token;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
-        if (error.response) {
-            console.error('Status:', error.response.status);
-            console.error('Headers:', error.response.headers);
-            console.error('Data:', error.response.data);
-        }
         throw new Error('Failed to fetch access token');
     }
 }
+try {
+    console.log('Fetching access token...');
+    const token = await getAccessToken();
+    console.log('Access token fetched successfully:', token);
+} catch (error) {
+    console.error('Error fetching access token:', error.response?.data || error.message);
+    return res.status(500).json({ error: 'Failed to fetch access token' });
+}
+
+
 
 // Initiate STK Push
 async function initiateSTKPush(token, phoneNumber, amount) {
