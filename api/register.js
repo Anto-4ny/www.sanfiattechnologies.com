@@ -67,19 +67,24 @@ module.exports = async (req, res) => {
         const newReferralCode = generateReferralCode(email);
         const referralLink = `${req.headers.origin}/signup?ref=${newReferralCode}`;
 
-        // Create the new user object
-        const newUser = {
-            firstName,
-            lastName,
-            email,
-            password, // In a real application, this should be hashed
-            referralCode: newReferralCode,
-            referralLink,
-            referredBy: referralCode || null,
-            balance: 0,
-            isActive: false,
-            referredUsers: [],
-        };
+        const bcrypt = require('bcrypt');
+const SALT_ROUNDS = 10; // Define a salt round value for bcrypt
+
+// Replace this block in your `/api/register` endpoint
+const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+const newUser = {
+    firstName,
+    lastName,
+    email,
+    password: hashedPassword, // Store the hashed password
+    referralCode: newReferralCode,
+    referralLink,
+    referredBy: referralCode || null,
+    balance: 0,
+    isActive: false,
+    referredUsers: [],
+};
+
 
         // Save the new user to Firestore
         await saveUserToDatabase(newUser);
@@ -105,45 +110,5 @@ module.exports = async (req, res) => {
     } catch (error) {
         console.error('Error in registration:', error.message);
         res.status(500).json({ error: 'Internal server error. Please try again later.' });
-    }
-};
-
-/**
- * Fetch referred users and their statuses
- */
-module.exports.getReferrals = async (req, res) => {
-    const { email } = req.query;
-
-    try {
-        console.log('Fetching referrals for:', email);
-
-        // Fetch the user document
-        const userDoc = await db.collection('users').doc(encodeURIComponent(email)).get();
-        if (!userDoc.exists) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        // Retrieve the list of referred users
-        const referredUsers = userDoc.data().referredUsers || [];
-        const referrals = [];
-
-        // Process referred users
-        const referralPromises = referredUsers.map(async (referredEmail) => {
-            const referredDoc = await db.collection('users').doc(encodeURIComponent(referredEmail)).get();
-            if (referredDoc.exists) {
-                referrals.push({
-                    email: referredDoc.id,
-                    isActive: referredDoc.data().isActive || false,
-                });
-            }
-        });
-
-        await Promise.all(referralPromises);
-
-        console.log('Referrals fetched successfully:', referrals);
-        res.status(200).json(referrals);
-    } catch (error) {
-        console.error('Error fetching referrals:', error.message);
-        res.status(500).json({ error: 'Failed to fetch referrals' });
     }
 };

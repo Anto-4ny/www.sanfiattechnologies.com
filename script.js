@@ -109,28 +109,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('login-password').value.trim();
 
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
 
-                // Fetch referral link for the logged-in user from the backend
-                const response = await fetch(`/get-referral-link?email=${user.email}`);
-                const data = await response.json();
-
-                if (response.ok && data.referralLink) {
-                    localStorage.setItem('referralLink', data.referralLink); // Store referral link
-                    displayReferralLink(data.referralLink); // Display referral link on the page
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`Login failed: ${text}`);
                 }
 
-                // Save user email in localStorage for session persistence
-                localStorage.setItem('userEmail', user.email);
+                const user = await response.json();
 
-                // Redirect to the dashboard
+                if (user && user.referralLink) {
+                    localStorage.setItem('referralLink', user.referralLink); // Store referral link
+                    displayReferralLink(user.referralLink); // Display referral link on the page
+                }
+
+                localStorage.setItem('userEmail', email); // Save user email for session persistence
                 window.location.href = 'dashboard.html';
             } catch (error) {
                 if (loginMessage) {
                     loginMessage.textContent = error.message;
                     loginMessage.classList.add('error');
                 }
+                console.error('Login error:', error);
             }
         });
     }
@@ -163,30 +167,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({ firstName, lastName, email, password, referralCode }),
                 });
 
-                const result = await response.json();
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`Signup failed: ${text}`);
+                }
 
-                if (response.ok && result.referralCode) {
-                    const referralLink = `${window.location.origin}/signup?ref=${result.referralCode}`;
+                const result = await response.json();
+                if (result.referralLink) {
+                    const referralLink = `${window.location.origin}/signup?ref=${result.referralLink}`;
                     localStorage.setItem('referralLink', referralLink); // Store referral link
                     displayReferralLink(referralLink); // Display referral link
-
-                    if (signupMessage) {
-                        signupMessage.textContent = 'Signup successful! Your referral link has been created.';
-                        signupMessage.classList.add('success');
-                    }
-
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 2000);
-                } else {
-                    throw new Error(result.error || 'Signup failed. Please try again.');
                 }
+
+                if (signupMessage) {
+                    signupMessage.textContent = 'Signup successful! Your referral link has been created.';
+                    signupMessage.classList.add('success');
+                }
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
             } catch (error) {
-                console.error('Error during signup:', error);
                 if (signupMessage) {
                     signupMessage.textContent = error.message;
                     signupMessage.classList.add('error');
                 }
+                console.error('Signup error:', error);
             }
         });
     }
@@ -199,39 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (referralCodeInput) {
             referralCodeInput.value = referralCodeFromURL;
         }
-    }
-
-    // Load referral details on the dashboard
-    if (referralLinkElement && referredUsersList) {
-        firebase.auth().onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const response = await fetch(`/get-referrals?email=${user.email}`);
-                    const referrals = await response.json();
-
-                    if (response.ok && referrals) {
-                        const referralLink = `${window.location.origin}/signup?ref=${referrals.referralCode}`;
-                        localStorage.setItem('referralLink', referralLink); // Store referral link
-                        displayReferralLink(referralLink); // Display referral link
-
-                        // Populate referred users list
-                        referredUsersList.innerHTML = referrals.map(
-                            (ref) =>
-                                `<tr>
-                                    <td>${ref.email}</td>
-                                    <td>${ref.isActive ? 'Paid' : 'Not Paid'}</td>
-                                </tr>`
-                        ).join('');
-                    } else {
-                        throw new Error('Failed to load referral details.');
-                    }
-                } catch (err) {
-                    console.error('Error fetching referral details:', err);
-                }
-            } else {
-                alert('Please log in to view your referral details.');
-            }
-        });
     }
 });
 
