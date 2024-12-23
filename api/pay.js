@@ -28,7 +28,7 @@ function generatePassword(shortCode) {
     return Buffer.from(password).toString('base64');
 }
 
-// Fetch Access Token
+// Fetch Access Token from Safaricom API
 async function getAccessToken() {
     try {
         // Use `application/x-www-form-urlencoded` for the body content
@@ -60,12 +60,15 @@ async function getAccessToken() {
     }
 }
 
-// Initiate STK Push
+// Initiate STK Push to Safaricom
 async function initiateSTKPush(token, phoneNumber, amount) {
     const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
     };
+
+    // Ensure phone number is in international format (e.g., 2547XXXXXXXX)
+    const formattedPhoneNumber = phoneNumber.replace(/^0/, '254');
 
     const payload = {
         BusinessShortCode: process.env.BUSINESS_SHORT_CODE,
@@ -73,12 +76,12 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         Timestamp: getCurrentTimestamp(),
         TransactionType: 'CustomerPayBillOnline', // Ensure correct type
         Amount: amount,
-        PartyA: phoneNumber,
+        PartyA: formattedPhoneNumber,
         PartyB: process.env.BUSINESS_SHORT_CODE,
-        PhoneNumber: phoneNumber,
-        CallBackURL: process.env.CALLBACK_URL,
-        AccountReference: phoneNumber,
-        TransactionDesc: `Payment to till ${process.env.BUSINESS_SHORT_CODE}`,
+        PhoneNumber: formattedPhoneNumber,
+        CallBackURL: process.env.CALLBACK_URL, // Your callback URL for payment success
+        AccountReference: formattedPhoneNumber, // Unique reference for the transaction
+        TransactionDesc: `Payment to till ${process.env.BUSINESS_SHORT_CODE}`, // Payment description
     };
 
     try {
@@ -95,8 +98,8 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         throw new Error('Failed to initiate STK push');
     }
 }
- 
-// Register Callback URLs
+
+// Register Callback URLs with Safaricom (to receive response from Safaricom)
 async function registerCallbackURLs(token) {
     if (!token) {
         throw new Error('Invalid or missing access token');
@@ -129,7 +132,7 @@ async function registerCallbackURLs(token) {
     }
 }
 
-// Main Handler Function (async to allow await)
+// Main handler function that coordinates the payment initiation
 module.exports = async (req, res) => {
     const { phoneNumber, email } = req.body;
 
@@ -137,7 +140,7 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Phone number and email are required.' });
     }
 
-    const amount = 250;
+    const amount = 250; // Set fixed amount for payment
 
     try {
         console.log('Fetching access token...');
@@ -152,10 +155,10 @@ module.exports = async (req, res) => {
         // Register Callback URLs (only register once in production, can be skipped if already done)
         await registerCallbackURLs(token);
 
-        // Initiate STK push
+        // Initiate STK push (this will trigger the payment process)
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
 
-        // Save payment details in Firestore
+        // Save payment details to Firestore database (to track payment status)
         await db.collection('payments').add({
             email,
             phoneNumber,
@@ -164,9 +167,10 @@ module.exports = async (req, res) => {
             timestamp: new Date(),
         });
 
+        // Return success response
         return res.status(200).json({ message: 'Payment initiated successfully', stkResponse });
     } catch (error) {
-        console.error('Error during payment process:', error);
+        console.error('Error during payment process:', error.message);
         return res.status(500).json({ error: error.message });
     }
 };

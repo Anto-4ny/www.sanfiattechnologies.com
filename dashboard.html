@@ -121,20 +121,37 @@ input {
   <button type="button" id="logout-button"><i class="fas fa-sign-out-alt"></i> Log Out</button>
   </nav>
 <body>
-    <div id="payment-popup" class="popup"> 
+    <div id="payment-popup" class="popup">
         <div class="popup-content">
             <h2>Activate Your Account</h2>
             <p>Your account needs to be activated to access all features.</p>
             <button id="activate-btn" class="activate-btn">Activate Account</button>
+    
+            <!-- Payment Section -->
             <div id="payment-section" class="payment-section" style="display: none;">
                 <label for="phone-number">Enter your MPESA Number:</label>
-                <input type="text" id="phone-number" placeholder="07XXXXXXXX" required pattern="^07\d{8}$">
+                <input
+                    type="text"
+                    id="phone-number"
+                    placeholder="07XXXXXXXX"
+                    required
+                    pattern="^07\d{8}$"
+                    aria-describedby="phone-number-help"
+                    title="Phone number should start with '07' and be 10 digits long"
+                >
+                <small id="phone-number-help" class="form-text text-muted">
+                    Please enter a valid MPESA number starting with '07' (e.g., 0712345678).
+                </small>
+    
                 <label for="amount">Amount:</label>
                 <input type="text" id="amount" value="250" readonly>
+    
                 <button id="pay-btn" class="pay-btn">Pay Now</button>
             </div>
         </div>
-    </div>  
+    </div>
+    
+     
 <section id="dashboard">
             <div id="dashboard-section">
                 <section class="dashboard-welcome-box">
@@ -194,7 +211,7 @@ input {
     <h3>Your Referral Link</h3>
     <div class="referral-container" style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
         <p id="referral-link" class="referral-link" style="font-size: 14px; color: #333; background-color: #fff; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            https://www-sanfiattechnologies-com.vercel.app/referral-link
+            https://www-sanfiattechnologies-com.vercel.app/
         </p>
         <button id="copy-link-button" style="background-color: #4caf50; color: white; border: none; border-radius: 4px; padding: 8px 12px; font-size: 14px; cursor: pointer; transition: background-color 0.3s;" 
         onmouseover="this.style.backgroundColor='#45a049'" 
@@ -356,33 +373,36 @@ input {
                     });
                 }
     
-                // Add event listener for "Pay" button
-                const payBtn = document.getElementById("pay-btn");
-                if (payBtn) {
-                    payBtn.addEventListener("click", async () => {
-                        const phoneNumber = document.getElementById("phone-number")?.value.trim();
-                        const user = auth.currentUser;
-    
-                        if (phoneNumber.match(/^07\d{8}$/) && user?.email) {
-                            await initiatePayment(phoneNumber, user.email);
-                        } else {
-                            alert("Invalid phone number or email.");
-                        }
-                    });
-                }
-            };
-    
+   // Add event listener for "Pay" button
+const payBtn = document.getElementById("pay-btn");
+if (payBtn) {
+    payBtn.addEventListener("click", async () => {
+        let phoneNumber = document.getElementById("phone-number")?.value.trim();
+        const user = auth.currentUser;
+
+        // Ensure phone number is in international format (e.g., 2547XXXXXXXX)
+        if (phoneNumber.match(/^07\d{8}$/)) {
+            phoneNumber = phoneNumber.replace(/^0/, '254'); // Replace leading '0' with '254'
+        }
+
+        // Validate phone number format (check if it starts with '254' and has 12 digits)
+        if (phoneNumber.match(/^254\d{9}$/) && user?.email) {
+            await initiatePayment(phoneNumber, user.email); // Pass formatted phone number and email to initiate payment
+        } else {
+            alert("Invalid phone number or email.");
+        }
+    });
+}
+            }
             // Function to initiate payment
             const initiatePayment = async (phoneNumber, email) => {
                 try {
-                    const response = await fetch(
-                        "/api/pay.js",
-                        {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ phoneNumber, email }),
-                        }
-                    );
+                    const response = await fetch("https://www-sanfiattechnologies-com.vercel.app/api/pay", {
+                       method: "POST",
+                       headers: { "Content-Type": "application/json" },
+                       body: JSON.stringify({ phoneNumber, email }),
+                   });
+
     
                     if (!response.ok) {
                         const errorData = await response.json();

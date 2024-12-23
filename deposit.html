@@ -91,27 +91,13 @@
       background-color: #f9f9f9;
       font-family: Arial, sans-serif;
     ">
-    <h3 style="
-        text-align: center;
-        color: #4CAF50;
-        margin-bottom: 15px;
-        font-size: 1.5em;
-      ">
+    <h3 style="text-align: center; color: #4CAF50; margin-bottom: 15px; font-size: 1.5em;">
       Make a Payment
     </h3>
 
-    <img src="images/Icons/images.jpeg" alt="MPESA Logo" style="
-        display: block;
-        margin: 0 auto 20px;
-        width: 80px;
-        height: auto;
-      ">
+    <img src="images/Icons/images.jpeg" alt="MPESA Logo" style="display: block; margin: 0 auto 20px; width: 80px; height: auto;">
 
-    <p style="
-        font-size: 0.9em;
-        color: #555;
-        text-align: center;
-      ">
+    <p style="font-size: 0.9em; color: #555; text-align: center;">
       To complete your payment via MPESA, follow the steps below:
     </p>
 
@@ -124,111 +110,50 @@
 
     <!-- Phone Number Input -->
     <label for="phone-number" style="display: block; margin-top: 10px; font-weight: bold;">Enter Your Phone Number:</label>
-    <input type="text" id="phone-number" placeholder="07XX XXX XXX" style="
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-sizing: border-box;
-      ">
+    <input type="text" id="phone-number" placeholder="07XX XXX XXX" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
 
-    <!-- Suggested Amounts -->
-    <div style="margin: 15px 0;">
-      <p style="font-weight: bold;">Select an Amount:</p>
-      <div style="
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-        ">
-        <button type="button" class="amount-suggestion" style="
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-            font-size: 0.9em;
-          " onclick="setAmount(500)">500</button>
-        <button class="amount-suggestion" onclick="setAmount(250)">250</button>
-        <button class="amount-suggestion" onclick="setAmount(680)">680</button>
-        <button class="amount-suggestion" onclick="setAmount(900)">900</button>
-        <button class="amount-suggestion" onclick="setAmount(6000)">6000</button>
-        <button class="amount-suggestion" onclick="setAmount(1000)">1000</button>
-      </div>
-    </div>
+    <small id="phone-number-error" style="color: red;"></small> <!-- Error message -->
+
+   <!-- Suggested Amounts -->
+<div style="margin: 15px 0;">
+  <p style="font-weight: bold;">Select an Amount:</p>
+  <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <button type="button" class="amount-suggestion" style="padding: 8px 12px; border: none; border-radius: 5px; background-color: #4CAF50; color: white; cursor: pointer; font-size: 0.9em;" onclick="setAmount(500)">500</button>
+    <button class="amount-suggestion" onclick="setAmount(250)">250</button>
+    <button class="amount-suggestion" onclick="setAmount(680)">680</button>
+    <button class="amount-suggestion" onclick="setAmount(900)">900</button>
+    <button class="amount-suggestion" onclick="setAmount(6000)">6000</button>
+    <button class="amount-suggestion" onclick="setAmount(1000)">1000</button>
+  </div>
+</div>
+
 
     <!-- Amount Input -->
     <label for="amount" style="display: block; font-weight: bold;">Enter Amount to Deposit:</label>
-    <input type="number" id="amount" placeholder="e.g. 500" style="
-        width: 100%;
-        padding: 8px;
-        margin: 5px 0 15px 0;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-sizing: border-box;
-      ">
+    <input type="number" id="amount" placeholder="e.g. 500" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+    
+    <small id="amount-error" style="color: red;"></small> <!-- Error message -->
 
     <!-- Pay Button -->
-    <button id="pay-button" style="
-        width: 100%;
-        padding: 10px;
-        border: none;
-        border-radius: 5px;
-        background-color: #4CAF50;
-        color: white;
-        font-size: 1em;
-        cursor: pointer;
-        margin-bottom: 15px;
-      ">
+    <button id="pay-button" style="width: 100%; padding: 10px; border: none; border-radius: 5px; background-color: #4CAF50; color: white; font-size: 1em; cursor: pointer; margin-bottom: 15px;">
      Deposit <span id="package-amount"></span>
     </button>
 
     <!-- MPESA Code Input -->
     <label for="payment-confirmation" style="display: block; font-weight: bold;">Enter MPESA Code:</label>
-    <input type="text" id="payment-confirmation" placeholder="MPESA Transaction Code" style="
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-sizing: border-box;
-      ">
+    <input type="text" id="payment-confirmation" placeholder="MPESA Transaction Code" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
 
     <!-- Submit Payment Button -->
-    <button id="submit-payment" style="
-        width: 100%;
-        margin-top: 15px;
-        padding: 10px;
-        border: none;
-        border-radius: 5px;
-        background-color: #2196F3;
-        color: white;
-        font-size: 1em;
-        cursor: pointer;
-      ">
+    <button id="submit-payment" style="width: 100%; margin-top: 15px; padding: 10px; border: none; border-radius: 5px; background-color: #2196F3; color: white; font-size: 1em; cursor: pointer;">
       Submit Payment Code
     </button>
 
     <p id="payment-status" style="margin-top: 15px; text-align: center; color: red;"></p>
   </div>
 
-  <!-- Confirmation Section -->
-  <div id="confirmation-section" style="
-      width: 90%;
-      max-width: 500px;
-      margin: 20px auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      background-color: #f9f9f9;
-      font-family: Arial, sans-serif;
-    ">
-    <h3 style="
-        text-align: center;
-        color: #4CAF50;
-        font-size: 1.5em;
-      ">
+  <!-- Confirmation Section (Initially Hidden) -->
+  <div id="confirmation-section" style="display: none; width: 90%; max-width: 500px; margin: 20px auto; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); background-color: #f9f9f9; font-family: Arial, sans-serif;">
+    <h3 style="text-align: center; color: #4CAF50; font-size: 1.5em;">
       Business Payment Details
     </h3>
     <p style="text-align: center; font-size: 1.1em;">
@@ -239,30 +164,14 @@
     <label for="confirm-mpesa-code" style="display: block; margin-top: 10px; font-weight: bold;">
       Enter MPESA Code:
     </label>
-    <input type="text" id="confirm-mpesa-code" placeholder="MPESA Transaction Code" style="
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-sizing: border-box;
-      ">
+    <input type="text" id="confirm-mpesa-code" placeholder="MPESA Transaction Code" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
 
-    <button id="submit-confirmation" style="
-        width: 100%;
-        margin-top: 15px;
-        padding: 10px;
-        border: none;
-        border-radius: 5px;
-        background-color: #2196F3;
-        color: white;
-        font-size: 1em;
-        cursor: pointer;
-      ">
+    <button id="submit-confirmation" style="width: 100%; margin-top: 15px; padding: 10px; border: none; border-radius: 5px; background-color: #2196F3; color: white; font-size: 1em; cursor: pointer;">
       Submit Payment Code
     </button>
   </div>
-    </main>
+</main>
+
       
     <footer>
     <div class="footer">
@@ -316,92 +225,96 @@
         
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
+    <script>
+    // Extract package info from query params
+    function getQueryParams() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const packageName = urlParams.get('packageName');
+        const packagePrice = urlParams.get('packagePrice');
     
-<script>
-  // Extract package info from query params
-function getQueryParams() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const packageName = urlParams.get('packageName');
-    const packagePrice = urlParams.get('packagePrice');
-
-    if (packagePrice) {
-        document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
-        document.getElementById('amount').value = packagePrice;
+        if (packagePrice) {
+            document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
+            document.getElementById('amount').value = packagePrice;
+        }
+    
+        return { packageName, packagePrice };
     }
+    
+    // Fetch user's email
+    const getUserEmail = () => {
+        const user = auth.currentUser;
+        return user ? user.email : null;
+    };
+    
+    // Phone number validation
+    const phoneNumberInput = document.getElementById("phone-number");
+    const phoneNumberError = document.getElementById("phone-number-error");
+    
+    phoneNumberInput.addEventListener("input", function() {
+        const phoneNumber = phoneNumberInput.value.trim();
+        if (!phoneNumber.match(/^07\d{8}$/)) {
+            phoneNumberError.textContent = "Invalid phone number. Please enter a valid MPESA number.";
+            phoneNumberError.style.color = "red";
+        } else {
+            phoneNumberError.textContent = "";
+        }
+    });
+    
+    // Amount validation
+    const amountInput = document.getElementById("amount");
+    const amountError = document.getElementById("amount-error");
+    
+    amountInput.addEventListener("input", function() {
+        const amount = amountInput.value.trim();
+        if (isNaN(amount) || amount <= 0) {
+            amountError.textContent = "Please enter a valid amount.";
+            amountError.style.color = "red";
+        } else {
+            amountError.textContent = "";
+        }
+    });
 
-    return { packageName, packagePrice };
+    // Function to set the amount automatically in the input field
+function setAmount(amount) {
+    // Set the value of the amount input field
+    document.getElementById('amount').value = amount;
+
+    // Optionally, you can also clear the error message if the amount is valid
+    const amountError = document.getElementById("amount-error");
+    amountError.textContent = "";  // Clear error message
 }
 
-// Fetch user's email
-const getUserEmail = () => {
-    const user = auth.currentUser;
-    return user ? user.email : null;
-};
-
-// Handle payment
-document.getElementById("pay-button").addEventListener("click", async function () {
-    const phoneNumber = document.getElementById("phone-number").value.trim();
-    const amount = document.getElementById("amount").value.trim();
-    const email = getUserEmail();
-
-    if (phoneNumber.match(/^07\d{8}$/) && amount > 0 && email) {
-        try {
-            const response = await fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phoneNumber, amount, email })
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                alert(result.message);
-                sessionStorage.setItem('paymentId', result.paymentId);
-            } else {
-                alert('Payment failed. ' + result.error);
+    
+    // Handle payment initiation
+    document.getElementById("pay-button").addEventListener("click", async function () {
+        const phoneNumber = document.getElementById("phone-number").value.trim();
+        const amount = document.getElementById("amount").value.trim();
+        const email = getUserEmail();
+    
+        if (phoneNumber.match(/^07\d{8}$/) && amount > 0 && email) {
+            try {
+                const response = await fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber, amount, email })
+                });
+                const data = await response.json();
+    
+                if (data.status === 'Success') {
+                    document.getElementById("confirmation-section").style.display = "block"; // Show confirmation section after payment initiation
+                    alert('Payment initiation successful. Please proceed with your MPESA transaction.');
+                } else {
+                    alert('Error initiating payment. Please try again.');
+                }
+            } catch (error) {
+                console.error('Payment initiation error:', error);
             }
-        } catch (error) {
-            console.error('Error initiating payment:', error);
-            alert('Payment initiation error. Try again.');
+        } else {
+            alert('Please fill in the valid phone number, amount, and make sure you are logged in.');
         }
-    } else {
-        alert('Invalid phone number or amount.');
-    }
-});
-
-// Handle payment code submission
-document.getElementById("submit-payment").addEventListener("click", async function () {
-    const paymentCode = document.getElementById("payment-confirmation").value.trim();
-    const paymentId = sessionStorage.getItem('paymentId');
-
-    if (paymentCode && paymentId) {
-        try {
-            const response = await fetch(`/api/payments/${paymentId}/update`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mpesaCode: paymentCode })
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                document.getElementById("payment-status").textContent = "Payment confirmed.";
-            } else {
-                alert('Payment update failed. ' + result.error);
-            }
-        } catch (error) {
-            console.error('Error updating payment:', error);
-            alert('Error updating payment. Try again.');
-        }
-    } else {
-        alert('Please enter the MPESA transaction code.');
-    }
-});
-
-// Run on page load
-const packageInfo = getQueryParams();
-
-</script>
+    });
+  </script>  
 
     
 </body>
