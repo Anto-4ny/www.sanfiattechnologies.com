@@ -1,37 +1,75 @@
 const { v4: uuidv4 } = require('uuid');
 const admin = require('firebase-admin');
-admin.initializeApp();
+const serviceAccount = require('./path-to-serviceAccountKey.json'); // Update the path
+
+// Initialize Firebase Admin SDK
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
+
 const db = admin.firestore();
+
+/**
+ * Generate a referral code based on the user's email
+ */
+function generateReferralCode(email) {
+    return email.split('@')[0] + '-' + uuidv4().slice(0, 8);
+}
+
+/**
+ * Save the user to the Firestore database
+ */
+async function saveUserToDatabase(user) {
+    try {
+        const userDoc = db.collection('users').doc(encodeURIComponent(user.email));
+        await userDoc.set(user);
+    } catch (error) {
+        throw new Error('Failed to save user to database: ' + error.message);
+    }
+}
 
 /**
  * Register a new user with a referral code
  */
 module.exports.registerUser = async (req, res) => {
-    const { email, phoneNumber, referralCode } = req.body;
+    if (req.method !== 'POST') {
+        res.setHeader('Allow', ['POST']);
+        return res.status(405).json({ error: `Method ${req.method} not allowed` });
+    }
+
+    const { firstName, lastName, email, password, referralCode } = req.body;
 
     try {
+        console.log('Incoming Request Body:', req.body);
+
         // Check if user already exists
-        const existingUser = await db.collection('users').doc(email).get();
+        const existingUser = await db.collection('users').doc(encodeURIComponent(email)).get();
         if (existingUser.exists) {
             return res.status(400).json({ error: 'User already exists' });
         }
 
-        // Generate new referral code
-        const newReferralCode = uuidv4();
+        // Generate new referral code and referral link
+        const newReferralCode = generateReferralCode(email);
+        const referralLink = `${req.headers.origin}/signup?ref=${newReferralCode}`;
+
+        // Create the new user object
         const newUser = {
+            firstName,
+            lastName,
             email,
-            phoneNumber,
+            password, // In a real application, this should be hashed
             referralCode: newReferralCode,
+            referralLink,
             referredBy: referralCode || null,
             balance: 0,
             isActive: false,
             referredUsers: [],
         };
 
-        // Save the new user in Firestore
-        await db.collection('users').doc(email).set(newUser);
+        // Save the new user to Firestore
+        await saveUserToDatabase(newUser);
 
-        // If referred by another user, update the referrer's data
+        // Update the referrer's data if applicable
         if (referralCode) {
             const referrerSnapshot = await db
                 .collection('users')
@@ -41,61 +79,17 @@ module.exports.registerUser = async (req, res) => {
 
             if (!referrerSnapshot.empty) {
                 const referrer = referrerSnapshot.docs[0];
-
-                // Add this user to the referrer's referredUsers array
                 await db.collection('users').doc(referrer.id).update({
                     referredUsers: admin.firestore.FieldValue.arrayUnion(email),
                 });
             }
         }
 
-        res.status(200).json({ referralCode: newReferralCode });
+        console.log('User registered successfully with referral code:', newReferralCode);
+        res.status(200).json({ referralCode: newReferralCode, referralLink });
     } catch (error) {
-        console.error('Error registering user:', error);
-        res.status(500).json({ error: 'Failed to register user' });
-    }
-};
-
-/**
- * Activate user account and reward the referrer
- */
-module.exports.activateAccount = async (req, res) => {
-    const { email } = req.body;
-
-    try {
-        // Check if the user exists
-        const userDoc = await db.collection('users').doc(email).get();
-        if (!userDoc.exists) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        // Activate the user's account
-        await db.collection('users').doc(email).update({ isActive: true });
-
-        // Reward the referrer if applicable
-        const referredBy = userDoc.data().referredBy;
-        if (referredBy) {
-            const referrerSnapshot = await db
-                .collection('users')
-                .where('referralCode', '==', referredBy)
-                .limit(1)
-                .get();
-
-            if (!referrerSnapshot.empty) {
-                const referrer = referrerSnapshot.docs[0];
-                const referrerData = referrer.data();
-
-                const newBalance = (referrerData.balance || 0) + 50;
-
-                // Update referrer's balance
-                await db.collection('users').doc(referrer.id).update({ balance: newBalance });
-            }
-        }
-
-        res.status(200).json({ message: 'Account activated successfully' });
-    } catch (error) {
-        console.error('Error activating account:', error);
-        res.status(500).json({ error: 'Failed to activate account' });
+        console.error('Error in registration:', error.message);
+        res.status(500).json({ error: 'Internal server error. Please try again later.' });
     }
 };
 
@@ -106,8 +100,10 @@ module.exports.getReferrals = async (req, res) => {
     const { email } = req.query;
 
     try {
+        console.log('Fetching referrals for:', email);
+
         // Fetch the user document
-        const userDoc = await db.collection('users').doc(email).get();
+        const userDoc = await db.collection('users').doc(encodeURIComponent(email)).get();
         if (!userDoc.exists) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -116,9 +112,9 @@ module.exports.getReferrals = async (req, res) => {
         const referredUsers = userDoc.data().referredUsers || [];
         const referrals = [];
 
-        // Batch process referred users for better performance
+        // Process referred users
         const referralPromises = referredUsers.map(async (referredEmail) => {
-            const referredDoc = await db.collection('users').doc(referredEmail).get();
+            const referredDoc = await db.collection('users').doc(encodeURIComponent(referredEmail)).get();
             if (referredDoc.exists) {
                 referrals.push({
                     email: referredDoc.id,
@@ -129,32 +125,10 @@ module.exports.getReferrals = async (req, res) => {
 
         await Promise.all(referralPromises);
 
+        console.log('Referrals fetched successfully:', referrals);
         res.status(200).json(referrals);
     } catch (error) {
-        console.error('Error fetching referrals:', error);
+        console.error('Error fetching referrals:', error.message);
         res.status(500).json({ error: 'Failed to fetch referrals' });
     }
 };
-export default async function handler(req, res) {
-    if (req.method === 'POST') {
-        try {
-            const { firstName, lastName, email, password, referralCode } = req.body;
-
-            // Backend logic to handle user registration
-            const referralCodeGenerated = generateReferralCode(email); // Example function
-            const referralLink = `${req.headers.origin}/signup?ref=${referralCodeGenerated}`;
-
-            // Example of saving user in the database
-            await saveUserToDatabase({ firstName, lastName, email, password, referralCode, referralLink });
-
-            // Respond with JSON
-            res.status(200).json({ referralCode: referralCodeGenerated });
-        } catch (error) {
-            console.error('Error in registration:', error);
-            res.status(500).json({ error: 'Internal server error. Please try again later.' });
-        }
-    } else {
-        res.setHeader('Allow', ['POST']);
-        res.status(405).json({ error: `Method ${req.method} not allowed` });
-    }
-}

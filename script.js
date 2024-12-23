@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('login-password').value.trim();
 
         try {
+            // Simulate authentication logic
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
@@ -112,23 +113,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ firstName, lastName, email, password, referralCode }),
             });
-        
+
             let result;
             try {
                 // Attempt to parse the response as JSON
                 result = await response.json();
             } catch (error) {
-                // If parsing fails, handle as a plain text error
+                // Handle invalid JSON response
                 throw new Error('Invalid response from server. Please try again.');
             }
-        
+
             if (response.ok) {
                 signupMessage.textContent = 'Signup successful! Your referral link has been created.';
                 signupMessage.classList.add('success');
-        
+
                 // Display referral link
                 alert(`Your referral link: ${window.location.origin}/signup?ref=${result.referralCode}`);
-        
+
                 // Redirect to dashboard
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
@@ -141,10 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
             signupMessage.textContent = error.message;
             signupMessage.classList.add('error');
         }
-        
+    });
 
     // Populate referral code if accessed via referral link
     const urlParams = new URLSearchParams(window.location.search);
+    const referralCode = urlParams.get('ref');
+    if (referralCode) {
+        document.getElementById('referral-code').value = referralCode;
+    }
 
     // Load referral details on the dashboard
     const referralLinkElement = document.getElementById('referral-link');
@@ -160,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const referrals = await response.json();
 
                 if (response.ok) {
-                    const referralLink = `https://www-sanfiattechnologies-com.vercel.app/signup?referral=${referrals.referralCode}`;
+                    const referralLink = `${window.location.origin}/signup?ref=${referrals.referralCode}`;
                     referralLinkElement.textContent = referralLink;
 
                     // Add copy functionality
@@ -192,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please log in to view your referral details.');
         }
     });
-});
 });
 
  
