@@ -1,4 +1,3 @@
-const admin = require('firebase-admin');
 const { v4: uuidv4 } = require('uuid');
 const admin = require('firebase-admin');
 admin.initializeApp();
@@ -9,7 +8,7 @@ module.exports = async (req, res) => {
     const { phoneNumber, email, referralCode } = req.body;
 
     try {
-        // Check if a user already exists
+        // Check if the user already exists
         const userDoc = await db.collection('users').doc(email).get();
         if (userDoc.exists) {
             return res.status(400).json({ error: 'User already exists.' });
@@ -18,7 +17,7 @@ module.exports = async (req, res) => {
         // Generate a unique referral code for the new user
         const userReferralCode = uuidv4();
 
-        // Save the new user along with their referral code
+        // Save the new user
         await db.collection('users').doc(email).set({
             phoneNumber,
             email,
@@ -37,7 +36,10 @@ module.exports = async (req, res) => {
 
             if (!referrer.empty) {
                 const referrerDoc = referrer.docs[0];
-                await db.collection('users').doc(referrerDoc.id).update({
+                const referrerEmail = referrerDoc.id;
+
+                // Ensure idempotent update
+                await db.collection('users').doc(referrerEmail).update({
                     referredUsers: admin.firestore.FieldValue.arrayUnion(email)
                 });
             }
@@ -45,7 +47,7 @@ module.exports = async (req, res) => {
 
         res.status(200).json({
             message: 'User registered successfully.',
-            referralLink: `https://sanfiattechnologies-3phuquypw-antonys-projects-2571442e.vercel.app/register?referralCode=${userReferralCode}`
+            referralLink: `https://www-sanfiattechnologies-com.vercel.app/register?referralCode=${userReferralCode}`
         });
     } catch (error) {
         console.error('Error registering user:', error);

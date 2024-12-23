@@ -271,95 +271,76 @@ document.addEventListener('DOMContentLoaded', function () {
         box.classList.add('show');
     });
 
-  // Function to get URL parameters
-  function getUrlParameter(name) {
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    const results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
-
-// On DOMContentLoaded, check for referral code in the URL
-const referralCodeInput = document.getElementById('referral-code');
-const referralCode = getUrlParameter('ref');
-
-if (referralCode) {
-    referralCodeInput.value = referralCode;
-    referralCodeInput.disabled = true;
-}
-
-// Referral link and sharing functionality
-document.addEventListener('DOMContentLoaded', function () {
-    const userID = "userid"; // Replace with actual user ID from user data
-    const referralLink = `https://www-sanfiattechnologies-com.vercel.app/signup?referral=${userID}`;
-
-    const referralLinkElement = document.getElementById('referral-link');
-    referralLinkElement.textContent = referralLink;
-
-    document.getElementById('copy-link-button').addEventListener('click', function () {
-        const tempInput = document.createElement('input');
-        tempInput.value = referralLink;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        alert('Referral link copied to clipboard!');
-    });
-
-    document.getElementById('whatsapp-share-button').addEventListener('click', function (e) {
-        e.preventDefault();
-        const message = `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits of earning with me at Sanfiat Technologies!`;
-        const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        window.open(whatsappURL, '_blank');
-    });
-});
-                
-        
-
-// Make sure Firebase is initialized in your app
-document.addEventListener('DOMContentLoaded', async function () {
-    const referralList = document.getElementById('referral-list');
-
-    // Check if a user is signed in
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            // User is signed in, get the email
-            const email = user.email;
-
-            // Function to fetch referred users based on user's email
-            async function fetchReferredUsers() {
+    document.addEventListener('DOMContentLoaded', async function () {
+        const referralLinkElement = document.getElementById('referral-link');
+        const copyButton = document.getElementById('copy-link-button');
+        const whatsappShareButton = document.getElementById('whatsapp-share-button');
+        const tbody = document.querySelector('#referrals-section tbody');
+    
+        firebase.auth().onAuthStateChanged(async function (user) {
+            if (user) {
+                const email = user.email;
+    
                 try {
-                    const response = await fetch(`/get-referrals?email=${email}`);
-                    const referrals = await response.json();
-
-                    if (response.ok) {
-                        // Display the list of referred users
-                        referralList.innerHTML = '';
-                        referrals.forEach(referral => {
-                            const listItem = document.createElement('li');
-                            const status = referral.hasPaidFee ? 'Paid' : 'Not Paid';
-                            listItem.textContent = `Email: ${referral.email}, Phone: ${referral.phoneNumber}, Status: ${status}`;
-                            referralList.appendChild(listItem);
+                    // Fetch user data
+                    const userDoc = await firebase.firestore().collection('users').doc(email).get();
+                    if (userDoc.exists) {
+                        const userReferralCode = userDoc.data().referralCode;
+                        const referralLink = `https://www-sanfiattechnologies-com.vercel.app/signup?referral=${userReferralCode}`;
+                        referralLinkElement.textContent = referralLink;
+    
+                        // Copy Link Functionality
+                        copyButton.addEventListener('click', function () {
+                            navigator.clipboard.writeText(referralLink).then(() => {
+                                alert('Referral link copied to clipboard!');
+                            });
                         });
+    
+                        // WhatsApp Sharing Functionality
+                        whatsappShareButton.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const message = `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits of earning with me at Sanfiat Technologies!`;
+                            const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                            window.open(whatsappURL, '_blank');
+                        });
+    
+                        // Fetch Referred Users
+                        const response = await fetch(`/get-referrals?email=${email}`);
+                        const referrals = await response.json();
+    
+                        tbody.innerHTML = ''; // Clear existing rows
+                        if (response.ok && referrals.length > 0) {
+                            referrals.forEach(referral => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td style="padding: 8px; border: 1px solid #ddd;">${referral.email}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; color: green;">Ksh ${referral.paidAmount || 0}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; color: red;">Ksh ${referral.notPaid || 0}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                                        ${referral.isActive ? '<i class="fas fa-check-circle" style="color: #28a745;"></i>' : ''}
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                                        ${!referral.isActive ? '<i class="fas fa-times-circle" style="color: #dc3545;"></i>' : ''}
+                                    </td>
+                                `;
+                                tbody.appendChild(row);
+                            });
+                        } else {
+                            tbody.innerHTML = `<tr><td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">No referrals found</td></tr>`;
+                        }
                     } else {
-                        referralList.textContent = 'Failed to load referrals';
+                        alert('Failed to fetch referral data.');
                     }
                 } catch (error) {
-                    console.error('Error fetching referrals:', error);
-                    referralList.textContent = 'Refer people by sharing your referral link above.';
+                    console.error('Error:', error);
+                    tbody.innerHTML = `<tr><td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">Error fetching referral data.</td></tr>`;
                 }
+            } else {
+                alert('Please log in to access your referral link.');
             }
-
-            // Fetch and display referred users
-            fetchReferredUsers();
-
-        } else {
-            // No user is signed in, redirect to login or handle accordingly
-            alert("Please log in to view referrals.");
-        }
+        });
     });
-});
-                          
+    
 
 // DOM Elements
 const hamburgerIcon = document.getElementById("hamburger-icon");
