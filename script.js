@@ -178,7 +178,6 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
         signupMessage.textContent = error.message;
         signupMessage.classList.add('error');
     }
-});
 
 // Populate referral code if accessed via referral link
 document.addEventListener('DOMContentLoaded', () => {
@@ -202,9 +201,65 @@ document.querySelectorAll('.password-toggle').forEach(toggle => {
         }
     });
 });
-            // Save user email in localStorage
-            localStorage.setItem('userEmail', email);
+
+document.addEventListener('DOMContentLoaded', async function () {
+    const referralLinkElement = document.getElementById('referral-link');
+    const copyButton = document.getElementById('copy-link-button');
+    const whatsappShareButton = document.getElementById('whatsapp-share-button');
+    const referredUsersList = document.getElementById('referred-users-list');
+
+    // Wait for the user to authenticate
+    firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+            try {
+                // Fetch the user document from Firestore
+                const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+
+                if (userDoc.exists) {
+                    const { referralCode, referrals } = userDoc.data();
+
+                    // Generate the referral link
+                    const referralLink = `https://www-sanfiattechnologies-com.vercel.app/signup?referral=${referralCode}`;
+                    referralLinkElement.textContent = referralLink;
+
+                    // Add copy functionality
+                    copyButton.addEventListener('click', () => {
+                        navigator.clipboard
+                            .writeText(referralLink)
+                            .then(() => alert('Referral link copied to clipboard!'))
+                            .catch(() => alert('Failed to copy the referral link.'));
+                    });
+
+                    // Set up WhatsApp share link
+                    whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+
+                    // Fetch referred users dynamically
+                    const referredUsersResponse = await fetch(`/get-referrals?uid=${user.uid}`);
+                    const referredUsers = await referredUsersResponse.json();
+
+                    // Populate the referred users table
+                    referredUsersList.innerHTML = referredUsers
+                        .map(
+                            (referredUser) =>
+                                `<tr>
+                                    <td>${referredUser.email}</td>
+                                    <td>${referredUser.isActive ? 'Paid' : 'Not Paid'}</td>
+                                </tr>`
+                        )
+                        .join('');
+                } else {
+                    console.error('User document does not exist in Firestore.');
+                }
+            } catch (err) {
+                console.error('Error fetching referral data:', err);
+            }
+        } else {
+            alert('Please log in to view your referral details.');
+        }
+    });
 });
+
+
 
 // Check and update payment status
 const checkPaymentStatus = async () => {
@@ -360,45 +415,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (confirmationBox) confirmationBox.classList.add('visible');
     infoBoxes.forEach(box => {
         box.classList.add('show');
-    });
-
-  //referral link functionality
-    document.addEventListener('DOMContentLoaded', async function () {
-        const referralLinkElement = document.getElementById('referral-link');
-        const copyButton = document.getElementById('copy-link-button');
-        const whatsappShareButton = document.getElementById('whatsapp-share-button');
-        const referredUsersList = document.getElementById('referred-users-list');
-
-        firebase.auth().onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const userDoc = await firebase.firestore().collection('users').doc(user.email).get();
-                    if (userDoc.exists) {
-                        const referralCode = userDoc.data().referralCode;
-                        const referralLink = `https://your-website.com/signup?referral=${referralCode}`;
-                        referralLinkElement.textContent = referralLink;
-
-                        // Enable sharing
-                        copyButton.addEventListener('click', () => {
-                            navigator.clipboard.writeText(referralLink).then(() => alert('Copied!'));
-                        });
-                        whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
-
-                        // Fetch referred users
-                        const referredUsersResponse = await fetch(`/get-referrals?email=${user.email}`);
-                        const referredUsers = await referredUsersResponse.json();
-
-                        referredUsersList.innerHTML = referredUsers
-                            .map(user => `<tr><td>${user.email}</td><td>${user.isActive ? 'Paid' : 'Not Paid'}</td></tr>`)
-                            .join('');
-                    }
-                } catch (err) {
-                    console.error(err);
-                }
-            } else {
-                alert('Please log in.');
-            }
-        });
     });
 
 
