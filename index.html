@@ -114,7 +114,7 @@
         </div>
     
         <div id="signup-section" class="hidden">
-            <form id="signup-form">
+            <form id="signup-form" action="/register-user" method="POST" style="margin: 20px; padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; max-width: 600px;"></form>
                 <h2>Signup</h2>
                 <label for="first-name">First Name:</label>
                 <input type="text" id="first-name" pattern="[A-Za-z]+" placeholder="Enter your first name" required>
@@ -133,7 +133,7 @@
                     <i class="fas fa-eye"></i>
                 </span>
                 <label for="referral-code">Referral Code (optional):</label>
-                <input type="text" id="referral-code" placeholder="Enter referral code (if any)" disabled>
+                <input type="text" id="referral-code" name="referralCode" placeholder="Enter referral code (if any)" disabled>            
                 <button type="submit" class="button signup-submit-button">Signup</button>
                 <div id="signup-message" class="message"></div>
                 <div class="form-footer">
@@ -152,6 +152,19 @@
         
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
+
+    <script>
+        // Auto-fill referral code from URL if provided
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const referralCode = urlParams.get('referral');
+            if (referralCode) {
+                const referralInput = document.getElementById('referral-code');
+                referralInput.value = referralCode;
+                referralInput.disabled = true;
+            }
+        });
+    </script>
 </body>
 </html>
     

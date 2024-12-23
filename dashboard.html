@@ -161,89 +161,71 @@ input {
     Cashback Offers Activated Successfully: Purchase Standard package @2,800 Receive 5,600KES Cashback, Purchase Ultimate package @6,000 Receive 12,000KES Cashback bonus. All Cashbacks are instant!
     <span class="close-btn" id="close-notification">&times;</span>
 </div>
+</section>
                <h2>Dashboard</h2>     
+                
+                
+                <section id="user-info">
+                    <div class="info-box" id="name-box">
+                        <p>Name: <span id="firstName"></span></p>
+                        <i class="fas fa-user"></i>
+                        <div class="progress-bar" id="name-progress"></div>
+                    </div>
+                    <div class="info-box" id="email-box">
+                        <p>Email: <span id="user-email"></span></p>
+                        <i class="fas fa-envelope"></i>
+                        <div class="progress-bar" id="email-progress"></div>
+                    </div>
+                    <div class="info-box" id="referral-box">
+                        <p>Referrals: <span id="referral-count"></span></p>
+                        <i class="fas fa-user-friends"></i>
+                        <div class="progress-bar" id="referral-progress"></div>
+                    </div>
+                    <div class="info-box" id="views-box">
+                        <p>Total Views: <span id="total-views"></span></p>
+                        <i class="fas fa-eye"></i>
+                        <div class="progress-bar" id="views-progress"></div>
+                    </div>
+                    <div class="info-box" id="earnings-box">
+                        <p>Total Earnings: <span id="total-earnings"></span> Ksh</p>
+                        <i class="fas fa-money-bill-wave"></i>
+                        <div class="progress-bar" id="earnings-progress"></div>
+                    </div>
+                    <div class="info-box" id="amount-box">
+                        <p>Amount Deposited: <span id="amount-paid">0</span> Ksh</p>
+                        <i class="fas fa-wallet"></i>
+                        <div class="progress-bar" id="amount-progress"></div>
+                    </div>
+                    <div class="info-box" id="package-box">
+                        <p>Packages: <span id="package-status"></span></p>
+                        <i class="fas fa-box-open"></i>
+                        <div class="progress-bar" id="package-progress"></div>
+                    </div>
+                    <!-- Loading Spinner -->
+                    <div id="loading" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
                 </section>
-                
-<section id="user-info">
-    <div class="info-box" id="name-box">
-        <p> Name: <span id="firstName"></span></p>
-        <i class="fas fa-user"></i>
-        <div class="progress-bar" id="name-progress"></div>
-    </div>
-    <div class="info-box" id="email-box">
-        <p>Email: <span id="user-email"></span></p>
-        <i class="fas fa-envelope"></i>
-        <div class="progress-bar" id="email-progress"></div>
-    </div>
-    <div class="info-box" id="referral-box">
-        <p>Referrals: <span id="referral-count"></span></p>
-        <i class="fas fa-user-friends"></i>
-        <div class="progress-bar" id="referral-progress"></div>
-    </div>
-    <div class="info-box" id="views-box">
-        <p>Total Views: <span id="total-views"></span></p>
-        <i class="fas fa-eye"></i>
-        <div class="progress-bar" id="views-progress"></div>
-    </div>
-    <div class="info-box" id="earnings-box">
-        <p>Total Earnings: <span id="total-earnings"></span> Ksh</p>
-        <i class="fas fa-money-bill-wave"></i>
-        <div class="progress-bar" id="earnings-progress"></div>
-    </div>
-    <div class="info-box" id="amount-box">
-        <p>Amount Deposited: <span id="amount-paid">0</span> Ksh</p>
-        <i class="fas fa-wallet"></i>
-        <div class="progress-bar" id="amount-progress"></div>
-    </div>
-    <div class="info-box" id="package-box">
-        <p>Packages: <span id="package-status"></span></p>
-        <i class="fas fa-box-open"></i>
-        <div class="progress-bar" id="package-progress"></div>
-    </div>
-    <!-- Loading Spinner -->
-<div id="loading" style="display: none;">
-    <div class="spinner"></div>
-</div>
-    
-</section>
-                
-<section id="referral-link-section" style="margin: 20px auto; padding: 20px; max-width: 600px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                 
+<section id="referral-section">
     <h3>Your Referral Link</h3>
-    <div class="referral-container" style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
-        <p id="referral-link" class="referral-link" style="font-size: 14px; color: #333; background-color: #fff; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            <!-- The referral link will be dynamically inserted here -->
-        </p>
-        <button id="copy-link-button" style="background-color: #4caf50; color: white; border: none; border-radius: 4px; padding: 8px 12px; font-size: 14px; cursor: pointer; transition: background-color 0.3s;" 
-        onmouseover="this.style.backgroundColor='#45a049'" 
-        onmouseout="this.style.backgroundColor='#4caf50'">
-            Copy Link
-        </button>
-    </div>
-    <a id="whatsapp-share-button" href="#" target="_blank" aria-label="Share on WhatsApp" style="display: flex; align-items: center; margin-top: 15px; text-decoration: none; font-size: 16px;">
-        <i class="fab fa-whatsapp" style="font-size: 30px; color: #25D366; margin-right: 10px;"></i>
-        Share on WhatsApp
-    </a>
-</section>
+    <p id="referral-link"></p>
+    <button id="copy-link-button">Copy Referral Link</button>
+    <a id="whatsapp-share-button" href="#" target="_blank">Share on WhatsApp</a>
 
-<section id="referrals-section" style="margin: 20px auto; padding: 20px; max-width: 600px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-    <h3 style="font-size: 18px; color: #333; margin-bottom: 10px;">Referred Users</h3>
-    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
-        <thead style="background-color: #f1f1f1;">
+    <h4>Referred Users</h4>
+    <table>
+        <thead>
             <tr>
-                <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
-                <th style="padding: 8px; border: 1px solid #ddd;">Paid Amount</th>
-                <th style="padding: 8px; border: 1px solid #ddd;">Not Paid</th>
-                <th style="padding: 8px; border: 1px solid #ddd;">Active</th>
-                <th style="padding: 8px; border: 1px solid #ddd;">Non Active</th>
+                <th>Email</th>
+                <th>Status</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- Referred users will be dynamically inserted here -->
+        <tbody id="referred-users-list">
+            <!-- Referred users will be populated dynamically -->
         </tbody>
     </table>
 </section>
-
-
 
 <footer>
     <div class="footer">

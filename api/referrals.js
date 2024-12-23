@@ -1,38 +1,28 @@
-const admin = require('firebase-admin');
-
-admin.initializeApp();
-const db = admin.firestore();
-
 module.exports = async (req, res) => {
-    const { email } = req.params;
+    const { email } = req.body;
 
     try {
         const userDoc = await db.collection('users').doc(email).get();
         if (!userDoc.exists) {
-            return res.status(404).json({ error: 'User not found.' });
+            return res.status(404).json({ error: 'User not found' });
         }
 
-        const userData = userDoc.data();
-        if (!userData.referredUsers || userData.referredUsers.length === 0) {
-            return res.status(200).json({ message: 'No referrals yet.', referrals: [] });
+        await db.collection('users').doc(email).update({ isActive: true });
+
+        const referredBy = userDoc.data().referredBy;
+        if (referredBy) {
+            const referrerSnapshot = await db.collection('users').where('referralCode', '==', referredBy).limit(1).get();
+            if (!referrerSnapshot.empty) {
+                const referrer = referrerSnapshot.docs[0];
+                const newBalance = (referrer.data().balance || 0) + 50;
+
+                await db.collection('users').doc(referrer.id).update({ balance: newBalance });
+            }
         }
 
-        // Fetch referred users' details
-        const referralPromises = userData.referredUsers.map(refEmail => db.collection('users').doc(refEmail).get());
-        const referralDocs = await Promise.all(referralPromises);
-
-        const referrals = referralDocs.map(doc => {
-            const refData = doc.data();
-            return {
-                email: doc.id,
-                phoneNumber: refData.phoneNumber,
-                paidRegistration: refData.paidRegistration
-            };
-        });
-
-        res.status(200).json({ referrals });
+        res.status(200).json({ message: 'Account activated successfully' });
     } catch (error) {
-        console.error('Error fetching referrals:', error);
-        res.status(500).json({ error: 'Failed to fetch referrals.' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to activate account' });
     }
 };

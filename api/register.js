@@ -1,56 +1,47 @@
 const { v4: uuidv4 } = require('uuid');
 const admin = require('firebase-admin');
 admin.initializeApp();
-
 const db = admin.firestore();
 
 module.exports = async (req, res) => {
-    const { phoneNumber, email, referralCode } = req.body;
+    const { email, phoneNumber, referralCode } = req.body;
 
     try {
-        // Check if the user already exists
-        const userDoc = await db.collection('users').doc(email).get();
-        if (userDoc.exists) {
-            return res.status(400).json({ error: 'User already exists.' });
+        const existingUser = await db.collection('users').doc(email).get();
+        if (existingUser.exists) {
+            return res.status(400).json({ error: 'User already exists' });
         }
 
-        // Generate a unique referral code for the new user
-        const userReferralCode = uuidv4();
-
-        // Save the new user
-        await db.collection('users').doc(email).set({
-            phoneNumber,
+        const newReferralCode = uuidv4();
+        const newUser = {
             email,
-            referralCode: userReferralCode,
+            phoneNumber,
+            referralCode: newReferralCode,
             referredBy: referralCode || null,
             balance: 0,
-            registeredAt: admin.firestore.FieldValue.serverTimestamp(),
-            paidRegistration: false
-        });
+            isActive: false,
+        };
 
+        await db.collection('users').doc(email).set(newUser);
+
+        // Add user to referrer's referred list and reward if applicable
         if (referralCode) {
-            const referrer = await db.collection('users')
-                .where('referralCode', '==', referralCode)
-                .limit(1)
-                .get();
+            const referrerSnapshot = await db.collection('users').where('referralCode', '==', referralCode).limit(1).get();
+            if (!referrerSnapshot.empty) {
+                const referrer = referrerSnapshot.docs[0];
+                const referrerData = referrer.data();
 
-            if (!referrer.empty) {
-                const referrerDoc = referrer.docs[0];
-                const referrerEmail = referrerDoc.id;
-
-                // Ensure idempotent update
-                await db.collection('users').doc(referrerEmail).update({
-                    referredUsers: admin.firestore.FieldValue.arrayUnion(email)
+                await db.collection('users').doc(referrer.id).update({
+                    referredUsers: admin.firestore.FieldValue.arrayUnion(email),
                 });
+
+                // Update referrer's balance when the referred user pays (handled in another endpoint)
             }
         }
 
-        res.status(200).json({
-            message: 'User registered successfully.',
-            referralLink: `https://www-sanfiattechnologies-com.vercel.app/register?referralCode=${userReferralCode}`
-        });
+        res.status(200).json({ referralCode: newReferralCode });
     } catch (error) {
-        console.error('Error registering user:', error);
-        res.status(500).json({ error: 'Failed to register user.' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to register user' });
     }
 };

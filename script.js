@@ -165,6 +165,7 @@ if (!window.location.pathname.includes("index.html")) {
 });
 
 
+// Function to update the dashboard dynamically
 const updateDashboard = (userData) => {
     const firstNameElement = document.getElementById('firstName');
     const userEmailElement = document.getElementById('user-email');
@@ -175,21 +176,24 @@ const updateDashboard = (userData) => {
     const packageStatusElement = document.getElementById('package-status');
 
     if (userData) {
+        // Populate user data
         if (firstNameElement) firstNameElement.textContent = userData.firstName || 'No name';
         if (userEmailElement) userEmailElement.textContent = userData.email || 'No email';
         if (referralCountElement) referralCountElement.textContent = userData.referrals || 0;
         if (totalViewsElement) totalViewsElement.textContent = userData.totalViews || 0;
-        if (totalEarningsElement) totalEarningsElement.textContent = userData.totalEarnings || '0 Ksh';
-        if (amountPaidElement) amountPaidElement.textContent = userData.amountPaid ? `${userData.amountPaid} Ksh` : '0 Ksh';
+        if (totalEarningsElement) totalEarningsElement.textContent = `${userData.totalEarnings || 0} Ksh`;
+        if (amountPaidElement) amountPaidElement.textContent = `${userData.amountPaid || 0} Ksh`;
         if (packageStatusElement) packageStatusElement.textContent = userData.packageStatus || 'No active package';
 
-        updateProgressBar('#referral-box', (userData.referrals || 10) * 10);
-        updateProgressBar('#views-box', (userData.totalViews || 100) * 2);
-        updateProgressBar('#earnings-box', (userData.totalEarnings || 100) / 100);
-        updateProgressBar('#amount-box', (userData.amountPaid || 100) / 100);
+        // Update progress bars
+        updateProgressBar('#referral-progress', (userData.referrals || 0) * 10); // Example: 1 referral = 10%
+        updateProgressBar('#views-progress', Math.min((userData.totalViews || 0) * 2, 100)); // Example: max 100%
+        updateProgressBar('#earnings-progress', Math.min((userData.totalEarnings || 0) / 100, 100)); // Example: max 100%
+        updateProgressBar('#amount-progress', Math.min((userData.amountPaid || 0) / 100, 100)); // Example: max 100%
     }
 };
 
+// Function to update a specific progress bar
 function updateProgressBar(elementId, percentage) {
     const progressBar = document.querySelector(elementId);
     if (progressBar) {
@@ -197,9 +201,10 @@ function updateProgressBar(elementId, percentage) {
     }
 }
 
+// Firebase authentication state listener
 onAuthStateChanged(auth, async (user) => {
     if (!auth || !db) {
-        console.error("Firebase auth or db not initialized.");
+        console.error('Firebase auth or db not initialized.');
         return;
     }
 
@@ -214,13 +219,13 @@ onAuthStateChanged(auth, async (user) => {
 
                 if (userSnapshot.exists()) {
                     const userData = userSnapshot.data();
-                    userData.email = user.email; 
+                    userData.email = user.email; // Add email from auth
                     updateDashboard(userData);
                 } else {
-                    updateDashboard({ email: user.email });
+                    updateDashboard({ email: user.email }); // Basic fallback
                 }
             } catch (error) {
-                console.error("Error fetching user data:", error);
+                console.error('Error fetching user data:', error);
             } finally {
                 if (loadingElement) loadingElement.style.display = 'none';
             }
@@ -233,8 +238,9 @@ onAuthStateChanged(auth, async (user) => {
     fetchAndUpdateUserData(user);
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const balanceElement = document.getElementById("balance-amount");
+// Periodic fetch of updated balance
+document.addEventListener('DOMContentLoaded', () => {
+    const balanceElement = document.getElementById('balance-amount');
 
     function fetchUpdatedBalance() {
         fetch('/api/payment-status')
@@ -257,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (balanceElement) fetchUpdatedBalance();
 });
-                                     
+              
 
 // Automatic pop-in effect on page load
 document.addEventListener('DOMContentLoaded', function () {
@@ -271,76 +277,45 @@ document.addEventListener('DOMContentLoaded', function () {
         box.classList.add('show');
     });
 
+  //referral link functionality
     document.addEventListener('DOMContentLoaded', async function () {
         const referralLinkElement = document.getElementById('referral-link');
         const copyButton = document.getElementById('copy-link-button');
         const whatsappShareButton = document.getElementById('whatsapp-share-button');
-        const tbody = document.querySelector('#referrals-section tbody');
-    
-        firebase.auth().onAuthStateChanged(async function (user) {
+        const referredUsersList = document.getElementById('referred-users-list');
+
+        firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
-                const email = user.email;
-    
                 try {
-                    // Fetch user data
-                    const userDoc = await firebase.firestore().collection('users').doc(email).get();
+                    const userDoc = await firebase.firestore().collection('users').doc(user.email).get();
                     if (userDoc.exists) {
-                        const userReferralCode = userDoc.data().referralCode;
-                        const referralLink = `https://www-sanfiattechnologies-com.vercel.app/signup?referral=${userReferralCode}`;
+                        const referralCode = userDoc.data().referralCode;
+                        const referralLink = `https://your-website.com/signup?referral=${referralCode}`;
                         referralLinkElement.textContent = referralLink;
-    
-                        // Copy Link Functionality
-                        copyButton.addEventListener('click', function () {
-                            navigator.clipboard.writeText(referralLink).then(() => {
-                                alert('Referral link copied to clipboard!');
-                            });
+
+                        // Enable sharing
+                        copyButton.addEventListener('click', () => {
+                            navigator.clipboard.writeText(referralLink).then(() => alert('Copied!'));
                         });
-    
-                        // WhatsApp Sharing Functionality
-                        whatsappShareButton.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            const message = `Hey, sign up using my referral link: ${referralLink} and enjoy the benefits of earning with me at Sanfiat Technologies!`;
-                            const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
-                            window.open(whatsappURL, '_blank');
-                        });
-    
-                        // Fetch Referred Users
-                        const response = await fetch(`/get-referrals?email=${email}`);
-                        const referrals = await response.json();
-    
-                        tbody.innerHTML = ''; // Clear existing rows
-                        if (response.ok && referrals.length > 0) {
-                            referrals.forEach(referral => {
-                                const row = document.createElement('tr');
-                                row.innerHTML = `
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${referral.email}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd; color: green;">Ksh ${referral.paidAmount || 0}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd; color: red;">Ksh ${referral.notPaid || 0}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
-                                        ${referral.isActive ? '<i class="fas fa-check-circle" style="color: #28a745;"></i>' : ''}
-                                    </td>
-                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
-                                        ${!referral.isActive ? '<i class="fas fa-times-circle" style="color: #dc3545;"></i>' : ''}
-                                    </td>
-                                `;
-                                tbody.appendChild(row);
-                            });
-                        } else {
-                            tbody.innerHTML = `<tr><td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">No referrals found</td></tr>`;
-                        }
-                    } else {
-                        alert('Failed to fetch referral data.');
+                        whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+
+                        // Fetch referred users
+                        const referredUsersResponse = await fetch(`/get-referrals?email=${user.email}`);
+                        const referredUsers = await referredUsersResponse.json();
+
+                        referredUsersList.innerHTML = referredUsers
+                            .map(user => `<tr><td>${user.email}</td><td>${user.isActive ? 'Paid' : 'Not Paid'}</td></tr>`)
+                            .join('');
                     }
-                } catch (error) {
-                    console.error('Error:', error);
-                    tbody.innerHTML = `<tr><td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">Error fetching referral data.</td></tr>`;
+                } catch (err) {
+                    console.error(err);
                 }
             } else {
-                alert('Please log in to access your referral link.');
+                alert('Please log in.');
             }
         });
     });
-    
+
 
 // DOM Elements
 const hamburgerIcon = document.getElementById("hamburger-icon");
