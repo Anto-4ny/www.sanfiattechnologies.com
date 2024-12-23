@@ -83,8 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
             loginMessage.classList.add('error');
         }
     });
+});
 
-// Handle registration
+// Handle Registration
 document.getElementById('signup-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -104,64 +105,31 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     }
 
     try {
-        // Firebase authentication and user creation
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+        // Send user data to the backend for registration
+        const response = await fetch('/register-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, phoneNumber: '', referralCode }),
+        });
 
-        // Generate unique referral link
-        const referralLink = `${window.location.origin}/signup?ref=${user.uid}`;
+        const result = await response.json();
 
-        // Update user profile with display name
-        await updateProfile(user, { displayName: `${firstName} ${lastName}` });
+        if (response.ok) {
+            signupMessage.textContent = 'Signup successful! Your referral code has been created.';
+            signupMessage.classList.add('success');
 
-        // Prepare user data to save in Firestore
-        const userData = {
-            firstName,
-            lastName,
-            email,
-            referralLink, // Save referral link
-            referrals: [],
-            totalEarnings: 0,
-            paymentStatus: false, // Initial payment status
-        };
+            // Display referral code/link
+            alert(`Your referral link: ${window.location.origin}/signup?ref=${result.referralCode}`);
 
-        if (referralCode) {
-            // Check if the referral code exists in Firestore
-            const referrerSnapshot = await getDocs(
-                query(collection(db, 'users'), where('referralCode', '==', referralCode))
-            );
-
-            if (!referrerSnapshot.empty) {
-                // Add this user to the referrer's referral list
-                const referrerDoc = referrerSnapshot.docs[0];
-                const referrerId = referrerDoc.id;
-
-                // Update the referrer's referral list
-                await updateDoc(doc(db, 'users', referrerId), {
-                    referrals: arrayUnion(user.uid), // Add the new user's UID
-                });
-
-                // Include referrer info in the new user's data
-                userData.referredBy = referrerId;
-            } else {
-                signupMessage.textContent = 'Invalid referral code. Signup continues without referral.';
-            }
+            // Redirect user to dashboard after successful signup
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 2000);
+        } else {
+            throw new Error(result.error || 'Signup failed. Please try again.');
         }
-
-        // Save the new user's data in Firestore
-        await setDoc(doc(db, 'users', user.uid), userData);
-
-        signupMessage.textContent = 'Signup successful! Your referral link has been created.';
-        signupMessage.classList.remove('error');
-        signupMessage.classList.add('success');
-
-        // Optionally display the referral link to the user
-        alert(`Your referral link: ${referralLink}`);
-
-        // Redirect to the dashboard or next step
-        setTimeout(() => {
-            window.location.href = '/dashboard';
-        }, 2000);
     } catch (error) {
         console.error('Error during signup:', error);
         signupMessage.textContent = error.message;
@@ -169,27 +137,17 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     }
 });
 
-        // Redirect to the dashboard
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 2000);
-    } catch (error) {
-        console.error('Error during signup:', error);
-        signupMessage.textContent = error.message;
-        signupMessage.classList.add('error');
-    }
-
 // Populate referral code if accessed via referral link
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const referralCode = urlParams.get('ref');
+    const referralCode = urlParams.get('referral');
     if (referralCode) {
         document.getElementById('referral-code').value = referralCode;
     }
 });
 
 // Toggle password visibility
-document.querySelectorAll('.password-toggle').forEach(toggle => {
+document.querySelectorAll('.password-toggle').forEach((toggle) => {
     toggle.addEventListener('click', () => {
         const input = toggle.previousElementSibling;
         if (input.type === 'password') {
@@ -202,24 +160,23 @@ document.querySelectorAll('.password-toggle').forEach(toggle => {
     });
 });
 
+// Load referral details on the dashboard
 document.addEventListener('DOMContentLoaded', async function () {
     const referralLinkElement = document.getElementById('referral-link');
     const copyButton = document.getElementById('copy-link-button');
     const whatsappShareButton = document.getElementById('whatsapp-share-button');
     const referredUsersList = document.getElementById('referred-users-list');
 
-    // Wait for the user to authenticate
     firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
             try {
-                // Fetch the user document from Firestore
-                const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+                // Fetch referral data from the backend
+                const response = await fetch(`/get-referrals?email=${user.email}`);
+                const referrals = await response.json();
 
-                if (userDoc.exists) {
-                    const { referralCode, referrals } = userDoc.data();
-
-                    // Generate the referral link
-                    const referralLink = `https://www-sanfiattechnologies-com.vercel.app/signup?referral=${referralCode}`;
+                if (response.ok) {
+                    // Generate and display the referral link
+                    const referralLink = `https://your-website.com/signup?referral=${referrals.referralCode}`;
                     referralLinkElement.textContent = referralLink;
 
                     // Add copy functionality
@@ -233,25 +190,19 @@ document.addEventListener('DOMContentLoaded', async function () {
                     // Set up WhatsApp share link
                     whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
 
-                    // Fetch referred users dynamically
-                    const referredUsersResponse = await fetch(`/get-referrals?uid=${user.uid}`);
-                    const referredUsers = await referredUsersResponse.json();
-
-                    // Populate the referred users table
-                    referredUsersList.innerHTML = referredUsers
-                        .map(
-                            (referredUser) =>
-                                `<tr>
-                                    <td>${referredUser.email}</td>
-                                    <td>${referredUser.isActive ? 'Paid' : 'Not Paid'}</td>
-                                </tr>`
-                        )
-                        .join('');
+                    // Populate referred users table
+                    referredUsersList.innerHTML = referrals.map(
+                        (ref) =>
+                            `<tr>
+                                <td>${ref.email}</td>
+                                <td>${ref.isActive ? 'Paid' : 'Not Paid'}</td>
+                             </tr>`
+                    ).join('');
                 } else {
-                    console.error('User document does not exist in Firestore.');
+                    throw new Error('Failed to load referral details.');
                 }
             } catch (err) {
-                console.error('Error fetching referral data:', err);
+                console.error('Error loading referral details:', err);
             }
         } else {
             alert('Please log in to view your referral details.');
@@ -261,6 +212,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 
 
+ 
 // Check and update payment status
 const checkPaymentStatus = async () => {
     const userEmail = localStorage.getItem("userEmail");
@@ -302,7 +254,7 @@ const checkPaymentStatus = async () => {
 if (!window.location.pathname.includes("index.html")) {
     checkPaymentStatus();
 }
-;
+
 
 
 // Function to update the dashboard dynamically
