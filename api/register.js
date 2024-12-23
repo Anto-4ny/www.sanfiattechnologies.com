@@ -135,3 +135,26 @@ module.exports.getReferrals = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch referrals' });
     }
 };
+export default async function handler(req, res) {
+    if (req.method === 'POST') {
+        try {
+            const { firstName, lastName, email, password, referralCode } = req.body;
+
+            // Backend logic to handle user registration
+            const referralCodeGenerated = generateReferralCode(email); // Example function
+            const referralLink = `${req.headers.origin}/signup?ref=${referralCodeGenerated}`;
+
+            // Example of saving user in the database
+            await saveUserToDatabase({ firstName, lastName, email, password, referralCode, referralLink });
+
+            // Respond with JSON
+            res.status(200).json({ referralCode: referralCodeGenerated });
+        } catch (error) {
+            console.error('Error in registration:', error);
+            res.status(500).json({ error: 'Internal server error. Please try again later.' });
+        }
+    } else {
+        res.setHeader('Allow', ['POST']);
+        res.status(405).json({ error: `Method ${req.method} not allowed` });
+    }
+}

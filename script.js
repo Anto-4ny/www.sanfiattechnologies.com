@@ -107,21 +107,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Send user data to the backend for registration
-            const response = await fetch('/register-user', {
+            const response = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ firstName, lastName, email, password, referralCode }),
             });
-
-            const result = await response.json();
-
+        
+            let result;
+            try {
+                // Attempt to parse the response as JSON
+                result = await response.json();
+            } catch (error) {
+                // If parsing fails, handle as a plain text error
+                throw new Error('Invalid response from server. Please try again.');
+            }
+        
             if (response.ok) {
                 signupMessage.textContent = 'Signup successful! Your referral link has been created.';
                 signupMessage.classList.add('success');
-
+        
                 // Display referral link
                 alert(`Your referral link: ${window.location.origin}/signup?ref=${result.referralCode}`);
-
+        
                 // Redirect to dashboard
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
@@ -134,14 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
             signupMessage.textContent = error.message;
             signupMessage.classList.add('error');
         }
-    });
+        
 
     // Populate referral code if accessed via referral link
     const urlParams = new URLSearchParams(window.location.search);
-    const referralCode = urlParams.get('referral');
-    if (referralCode) {
-        document.getElementById('referral-code').value = referralCode;
-    }
 
     // Load referral details on the dashboard
     const referralLinkElement = document.getElementById('referral-link');
@@ -189,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please log in to view your referral details.');
         }
     });
+});
 });
 
  
