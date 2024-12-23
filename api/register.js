@@ -15,10 +15,12 @@ const serviceAccount = {
     client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
 };
 
-// Initialize Firebase Admin SDK
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-});
+// Initialize Firebase Admin SDK only if it's not already initialized
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+    });
+}
 
 const db = admin.firestore();
 
@@ -44,7 +46,7 @@ async function saveUserToDatabase(user) {
 /**
  * Register a new user with a referral code
  */
-module.exports.registerUser = async (req, res) => {
+module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).json({ error: `Method ${req.method} not allowed` });
