@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const admin = require('firebase-admin');
-const serviceAccount = require('./path-to-serviceAccountKey.json'); // Update the path
+const serviceAccount = require('./config/serviceAccountKey.json'); // Update the path
 
 // Initialize Firebase Admin SDK
 admin.initializeApp({
