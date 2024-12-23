@@ -207,12 +207,14 @@ input {
                     </div>
                 </section>
                  
-                <div>
-                    <h3>Your Referral Link:</h3>
-                    <p id="referral-link"></p> <!-- Referral link will be displayed here -->
-                    <button id="copy-link-button">Copy Link</button>
-                    <a id="whatsapp-share-button" class="button" target="_blank">Share via WhatsApp</a>
-                </div>                                
+                <div style="display: flex; align-items: center;">
+                    <h3 style="margin-right: 10px;">Your Referral Link:</h3>
+                    <p id="referral-link" style="flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;"></p>
+                    <button id="copy-link-button" style="margin-left: 10px; padding: 5px 10px; cursor: pointer;">Copy</button>
+                    <a id="whatsapp-share-button" class="button" target="_blank" style="margin-left: 10px; display: inline-block;">
+                        <i class="fab fa-whatsapp" style="font-size: 24px; color: #25D366;"></i>
+                    </a>
+                </div>                                                
                 
                 <h3>Referred Users</h3>
                 <table>
