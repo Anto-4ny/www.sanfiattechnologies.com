@@ -303,24 +303,31 @@ input {
     
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
-    <script>
+    <script type="module">
+        // Import Firebase instances and functions from script.js
+        import { auth, db, doc, getDoc } from "./script.js";
+    
         document.addEventListener("DOMContentLoaded", () => {
-            // Ensure user is logged in and fetch their payment status
+            // Function to check if the user has paid
             const checkUserPaymentStatus = async () => {
                 try {
                     const user = auth.currentUser;
+    
+                    // Redirect if no user is logged in
                     if (!user) {
-                        console.error("No user logged in");
+                        console.error("No user logged in.");
                         window.location.href = "index.html"; // Redirect to login
                         return false;
                     }
     
+                    // Fetch the user's Firestore document
                     const userDoc = await getDoc(doc(db, "users", user.uid));
                     if (userDoc.exists() && userDoc.data().paymentStatus === "paid") {
-                        localStorage.setItem("paymentStatus", "paid"); // Mark payment status in localStorage
+                        console.log("User payment verified.");
+                        localStorage.setItem("paymentStatus", "paid"); // Save in local storage
                         return true;
                     } else {
-                        console.error("Payment not completed.");
+                        console.error("User has not completed payment.");
                         return false;
                     }
                 } catch (error) {
@@ -329,65 +336,74 @@ input {
                 }
             };
     
-            // Function to fetch the current user's email
-            const getUserEmail = () => {
-                const user = auth.currentUser;
-                return user ? user.email : null;
-            };
-    
             // Function to show the payment popup
             const showPaymentPopup = () => {
                 const popup = document.getElementById("payment-popup");
+                if (!popup) {
+                    console.error("Payment popup not found.");
+                    return;
+                }
                 popup.style.display = "block";
     
-                // Show payment section when the user clicks "Activate Account"
-                document.getElementById("activate-btn").addEventListener("click", () => {
-                    document.getElementById("payment-section").style.display = "block";
-                });
+                // Add event listener for "Activate Account" button
+                const activateBtn = document.getElementById("activate-btn");
+                if (activateBtn) {
+                    activateBtn.addEventListener("click", () => {
+                        const paymentSection = document.getElementById("payment-section");
+                        if (paymentSection) {
+                            paymentSection.style.display = "block";
+                        }
+                    });
+                }
     
-                // Handle payment
-                document.getElementById("pay-btn").addEventListener("click", async () => {
-                    const phoneNumber = document.getElementById("phone-number").value.trim();
-                    const email = getUserEmail();
+                // Add event listener for "Pay" button
+                const payBtn = document.getElementById("pay-btn");
+                if (payBtn) {
+                    payBtn.addEventListener("click", async () => {
+                        const phoneNumber = document.getElementById("phone-number")?.value.trim();
+                        const user = auth.currentUser;
     
-                    if (phoneNumber.match(/^07\d{8}$/) && email) {
-                        initiatePayment(phoneNumber, email);
-                    } else {
-                        alert("Invalid phone number or email.");
-                    }
-                });
+                        if (phoneNumber.match(/^07\d{8}$/) && user?.email) {
+                            await initiatePayment(phoneNumber, user.email);
+                        } else {
+                            alert("Invalid phone number or email.");
+                        }
+                    });
+                }
             };
     
             // Function to initiate payment
-            const initiatePayment = (phoneNumber, email) => {
-                fetch("https://www-sanfiattechnologies-com.vercel.app/api/pay", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ phoneNumber, email }),
-                })
-                    .then(async (response) => {
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.error || "Payment failed");
+            const initiatePayment = async (phoneNumber, email) => {
+                try {
+                    const response = await fetch(
+                        "https://www-sanfiattechnologies-com.vercel.app/api/pay",
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ phoneNumber, email }),
                         }
-                        return response.json();
-                    })
-                    .then((data) => {
-                        alert(data.message || "Payment initiated successfully");
-                        localStorage.setItem("paymentStatus", "paid"); // Set payment status in localStorage
-                    })
-                    .catch((error) => {
-                        console.error("Payment Error:", error.message);
-                        alert(`Error: ${error.message}`);
-                    });
+                    );
+    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || "Payment failed.");
+                    }
+    
+                    const data = await response.json();
+                    alert(data.message || "Payment initiated successfully.");
+                    localStorage.setItem("paymentStatus", "paid");
+                } catch (error) {
+                    console.error("Payment Error:", error.message);
+                    alert(`Error: ${error.message}`);
+                }
             };
     
-            // Run on page load
+            // Initialize the dashboard
             const initializeDashboard = async () => {
                 const user = auth.currentUser;
     
                 if (!user) {
-                    window.location.href = "index.html"; // Redirect if user not logged in
+                    window.location.href = "index.html"; // Redirect if user is not logged in
                     return;
                 }
     
@@ -397,16 +413,19 @@ input {
                 }
             };
     
-            // Wait for auth state to be resolved, then initialize
+            // Wait for Firebase Auth state to resolve
             auth.onAuthStateChanged((user) => {
                 if (user) {
+                    console.log("User authenticated:", user.email);
                     initializeDashboard();
                 } else {
-                    window.location.href = "index.html"; // Redirect to login if not logged in
+                    console.log("No user authenticated. Redirecting to login...");
+                    window.location.href = "index.html"; // Redirect to login page
                 }
             });
         });
     </script>
+    
     
 </body>
 </html>

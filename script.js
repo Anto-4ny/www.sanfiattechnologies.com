@@ -20,6 +20,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
+export { db, auth, doc, getDoc };
+
 document.addEventListener('DOMContentLoaded', () => {
     const loginSection = document.getElementById('login-section');
     const signupSection = document.getElementById('signup-section');
@@ -542,6 +544,3 @@ firebase.auth().onAuthStateChanged(function(user) {
     }
 });
 });
-// Expose Firebase objects globally
-window.auth = auth;
-window.db = db;
