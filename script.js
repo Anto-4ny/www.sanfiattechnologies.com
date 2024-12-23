@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loginSection.classList.remove('hidden');
     });
 
+    // Function to toggle password visibility
     const togglePasswordVisibility = (input, eyeIcon) => {
         eyeIcon.addEventListener('click', () => {
             const type = input.type === 'password' ? 'text' : 'password';
@@ -59,6 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     };
+
+    // Add password visibility togglers
     togglePasswordVisibility(document.getElementById('login-password'), toggleLoginPassword);
     togglePasswordVisibility(document.getElementById('signup-password'), toggleSignupPassword);
     togglePasswordVisibility(document.getElementById('confirm-password'), toggleConfirmPassword);
@@ -67,101 +70,80 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value.trim();
 
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Retrieve and save user email in localStorage
+            // Save user email in localStorage for session persistence
             localStorage.setItem('userEmail', user.email);
 
-            window.location.href = 'dashboard.html'; // Redirect to dashboard if login is successful
+            // Redirect to the dashboard
+            window.location.href = '/dashboard';
         } catch (error) {
             loginMessage.textContent = error.message;
             loginMessage.classList.add('error');
         }
     });
-});
 
-// Handle Registration
-document.getElementById('signup-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+    // Handle signup form submission
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    const firstName = document.getElementById('first-name').value.trim();
-    const lastName = document.getElementById('last-name').value.trim();
-    const email = document.getElementById('signup-email').value.trim();
-    const password = document.getElementById('signup-password').value.trim();
-    const confirmPassword = document.getElementById('confirm-password').value.trim();
-    const referralCode = document.getElementById('referral-code').value.trim();
+        const firstName = document.getElementById('first-name').value.trim();
+        const lastName = document.getElementById('last-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value.trim();
+        const confirmPassword = document.getElementById('confirm-password').value.trim();
+        const referralCode = document.getElementById('referral-code').value.trim();
 
-    const signupMessage = document.getElementById('signup-message');
-
-    if (password !== confirmPassword) {
-        signupMessage.textContent = 'Passwords do not match.';
-        signupMessage.classList.add('error');
-        return;
-    }
-
-    try {
-        // Send user data to the backend for registration
-        const response = await fetch('/register-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, phoneNumber: '', referralCode }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            signupMessage.textContent = 'Signup successful! Your referral code has been created.';
-            signupMessage.classList.add('success');
-
-            // Display referral code/link
-            alert(`Your referral link: ${window.location.origin}/signup?ref=${result.referralCode}`);
-
-            // Redirect user to dashboard after successful signup
-            setTimeout(() => {
-                window.location.href = '/dashboard';
-            }, 2000);
-        } else {
-            throw new Error(result.error || 'Signup failed. Please try again.');
+        if (password !== confirmPassword) {
+            signupMessage.textContent = 'Passwords do not match.';
+            signupMessage.classList.add('error');
+            return;
         }
-    } catch (error) {
-        console.error('Error during signup:', error);
-        signupMessage.textContent = error.message;
-        signupMessage.classList.add('error');
-    }
-});
 
-// Populate referral code if accessed via referral link
-document.addEventListener('DOMContentLoaded', () => {
+        try {
+            // Send user data to the backend for registration
+            const response = await fetch('/register-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ firstName, lastName, email, password, referralCode }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                signupMessage.textContent = 'Signup successful! Your referral link has been created.';
+                signupMessage.classList.add('success');
+
+                // Display referral link
+                alert(`Your referral link: ${window.location.origin}/signup?ref=${result.referralCode}`);
+
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 2000);
+            } else {
+                throw new Error(result.error || 'Signup failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error during signup:', error);
+            signupMessage.textContent = error.message;
+            signupMessage.classList.add('error');
+        }
+    });
+
+    // Populate referral code if accessed via referral link
     const urlParams = new URLSearchParams(window.location.search);
     const referralCode = urlParams.get('referral');
     if (referralCode) {
         document.getElementById('referral-code').value = referralCode;
     }
-});
 
-// Toggle password visibility
-document.querySelectorAll('.password-toggle').forEach((toggle) => {
-    toggle.addEventListener('click', () => {
-        const input = toggle.previousElementSibling;
-        if (input.type === 'password') {
-            input.type = 'text';
-            toggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
-        } else {
-            input.type = 'password';
-            toggle.innerHTML = '<i class="fas fa-eye"></i>';
-        }
-    });
-});
-
-// Load referral details on the dashboard
-document.addEventListener('DOMContentLoaded', async function () {
+    // Load referral details on the dashboard
     const referralLinkElement = document.getElementById('referral-link');
     const copyButton = document.getElementById('copy-link-button');
     const whatsappShareButton = document.getElementById('whatsapp-share-button');
@@ -170,13 +152,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
             try {
-                // Fetch referral data from the backend
+                // Fetch referral details from backend
                 const response = await fetch(`/get-referrals?email=${user.email}`);
                 const referrals = await response.json();
 
                 if (response.ok) {
-                    // Generate and display the referral link
-                    const referralLink = `https://your-website.com/signup?referral=${referrals.referralCode}`;
+                    const referralLink = `https://www-sanfiattechnologies-com.vercel.app/signup?referral=${referrals.referralCode}`;
                     referralLinkElement.textContent = referralLink;
 
                     // Add copy functionality
@@ -184,13 +165,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                         navigator.clipboard
                             .writeText(referralLink)
                             .then(() => alert('Referral link copied to clipboard!'))
-                            .catch(() => alert('Failed to copy the referral link.'));
+                            .catch(() => alert('Failed to copy referral link.'));
                     });
 
-                    // Set up WhatsApp share link
+                    // Set WhatsApp share link
                     whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
 
-                    // Populate referred users table
+                    // Populate referred users list
                     referredUsersList.innerHTML = referrals.map(
                         (ref) =>
                             `<tr>
@@ -202,15 +183,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                     throw new Error('Failed to load referral details.');
                 }
             } catch (err) {
-                console.error('Error loading referral details:', err);
+                console.error('Error fetching referral details:', err);
             }
         } else {
             alert('Please log in to view your referral details.');
         }
     });
 });
-
-
 
  
 // Check and update payment status
