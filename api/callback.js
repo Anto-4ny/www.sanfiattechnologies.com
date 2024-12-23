@@ -1,11 +1,13 @@
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin SDK
+// Initialize Firebase Admin SDK only if it's not already initialized
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.applicationDefault(),
     });
 }
+
+// Firestore database instance
 const db = admin.firestore();
 
 module.exports = async (req, res) => {

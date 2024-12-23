@@ -31,7 +31,6 @@ function generatePassword(shortCode) {
 // Fetch Access Token from Safaricom API
 async function getAccessToken() {
     try {
-        // Use `application/x-www-form-urlencoded` for the body content
         const response = await axios.post(
             process.env.OAUTH_TOKEN_URL, // URL remains the same
             new URLSearchParams({
@@ -48,7 +47,6 @@ async function getAccessToken() {
             }
         );
 
-        // Check if access token exists in the response
         if (!response.data.access_token) {
             throw new Error('Access token not received');
         }
@@ -67,21 +65,20 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         'Content-Type': 'application/json',
     };
 
-    // Ensure phone number is in international format (e.g., 2547XXXXXXXX)
     const formattedPhoneNumber = phoneNumber.replace(/^0/, '254');
 
     const payload = {
         BusinessShortCode: process.env.BUSINESS_SHORT_CODE,
         Password: generatePassword(process.env.BUSINESS_SHORT_CODE),
         Timestamp: getCurrentTimestamp(),
-        TransactionType: 'CustomerPayBillOnline', // Ensure correct type
+        TransactionType: 'CustomerPayBillOnline',
         Amount: amount,
         PartyA: formattedPhoneNumber,
         PartyB: process.env.BUSINESS_SHORT_CODE,
         PhoneNumber: formattedPhoneNumber,
-        CallBackURL: process.env.CALLBACK_URL, // Your callback URL for payment success
-        AccountReference: formattedPhoneNumber, // Unique reference for the transaction
-        TransactionDesc: `Payment to till ${process.env.BUSINESS_SHORT_CODE}`, // Payment description
+        CallBackURL: process.env.CALLBACK_URL, 
+        AccountReference: formattedPhoneNumber,
+        TransactionDesc: `Payment to till ${process.env.BUSINESS_SHORT_CODE}`,
     };
 
     try {
@@ -99,7 +96,7 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     }
 }
 
-// Register Callback URLs with Safaricom (to receive response from Safaricom)
+// Register Callback URLs with Safaricom
 async function registerCallbackURLs(token) {
     if (!token) {
         throw new Error('Invalid or missing access token');
@@ -111,10 +108,10 @@ async function registerCallbackURLs(token) {
     };
 
     const payload = {
-        ShortCode: process.env.BUSINESS_SHORT_CODE, // Your shortcode (Paybill/Till number)
-        ResponseType: 'Completed', // The type of response expected from Safaricom
-        ConfirmationURL: process.env.CONFIRMATION_URL, // Callback URL for payment success
-        ValidationURL: process.env.VALIDATION_URL, // Callback URL for validation (if enabled)
+        ShortCode: process.env.BUSINESS_SHORT_CODE, 
+        ResponseType: 'Completed', 
+        ConfirmationURL: process.env.CONFIRMATION_URL, 
+        ValidationURL: process.env.VALIDATION_URL, 
     };
 
     try {
@@ -144,7 +141,6 @@ module.exports = async (req, res) => {
 
     try {
         console.log('Fetching access token...');
-        // Fetch access token (this is now done inside the async handler)
         const token = await getAccessToken();
 
         if (!token) {
@@ -152,13 +148,13 @@ module.exports = async (req, res) => {
         }
         console.log('Access token fetched successfully:', token);
 
-        // Register Callback URLs (only register once in production, can be skipped if already done)
+        // Register Callback URLs (can be skipped if already done)
         await registerCallbackURLs(token);
 
         // Initiate STK push (this will trigger the payment process)
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
 
-        // Save payment details to Firestore database (to track payment status)
+        // Save payment details to Firestore database
         await db.collection('payments').add({
             email,
             phoneNumber,
@@ -167,7 +163,6 @@ module.exports = async (req, res) => {
             timestamp: new Date(),
         });
 
-        // Return success response
         return res.status(200).json({ message: 'Payment initiated successfully', stkResponse });
     } catch (error) {
         console.error('Error during payment process:', error.message);

@@ -1,9 +1,13 @@
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin SDK
+// Initialize Firebase Admin SDK only if it's not already initialized
 if (!admin.apps.length) {
-    admin.initializeApp();
+    admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+    });
 }
+
+// Firestore database instance
 const db = admin.firestore();
 
 module.exports = async (req, res) => {
@@ -40,6 +44,7 @@ module.exports = async (req, res) => {
         const status = ResultCode === 0 ? 'Success' : 'Failed';
         const batch = db.batch();
 
+        // Update payment status in the Firestore collection
         paymentRef.forEach((doc) => {
             batch.update(doc.ref, { status, mpesaCode });
         });
