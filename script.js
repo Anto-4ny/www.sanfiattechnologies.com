@@ -127,10 +127,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 signupMessage.textContent = 'Signup successful! Your referral link has been created.';
                 signupMessage.classList.add('success');
 
-                // Display referral link
-                alert(`Your referral link: ${window.location.origin}/signup?ref=${result.referralCode}`);
+                // Display referral link in the #referral-link element
+                const referralLink = `${window.location.origin}/signup?ref=${result.referralCode}`;
+                document.getElementById('referral-link').textContent = referralLink;
 
-                // Redirect to dashboard
+                // Show copy button and WhatsApp share button
+                const copyButton = document.getElementById('copy-link-button');
+                const whatsappShareButton = document.getElementById('whatsapp-share-button');
+                
+                // Copy link functionality
+                copyButton.addEventListener('click', () => {
+                    navigator.clipboard
+                        .writeText(referralLink)
+                        .then(() => alert('Referral link copied to clipboard!'))
+                        .catch(() => alert('Failed to copy referral link.'));
+                });
+
+                // Set WhatsApp share link
+                whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+
+                // Optionally redirect to the dashboard after a short delay
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 2000);
@@ -143,6 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
             signupMessage.classList.add('error');
         }
     });
+});
+
 
     // Populate referral code if accessed via referral link
     const urlParams = new URLSearchParams(window.location.search);
@@ -197,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please log in to view your referral details.');
         }
     });
-});
 
  
 // Check and update payment status
