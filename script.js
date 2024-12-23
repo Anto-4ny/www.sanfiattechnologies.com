@@ -121,39 +121,49 @@ document.addEventListener('DOMContentLoaded', () => {
             signupMessage.classList.add('error');
         }
     });
+// Check and update payment status
+const checkPaymentStatus = async () => {
+    const userEmail = localStorage.getItem("userEmail");
 
-    // Check and update payment status on each page
-    const checkPaymentStatus = async () => {
-        const userEmail = localStorage.getItem('userEmail');
-        if (!userEmail) {
-            window.location.href = 'index.html'; // Redirect to login if email is missing
-            return;
+    // Redirect only if user is authenticated and on the correct page
+    if (!userEmail) {
+        if (window.location.pathname.includes("dashboard.html")) {
+            window.location.href = "index.html"; // Redirect to login only on dashboard
         }
+        return;
+    }
 
-        try {
-            const q = query(collection(db, 'users'), where('email', '==', userEmail));
-            const querySnapshot = await getDocs(q);
+    try {
+        const q = query(collection(db, "users"), where("email", "==", userEmail));
+        const querySnapshot = await getDocs(q);
 
-            if (!querySnapshot.empty) {
-                const userDoc = querySnapshot.docs[0];
-                const paymentStatus = userDoc.data().paymentStatus;
+        if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+            const paymentStatus = userDoc.data().paymentStatus;
 
-                if (paymentStatus) {
-                    localStorage.setItem('paymentStatus', 'paid');
-                } else {
-                    localStorage.setItem('paymentStatus', 'not-paid');
-                    window.location.href = 'dashboard.html'; // Redirect to payment page
-                }
+            if (paymentStatus === "paid") {
+                localStorage.setItem("paymentStatus", "paid");
             } else {
-                console.error('User document not found.');
+                localStorage.setItem("paymentStatus", "not-paid");
+                if (!window.location.pathname.includes("dashboard.html")) {
+                    // Redirect to dashboard only if not already there
+                    window.location.href = "dashboard.html";
+                }
             }
-        } catch (error) {
-            console.error('Error checking payment status:', error);
+        } else {
+            console.error("User document not found.");
         }
-    };
+    } catch (error) {
+        console.error("Error checking payment status:", error);
+    }
+};
 
+// Only check payment status if not on index.html
+if (!window.location.pathname.includes("index.html")) {
     checkPaymentStatus();
+}
 });
+
 
 const updateDashboard = (userData) => {
     const firstNameElement = document.getElementById('firstName');
