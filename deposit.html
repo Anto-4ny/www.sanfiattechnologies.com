@@ -225,97 +225,155 @@
         
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
-    <script>
-    // Extract package info from query params
-    function getQueryParams() {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const packageName = urlParams.get('packageName');
-        const packagePrice = urlParams.get('packagePrice');
+    <script type="module">
+      // Import Firebase instances and functions from script.js
+      import { auth, db, doc, getDoc } from "./script.js";
     
-        if (packagePrice) {
+      document.addEventListener("DOMContentLoaded", () => {
+        // Extract package info from query params
+        function getQueryParams() {
+          const queryString = window.location.search;
+          const urlParams = new URLSearchParams(queryString);
+          const packageName = urlParams.get('packageName');
+          const packagePrice = urlParams.get('packagePrice');
+    
+          if (packagePrice) {
             document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
             document.getElementById('amount').value = packagePrice;
+          }
+    
+          return { packageName, packagePrice };
         }
     
-        return { packageName, packagePrice };
-    }
+        // Fetch user's email
+        const getUserEmail = () => {
+          const user = auth.currentUser;
+          return user ? user.email : null;
+        };
     
-    // Fetch user's email
-    const getUserEmail = () => {
-        const user = auth.currentUser;
-        return user ? user.email : null;
-    };
+        // Phone number validation
+        const phoneNumberInput = document.getElementById("phone-number");
+        const phoneNumberError = document.getElementById("phone-number-error");
     
-    // Phone number validation
-    const phoneNumberInput = document.getElementById("phone-number");
-    const phoneNumberError = document.getElementById("phone-number-error");
-    
-    phoneNumberInput.addEventListener("input", function() {
-        const phoneNumber = phoneNumberInput.value.trim();
-        if (!phoneNumber.match(/^07\d{8}$/)) {
+        phoneNumberInput.addEventListener("input", function() {
+          const phoneNumber = phoneNumberInput.value.trim();
+          if (!phoneNumber.match(/^07\d{8}$/)) {
             phoneNumberError.textContent = "Invalid phone number. Please enter a valid MPESA number.";
             phoneNumberError.style.color = "red";
-        } else {
+          } else {
             phoneNumberError.textContent = "";
-        }
-    });
+          }
+        });
     
-    // Amount validation
-    const amountInput = document.getElementById("amount");
-    const amountError = document.getElementById("amount-error");
+        // Amount validation
+        const amountInput = document.getElementById("amount");
+        const amountError = document.getElementById("amount-error");
     
-    amountInput.addEventListener("input", function() {
-        const amount = amountInput.value.trim();
-        if (isNaN(amount) || amount <= 0) {
+        amountInput.addEventListener("input", function() {
+          const amount = amountInput.value.trim();
+          if (isNaN(amount) || amount <= 0) {
             amountError.textContent = "Please enter a valid amount.";
             amountError.style.color = "red";
-        } else {
+          } else {
             amountError.textContent = "";
+          }
+        });
+    
+        // Function to set the amount automatically in the input field
+        function setAmount(amount) {
+          // Set the value of the amount input field
+          document.getElementById('amount').value = amount;
+    
+          // Optionally, clear the error message if the amount is valid
+          amountError.textContent = "";  // Clear error message
         }
-    });
-
-    // Function to set the amount automatically in the input field
-function setAmount(amount) {
-    // Set the value of the amount input field
-    document.getElementById('amount').value = amount;
-
-    // Optionally, you can also clear the error message if the amount is valid
-    const amountError = document.getElementById("amount-error");
-    amountError.textContent = "";  // Clear error message
-}
-
     
-    // Handle payment initiation
-    document.getElementById("pay-button").addEventListener("click", async function () {
-        const phoneNumber = document.getElementById("phone-number").value.trim();
-        const amount = document.getElementById("amount").value.trim();
-        const email = getUserEmail();
+        // Handle payment initiation
+        document.getElementById("pay-button").addEventListener("click", async function () {
+          const phoneNumber = document.getElementById("phone-number").value.trim();
+          const amount = document.getElementById("amount").value.trim();
+          const email = getUserEmail();
     
-        if (phoneNumber.match(/^07\d{8}$/) && amount > 0 && email) {
+          if (phoneNumber.match(/^07\d{8}$/) && amount > 0 && email) {
             try {
-                const response = await fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phoneNumber, amount, email })
-                });
-                const data = await response.json();
+              const response = await fetch('https://www-sanfiattechnologies-com.vercel.app/api/pay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phoneNumber, amount, email })
+              });
+              const data = await response.json();
     
-                if (data.status === 'Success') {
-                    document.getElementById("confirmation-section").style.display = "block"; // Show confirmation section after payment initiation
-                    alert('Payment initiation successful. Please proceed with your MPESA transaction.');
-                } else {
-                    alert('Error initiating payment. Please try again.');
-                }
+              if (data.status === 'Success') {
+                document.getElementById("confirmation-section").style.display = "block"; // Show confirmation section after payment initiation
+                alert('Payment initiation successful. Please proceed with your MPESA transaction.');
+              } else {
+                alert('Error initiating payment. Please try again.');
+              }
             } catch (error) {
-                console.error('Payment initiation error:', error);
+              console.error('Payment initiation error:', error);
             }
-        } else {
+          } else {
             alert('Please fill in the valid phone number, amount, and make sure you are logged in.');
-        }
-    });
-  </script>  
-
+          }
+        });
     
+        // Check user payment status on page load
+        const checkUserPaymentStatus = async () => {
+          try {
+            const user = auth.currentUser;
+    
+            // Redirect if no user is logged in
+            if (!user) {
+              console.error("No user logged in.");
+              window.location.href = "index.html"; // Redirect to login
+              return false;
+            }
+    
+            // Fetch the user's Firestore document
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists() && userDoc.data().paymentStatus === "paid") {
+              console.log("User payment verified.");
+              localStorage.setItem("paymentStatus", "paid"); // Save in local storage
+              return true;
+            } else {
+              console.error("User has not completed payment.");
+              return false;
+            }
+          } catch (error) {
+            console.error("Error checking payment status:", error);
+            return false;
+          }
+        };
+    
+        // Initialize the payment check
+        const initializePayment = async () => {
+          const user = auth.currentUser;
+    
+          if (!user) {
+            window.location.href = "index.html"; // Redirect if user is not logged in
+            return;
+          }
+    
+          const hasPaid = await checkUserPaymentStatus();
+          if (!hasPaid) {
+            document.getElementById("payment-section").style.display = "block";
+          }
+        };
+    
+        // Wait for Firebase Auth state to resolve
+        auth.onAuthStateChanged((user) => {
+          if (user) {
+            console.log("User authenticated:", user.email);
+            initializePayment();
+          } else {
+            console.log("No user authenticated. Redirecting to login...");
+            window.location.href = "index.html"; // Redirect to login page
+          }
+        });
+    
+        // Run on page load
+        const packageInfo = getQueryParams();
+      });
+    </script>     
 </body>
-                            </html>
+</html>
