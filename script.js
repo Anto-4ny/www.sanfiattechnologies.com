@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle registration
+// Handle registration
 document.getElementById('signup-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -108,49 +108,66 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
+        // Generate unique referral link
+        const referralLink = `${window.location.origin}/signup?ref=${user.uid}`;
+
         // Update user profile with display name
         await updateProfile(user, { displayName: `${firstName} ${lastName}` });
 
-        // Save user data in Firestore
+        // Prepare user data to save in Firestore
         const userData = {
             firstName,
             lastName,
             email,
-            paymentStatus: false,
+            referralLink, // Save referral link
             referrals: [],
             totalEarnings: 0,
-            referralCode: user.uid, // Use the UID as a unique referral code
+            paymentStatus: false, // Initial payment status
         };
 
         if (referralCode) {
-            // Check if the referral code exists
+            // Check if the referral code exists in Firestore
             const referrerSnapshot = await getDocs(
                 query(collection(db, 'users'), where('referralCode', '==', referralCode))
             );
 
             if (!referrerSnapshot.empty) {
-                // Add this user to the referrer's referrals list
+                // Add this user to the referrer's referral list
                 const referrerDoc = referrerSnapshot.docs[0];
-                const referrerData = referrerDoc.data();
                 const referrerId = referrerDoc.id;
 
                 // Update the referrer's referral list
                 await updateDoc(doc(db, 'users', referrerId), {
-                    referrals: arrayUnion(user.uid), // Add the new user to referrals
+                    referrals: arrayUnion(user.uid), // Add the new user's UID
                 });
 
-                // Add referrer info to the new user
+                // Include referrer info in the new user's data
                 userData.referredBy = referrerId;
             } else {
                 signupMessage.textContent = 'Invalid referral code. Signup continues without referral.';
             }
         }
 
+        // Save the new user's data in Firestore
         await setDoc(doc(db, 'users', user.uid), userData);
 
-        signupMessage.textContent = 'Signup successful! Redirecting...';
+        signupMessage.textContent = 'Signup successful! Your referral link has been created.';
         signupMessage.classList.remove('error');
         signupMessage.classList.add('success');
+
+        // Optionally display the referral link to the user
+        alert(`Your referral link: ${referralLink}`);
+
+        // Redirect to the dashboard or next step
+        setTimeout(() => {
+            window.location.href = '/dashboard';
+        }, 2000);
+    } catch (error) {
+        console.error('Error during signup:', error);
+        signupMessage.textContent = error.message;
+        signupMessage.classList.add('error');
+    }
+});
 
         // Redirect to the dashboard
         setTimeout(() => {
