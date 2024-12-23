@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('userEmail', user.email);
 
             // Redirect to the dashboard
-            window.location.href = '/dashboard';
+            window.location.href = 'dashboard.html';
         } catch (error) {
             loginMessage.textContent = error.message;
             loginMessage.classList.add('error');
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Redirect to dashboard
                 setTimeout(() => {
-                    window.location.href = '/dashboard';
+                    window.location.href = 'dashboard.html';
                 }, 2000);
             } else {
                 throw new Error(result.error || 'Signup failed. Please try again.');
