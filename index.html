@@ -56,95 +56,93 @@
 </head>
 <body id="home-page">
     
-
     <main>
         <section class="welcome-box" id="home">
-    <h1>Welcome to Sanfiat Technologies.</h1>
+            <h1>Welcome to Sanfiat Technologies.</h1>
             <p>Log in or create an account below.</p>
-</section>
-
-<div id="login-section">
-    <form id="login-form">
-        <h2>Login</h2>
-        <label for="login-email">Email:</label>
-        <input type="email" id="login-email" placeholder="Enter your email" required>
-        <label for="login-password">Password:</label>
-        <input type="password" id="login-password" placeholder="Enter your password" required>
-        <span id="toggle-login-password" class="password-toggle">
-    <i class="fas fa-eye"></i></span>
-        <button type="submit" style="width: 100%; height: 50px; font-size: 16px; margin-bottom: 10px; align- items: center;">Login</button>
-        <div id="login-message" class="message"></div>
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-    <span style="margin-right: 10px;">Don't have an account?</span>
-    <button type="button" id="show-signup" style="width: 50%; height: 50px; font-size: 16px;"> Signup here</button>
-        </div>
-<button type="button" id="forgot-password" style="width: 50%; height: 50px; font-size: 16px; align-items: right;">Forgot Password?</button>
-    </form>
-</div>
-    </main>
-        <div id="password-reset-section" class="hidden">
-    <h2>Reset Your Password</h2>
-    <form id="password-reset-form">
-        <label for="reset-email">Email:</label>
-        <input type="email" id="reset-email" placeholder="Enter your registered email" required>
-        <button type="submit" style="width: 50%; height: 50px; font-size: 16px; margin-bottom: 10px;">Send Reset Link</button>
-        <div id="reset-message" class="message"></div>
-        <button type="button" id="back-to-login" style="width: 50%; height: 50px; font-size: 16px; margin-bottom: 10px;">Back to Login</button>
-    </form>
-        </div>
-
-    <div id="password-reset-section" class="hidden">
-    <form id="otp-verification-form">
-        <h2>Enter Verification Code</h2>
-        <label for="otp-code">Verification Code:</label>
-        <input type="text" id="otp-code" placeholder="Enter the code from your email" required>
-        <button type="submit" style="width: 50%; height: 50px; font-size: 16px;">Verify Code</button>
-        <div id="otp-message" class="message"></div>
-    </form>
-
-    <form id="new-password-form" class="hidden">
-        <h2>Set New Password</h2>
-        <label for="new-password">New Password:</label>
-        <input type="password" id="new-password" placeholder="Enter your new password" required>
-        <label for="confirm-new-password">Confirm New Password:</label>
-        <input type="password" id="confirm-new-password" placeholder="Confirm your new password" required>
-        <button type="submit" style="width: 50%; height: 50px; font-size: 16px;">Reset Password</button>
-        <div id="new-password-message" class="message"></div>
-    </form>
-    </div>
+        </section>
     
-
-<div id="signup-section" class="hidden">
-    <form id="signup-form">
-        <h2>Signup</h2>
-        <label for="first-name">First Name:</label>
-        <input type="text" id="first-name" pattern="[A-Za-z]+" placeholder="Enter your first name" required>
-        
-        <label for="last-name">Last Name:</label>
-        <input type="text" id="last-name" pattern="[A-Za-z]+" placeholder="Enter your last name" required>
-        
-        <label for="signup-email">Email:</label>
-        <input type="email" id="signup-email" placeholder="Enter your email" required>
-        
-        <label for="signup-password">Password:</label>
-        <input type="password" id="signup-password" placeholder="Create a password (atleast 6 characters)" required>
-        <span id="toggle-signup-password" class="password-toggle"><i class="fas fa-eye"></i></span>
-        <label for="confirm-password">Confirm Password:</label>
-        <input type="password" id="confirm-password" placeholder="Confirm your password" required>
-        <span id="toggle-confirm-password" class="password-toggle"><i class="fas fa-eye"></i></span>
-        <label for="referral-code">Referral Code (optional):</label>
-        <input type="text" id="referral-code" placeholder="Enter referral code (if any)" disabled>
-        
-        <button type="submit" style="width: 100%; height: 50px; font-size: 16px; margin-bottom: 10px; align-items: center;">Signup</button>
-<div id="signup-message" class="message"></div>
-<div style="display: flex; align-items: center; margin-bottom: 10px;">
-    <span style="margin-right: 10px;">Already have an account?</span>
-    <button type="button" id="show-login" style="width: 50%; height: 50px; font-size: 16px;">Login here</button>
-</div>
-        
-    </form>
-</div>
-        
+        <div id="login-section">
+            <form id="login-form">
+                <h2>Login</h2>
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" placeholder="Enter your email" required>
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" placeholder="Enter your password" required>
+                <span id="toggle-login-password" class="password-toggle">
+                    <i class="fas fa-eye"></i>
+                </span>
+                <button type="submit" class="button login-button">Login</button>
+                <div id="login-message" class="message"></div>
+                <div class="form-footer">
+                    <span>Don't have an account?</span>
+                    <button type="button" id="show-signup" class="button signup-button">Signup here</button>
+                </div>
+                <button type="button" id="forgot-password" class="button forgot-password-button">Forgot Password?</button>
+            </form>
+        </div>
+    
+        <div id="password-reset-section" class="hidden">
+            <h2>Reset Your Password</h2>
+            <form id="password-reset-form">
+                <label for="reset-email">Email:</label>
+                <input type="email" id="reset-email" placeholder="Enter your registered email" required>
+                <button type="submit" class="button reset-button">Send Reset Link</button>
+                <div id="reset-message" class="message"></div>
+                <button type="button" id="back-to-login" class="button back-button">Back to Login</button>
+            </form>
+        </div>
+    
+        <div id="otp-verification-section" class="hidden">
+            <form id="otp-verification-form">
+                <h2>Enter Verification Code</h2>
+                <label for="otp-code">Verification Code:</label>
+                <input type="text" id="otp-code" placeholder="Enter the code from your email" required>
+                <button type="submit" class="button verify-button">Verify Code</button>
+                <div id="otp-message" class="message"></div>
+            </form>
+    
+            <form id="new-password-form" class="hidden">
+                <h2>Set New Password</h2>
+                <label for="new-password">New Password:</label>
+                <input type="password" id="new-password" placeholder="Enter your new password" required>
+                <label for="confirm-new-password">Confirm New Password:</label>
+                <input type="password" id="confirm-new-password" placeholder="Confirm your new password" required>
+                <button type="submit" class="button reset-password-button">Reset Password</button>
+                <div id="new-password-message" class="message"></div>
+            </form>
+        </div>
+    
+        <div id="signup-section" class="hidden">
+            <form id="signup-form">
+                <h2>Signup</h2>
+                <label for="first-name">First Name:</label>
+                <input type="text" id="first-name" pattern="[A-Za-z]+" placeholder="Enter your first name" required>
+                <label for="last-name">Last Name:</label>
+                <input type="text" id="last-name" pattern="[A-Za-z]+" placeholder="Enter your last name" required>
+                <label for="signup-email">Email:</label>
+                <input type="email" id="signup-email" placeholder="Enter your email" required>
+                <label for="signup-password">Password:</label>
+                <input type="password" id="signup-password" placeholder="Create a password (at least 6 characters)" required>
+                <span id="toggle-signup-password" class="password-toggle">
+                    <i class="fas fa-eye"></i>
+                </span>
+                <label for="confirm-password">Confirm Password:</label>
+                <input type="password" id="confirm-password" placeholder="Confirm your password" required>
+                <span id="toggle-confirm-password" class="password-toggle">
+                    <i class="fas fa-eye"></i>
+                </span>
+                <label for="referral-code">Referral Code (optional):</label>
+                <input type="text" id="referral-code" placeholder="Enter referral code (if any)" disabled>
+                <button type="submit" class="button signup-submit-button">Signup</button>
+                <div id="signup-message" class="message"></div>
+                <div class="form-footer">
+                    <span>Already have an account?</span>
+                    <button type="button" id="show-login" class="button login-link-button">Login here</button>
+                </div>
+            </form>
+        </div>
+    </main>
         <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
         <script type ="module" src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
         <script type ="module" src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js"></script>

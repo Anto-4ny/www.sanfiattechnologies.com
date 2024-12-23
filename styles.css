@@ -427,7 +427,6 @@ button:hover {
       color: #333;
       text-decoration: none;
      }
-}
 
 .password-container {
     position: relative;
@@ -957,3 +956,62 @@ button:hover {
     }
 }
 
+/* General button styles */
+.button {
+    width: 50%;
+    height: 50px;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+/* Specific button classes for differentiation */
+.login-button {
+    width: 100%;
+    align-items: center;
+}
+.signup-button {
+    align-items: center;
+}
+.forgot-password-button {
+    align-items: right;
+}
+.reset-button {
+    margin-bottom: 10px;
+}
+.back-button {
+    margin-bottom: 10px;
+}
+.verify-button {
+    margin-bottom: 10px;
+}
+.reset-password-button {
+    margin-bottom: 10px;
+}
+.signup-submit-button {
+    width: 100%;
+    align-items: center;
+}
+.login-link-button {
+    align-items: center;
+}
+
+/* Form footer styling */
+.form-footer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.form-footer span {
+    margin-right: 10px;
+}
+
+/* Input styling (optional for uniformity) */
+input {
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Toggle password visibility icon */
+.password-toggle {
+    cursor: pointer;
+}
