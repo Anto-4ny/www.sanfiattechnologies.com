@@ -32,6 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleLoginPassword = document.getElementById('toggle-login-password');
     const toggleSignupPassword = document.getElementById('toggle-signup-password');
     const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
+    const referralLinkElement = document.getElementById('referral-link');
+    const copyButton = document.getElementById('copy-link-button');
+    const whatsappShareButton = document.getElementById('whatsapp-share-button');
+    const referredUsersList = document.getElementById('referred-users-list');
 
     // Toggle between login and signup sections
     showSignupButton.addEventListener('click', () => {
@@ -129,12 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Display referral link in the #referral-link element
                 const referralLink = `${window.location.origin}/signup?ref=${result.referralCode}`;
-                document.getElementById('referral-link').textContent = referralLink;
+                referralLinkElement.textContent = referralLink;
 
                 // Show copy button and WhatsApp share button
-                const copyButton = document.getElementById('copy-link-button');
-                const whatsappShareButton = document.getElementById('whatsapp-share-button');
-                
                 // Copy link functionality
                 copyButton.addEventListener('click', () => {
                     navigator.clipboard
@@ -159,22 +160,15 @@ document.addEventListener('DOMContentLoaded', () => {
             signupMessage.classList.add('error');
         }
     });
-});
-
 
     // Populate referral code if accessed via referral link
     const urlParams = new URLSearchParams(window.location.search);
-    const referralCode = urlParams.get('ref');
-    if (referralCode) {
-        document.getElementById('referral-code').value = referralCode;
+    const referralCodeFromURL = urlParams.get('ref');
+    if (referralCodeFromURL) {
+        document.getElementById('referral-code').value = referralCodeFromURL;
     }
 
     // Load referral details on the dashboard
-    const referralLinkElement = document.getElementById('referral-link');
-    const copyButton = document.getElementById('copy-link-button');
-    const whatsappShareButton = document.getElementById('whatsapp-share-button');
-    const referredUsersList = document.getElementById('referred-users-list');
-
     firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
             try {
@@ -215,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please log in to view your referral details.');
         }
     });
+});
 
  
 // Check and update payment status
