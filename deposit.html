@@ -287,6 +287,17 @@
           // Optionally, clear the error message if the amount is valid
           amountError.textContent = "";  // Clear error message
         }
+
+        // Function to set the amount automatically in the input field
+function setAmount(amount) {
+    // Set the value of the amount input field
+    document.getElementById('amount').value = amount;
+
+    // Optionally, you can also clear the error message if the amount is valid
+    const amountError = document.getElementById("amount-error");
+    amountError.textContent = "";  // Clear error message
+}
+
     
         // Handle payment initiation
         document.getElementById("pay-button").addEventListener("click", async function () {
