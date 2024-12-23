@@ -38,31 +38,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const referredUsersList = document.getElementById('referred-users-list');
 
     // Toggle between login and signup sections
-    showSignupButton.addEventListener('click', () => {
-        loginSection.classList.add('hidden');
-        signupSection.classList.remove('hidden');
-    });
+    if (showSignupButton) {
+        showSignupButton.addEventListener('click', () => {
+            loginSection.classList.add('hidden');
+            signupSection.classList.remove('hidden');
+        });
+    }
 
-    showLoginButton.addEventListener('click', () => {
-        signupSection.classList.add('hidden');
-        loginSection.classList.remove('hidden');
-    });
+    if (showLoginButton) {
+        showLoginButton.addEventListener('click', () => {
+            signupSection.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+        });
+    }
 
     // Function to toggle password visibility
     const togglePasswordVisibility = (input, eyeIcon) => {
-        eyeIcon.addEventListener('click', () => {
-            const type = input.type === 'password' ? 'text' : 'password';
-            input.type = type;
+        if (input && eyeIcon) {
+            eyeIcon.addEventListener('click', () => {
+                const type = input.type === 'password' ? 'text' : 'password';
+                input.type = type;
 
-            // Toggle Font Awesome classes
-            if (type === 'password') {
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            } else {
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            }
-        });
+                // Toggle Font Awesome classes
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
+        }
     };
 
     // Add password visibility togglers
@@ -71,146 +72,146 @@ document.addEventListener('DOMContentLoaded', () => {
     togglePasswordVisibility(document.getElementById('confirm-password'), toggleConfirmPassword);
 
     // Handle login form submission
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        const email = document.getElementById('login-email').value.trim();
-        const password = document.getElementById('login-password').value.trim();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
 
-        try {
-            // Simulate authentication logic
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
 
-            // Save user email in localStorage for session persistence
-            localStorage.setItem('userEmail', user.email);
+                // Save user email in localStorage for session persistence
+                localStorage.setItem('userEmail', user.email);
 
-            // Redirect to the dashboard
-            window.location.href = 'dashboard.html';
-        } catch (error) {
-            loginMessage.textContent = error.message;
-            loginMessage.classList.add('error');
-        }
-    });
+                // Redirect to the dashboard
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                loginMessage.textContent = error.message;
+                loginMessage.classList.add('error');
+            }
+        });
+    }
 
     // Handle signup form submission
-    document.getElementById('signup-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        const firstName = document.getElementById('first-name').value.trim();
-        const lastName = document.getElementById('last-name').value.trim();
-        const email = document.getElementById('signup-email').value.trim();
-        const password = document.getElementById('signup-password').value.trim();
-        const confirmPassword = document.getElementById('confirm-password').value.trim();
-        const referralCode = document.getElementById('referral-code').value.trim();
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value.trim();
+            const referralCode = document.getElementById('referral-code').value.trim();
 
-        if (password !== confirmPassword) {
-            signupMessage.textContent = 'Passwords do not match.';
-            signupMessage.classList.add('error');
-            return;
-        }
+            if (password !== confirmPassword) {
+                signupMessage.textContent = 'Passwords do not match.';
+                signupMessage.classList.add('error');
+                return;
+            }
 
-        try {
-            // Send user data to the backend for registration
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ firstName, lastName, email, password, referralCode }),
-            });
-
-            let result;
             try {
-                // Attempt to parse the response as JSON
-                result = await response.json();
-            } catch (error) {
-                // Handle invalid JSON response
-                throw new Error('Invalid response from server. Please try again.');
-            }
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName, lastName, email, password, referralCode }),
+                });
 
-            if (response.ok) {
-                signupMessage.textContent = 'Signup successful! Your referral link has been created.';
-                signupMessage.classList.add('success');
+                const result = await response.json();
 
-                // Ensure referralLinkElement exists before setting its content
-                if (referralLinkElement) {
+                if (response.ok) {
                     const referralLink = `${window.location.origin}/signup?ref=${result.referralCode}`;
-                    referralLinkElement.textContent = referralLink;
+                    localStorage.setItem('referralLink', referralLink); // Store referral link for other pages
 
-                    // Show copy button and WhatsApp share button
-                    // Copy link functionality
-                    copyButton.addEventListener('click', () => {
-                        navigator.clipboard
-                            .writeText(referralLink)
-                            .then(() => alert('Referral link copied to clipboard!'))
-                            .catch(() => alert('Failed to copy referral link.'));
-                    });
+                    signupMessage.textContent = 'Signup successful! Your referral link has been created.';
+                    signupMessage.classList.add('success');
 
-                    // Set WhatsApp share link
-                    whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+                    if (referralLinkElement) {
+                        referralLinkElement.textContent = referralLink;
+
+                        // Copy link functionality
+                        copyButton.addEventListener('click', () => {
+                            navigator.clipboard
+                                .writeText(referralLink)
+                                .then(() => alert('Referral link copied to clipboard!'))
+                                .catch(() => alert('Failed to copy referral link.'));
+                        });
+
+                        // Set WhatsApp share link
+                        whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+                    }
+
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Signup failed. Please try again.');
                 }
-
-                // Optionally redirect to the dashboard after a short delay
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 2000);
-            } else {
-                throw new Error(result.error || 'Signup failed. Please try again.');
+            } catch (error) {
+                console.error('Error during signup:', error);
+                signupMessage.textContent = error.message;
+                signupMessage.classList.add('error');
             }
-        } catch (error) {
-            console.error('Error during signup:', error);
-            signupMessage.textContent = error.message;
-            signupMessage.classList.add('error');
-        }
-    });
+        });
+    }
 
     // Populate referral code if accessed via referral link
     const urlParams = new URLSearchParams(window.location.search);
     const referralCodeFromURL = urlParams.get('ref');
     if (referralCodeFromURL) {
-        document.getElementById('referral-code').value = referralCodeFromURL;
+        const referralCodeInput = document.getElementById('referral-code');
+        if (referralCodeInput) {
+            referralCodeInput.value = referralCodeFromURL;
+        }
     }
 
     // Load referral details on the dashboard
-    firebase.auth().onAuthStateChanged(async (user) => {
-        if (user) {
-            try {
-                // Fetch referral details from backend
-                const response = await fetch(`/get-referrals?email=${user.email}`);
-                const referrals = await response.json();
+    if (referralLinkElement && referredUsersList) {
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const response = await fetch(`/get-referrals?email=${user.email}`);
+                    const referrals = await response.json();
 
-                if (response.ok) {
-                    const referralLink = `${window.location.origin}/signup?ref=${referrals.referralCode}`;
-                    referralLinkElement.textContent = referralLink;
+                    if (response.ok) {
+                        const referralLink = `${window.location.origin}/signup?ref=${referrals.referralCode}`;
+                        referralLinkElement.textContent = referralLink;
 
-                    // Add copy functionality
-                    copyButton.addEventListener('click', () => {
-                        navigator.clipboard
-                            .writeText(referralLink)
-                            .then(() => alert('Referral link copied to clipboard!'))
-                            .catch(() => alert('Failed to copy referral link.'));
-                    });
+                        // Add copy functionality
+                        copyButton.addEventListener('click', () => {
+                            navigator.clipboard
+                                .writeText(referralLink)
+                                .then(() => alert('Referral link copied to clipboard!'))
+                                .catch(() => alert('Failed to copy referral link.'));
+                        });
 
-                    // Set WhatsApp share link
-                    whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+                        // Set WhatsApp share link
+                        whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
 
-                    // Populate referred users list
-                    referredUsersList.innerHTML = referrals.map(
-                        (ref) =>
-                            `<tr>
-                                <td>${ref.email}</td>
-                                <td>${ref.isActive ? 'Paid' : 'Not Paid'}</td>
-                             </tr>`
-                    ).join('');
-                } else {
-                    throw new Error('Failed to load referral details.');
+                        // Populate referred users list
+                        referredUsersList.innerHTML = referrals.map(
+                            (ref) =>
+                                `<tr>
+                                    <td>${ref.email}</td>
+                                    <td>${ref.isActive ? 'Paid' : 'Not Paid'}</td>
+                                </tr>`
+                        ).join('');
+                    } else {
+                        throw new Error('Failed to load referral details.');
+                    }
+                } catch (err) {
+                    console.error('Error fetching referral details:', err);
                 }
-            } catch (err) {
-                console.error('Error fetching referral details:', err);
+            } else {
+                alert('Please log in to view your referral details.');
             }
-        } else {
-            alert('Please log in to view your referral details.');
-        }
-    });
+        });
+    }
 });
 
 
