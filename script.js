@@ -71,6 +71,34 @@ document.addEventListener('DOMContentLoaded', () => {
     togglePasswordVisibility(document.getElementById('signup-password'), toggleSignupPassword);
     togglePasswordVisibility(document.getElementById('confirm-password'), toggleConfirmPassword);
 
+    // Function to display the referral link
+    const displayReferralLink = (referralLink) => {
+        if (referralLinkElement) {
+            referralLinkElement.textContent = referralLink;
+
+            // Add copy functionality
+            if (copyButton) {
+                copyButton.addEventListener('click', () => {
+                    navigator.clipboard
+                        .writeText(referralLink)
+                        .then(() => alert('Referral link copied to clipboard!'))
+                        .catch(() => alert('Failed to copy referral link.'));
+                });
+            }
+
+            // Set WhatsApp share link
+            if (whatsappShareButton) {
+                whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+            }
+        }
+    };
+
+    // Retrieve and display referral link from localStorage
+    const storedReferralLink = localStorage.getItem('referralLink');
+    if (storedReferralLink) {
+        displayReferralLink(storedReferralLink);
+    }
+
     // Handle login form submission
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
@@ -84,14 +112,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
+                // Fetch referral link for the logged-in user from the backend
+                const response = await fetch(`/get-referral-link?email=${user.email}`);
+                const data = await response.json();
+
+                if (response.ok && data.referralLink) {
+                    localStorage.setItem('referralLink', data.referralLink); // Store referral link
+                    displayReferralLink(data.referralLink); // Display referral link on the page
+                }
+
                 // Save user email in localStorage for session persistence
                 localStorage.setItem('userEmail', user.email);
 
                 // Redirect to the dashboard
                 window.location.href = 'dashboard.html';
             } catch (error) {
-                loginMessage.textContent = error.message;
-                loginMessage.classList.add('error');
+                if (loginMessage) {
+                    loginMessage.textContent = error.message;
+                    loginMessage.classList.add('error');
+                }
             }
         });
     }
@@ -110,8 +149,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const referralCode = document.getElementById('referral-code').value.trim();
 
             if (password !== confirmPassword) {
-                signupMessage.textContent = 'Passwords do not match.';
-                signupMessage.classList.add('error');
+                if (signupMessage) {
+                    signupMessage.textContent = 'Passwords do not match.';
+                    signupMessage.classList.add('error');
+                }
                 return;
             }
 
@@ -124,26 +165,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const result = await response.json();
 
-                if (response.ok) {
+                if (response.ok && result.referralCode) {
                     const referralLink = `${window.location.origin}/signup?ref=${result.referralCode}`;
-                    localStorage.setItem('referralLink', referralLink); // Store referral link for other pages
+                    localStorage.setItem('referralLink', referralLink); // Store referral link
+                    displayReferralLink(referralLink); // Display referral link
 
-                    signupMessage.textContent = 'Signup successful! Your referral link has been created.';
-                    signupMessage.classList.add('success');
-
-                    if (referralLinkElement) {
-                        referralLinkElement.textContent = referralLink;
-
-                        // Copy link functionality
-                        copyButton.addEventListener('click', () => {
-                            navigator.clipboard
-                                .writeText(referralLink)
-                                .then(() => alert('Referral link copied to clipboard!'))
-                                .catch(() => alert('Failed to copy referral link.'));
-                        });
-
-                        // Set WhatsApp share link
-                        whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+                    if (signupMessage) {
+                        signupMessage.textContent = 'Signup successful! Your referral link has been created.';
+                        signupMessage.classList.add('success');
                     }
 
                     setTimeout(() => {
@@ -154,8 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error('Error during signup:', error);
-                signupMessage.textContent = error.message;
-                signupMessage.classList.add('error');
+                if (signupMessage) {
+                    signupMessage.textContent = error.message;
+                    signupMessage.classList.add('error');
+                }
             }
         });
     }
@@ -178,20 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const response = await fetch(`/get-referrals?email=${user.email}`);
                     const referrals = await response.json();
 
-                    if (response.ok) {
+                    if (response.ok && referrals) {
                         const referralLink = `${window.location.origin}/signup?ref=${referrals.referralCode}`;
-                        referralLinkElement.textContent = referralLink;
-
-                        // Add copy functionality
-                        copyButton.addEventListener('click', () => {
-                            navigator.clipboard
-                                .writeText(referralLink)
-                                .then(() => alert('Referral link copied to clipboard!'))
-                                .catch(() => alert('Failed to copy referral link.'));
-                        });
-
-                        // Set WhatsApp share link
-                        whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+                        localStorage.setItem('referralLink', referralLink); // Store referral link
+                        displayReferralLink(referralLink); // Display referral link
 
                         // Populate referred users list
                         referredUsersList.innerHTML = referrals.map(
@@ -213,7 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
 
  
 // Check and update payment status
