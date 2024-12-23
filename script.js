@@ -85,42 +85,110 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Handle registration
-    document.getElementById('signup-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const firstName = document.getElementById('first-name').value;
-        const lastName = document.getElementById('last-name').value;
-        const email = document.getElementById('signup-email').value;
-        const password = document.getElementById('signup-password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
-        const referralCode = document.getElementById('referral-code').value;
+document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        if (password !== confirmPassword) {
-            signupMessage.textContent = 'Passwords do not match.';
-            signupMessage.classList.add('error');
-            return;
+    const firstName = document.getElementById('first-name').value.trim();
+    const lastName = document.getElementById('last-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value.trim();
+    const confirmPassword = document.getElementById('confirm-password').value.trim();
+    const referralCode = document.getElementById('referral-code').value.trim();
+
+    const signupMessage = document.getElementById('signup-message');
+
+    if (password !== confirmPassword) {
+        signupMessage.textContent = 'Passwords do not match.';
+        signupMessage.classList.add('error');
+        return;
+    }
+
+    try {
+        // Firebase authentication and user creation
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Update user profile with display name
+        await updateProfile(user, { displayName: `${firstName} ${lastName}` });
+
+        // Save user data in Firestore
+        const userData = {
+            firstName,
+            lastName,
+            email,
+            paymentStatus: false,
+            referrals: [],
+            totalEarnings: 0,
+            referralCode: user.uid, // Use the UID as a unique referral code
+        };
+
+        if (referralCode) {
+            // Check if the referral code exists
+            const referrerSnapshot = await getDocs(
+                query(collection(db, 'users'), where('referralCode', '==', referralCode))
+            );
+
+            if (!referrerSnapshot.empty) {
+                // Add this user to the referrer's referrals list
+                const referrerDoc = referrerSnapshot.docs[0];
+                const referrerData = referrerDoc.data();
+                const referrerId = referrerDoc.id;
+
+                // Update the referrer's referral list
+                await updateDoc(doc(db, 'users', referrerId), {
+                    referrals: arrayUnion(user.uid), // Add the new user to referrals
+                });
+
+                // Add referrer info to the new user
+                userData.referredBy = referrerId;
+            } else {
+                signupMessage.textContent = 'Invalid referral code. Signup continues without referral.';
+            }
         }
 
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            await updateProfile(user, { displayName: `${firstName} ${lastName}` });
+        await setDoc(doc(db, 'users', user.uid), userData);
 
-            await setDoc(doc(db, 'users', user.uid), {
-                firstName,
-                lastName,
-                email,
-                paymentStatus: false
-            });
+        signupMessage.textContent = 'Signup successful! Redirecting...';
+        signupMessage.classList.remove('error');
+        signupMessage.classList.add('success');
 
-            // Save user email in localStorage
-            localStorage.setItem('userEmail', email);
+        // Redirect to the dashboard
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 2000);
+    } catch (error) {
+        console.error('Error during signup:', error);
+        signupMessage.textContent = error.message;
+        signupMessage.classList.add('error');
+    }
+});
 
-            window.location.href = 'dashboard.html'; // Redirect after successful registration
-        } catch (error) {
-            signupMessage.textContent = error.message;
-            signupMessage.classList.add('error');
+// Populate referral code if accessed via referral link
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralCode = urlParams.get('ref');
+    if (referralCode) {
+        document.getElementById('referral-code').value = referralCode;
+    }
+});
+
+// Toggle password visibility
+document.querySelectorAll('.password-toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+        const input = toggle.previousElementSibling;
+        if (input.type === 'password') {
+            input.type = 'text';
+            toggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        } else {
+            input.type = 'password';
+            toggle.innerHTML = '<i class="fas fa-eye"></i>';
         }
     });
+});
+            // Save user email in localStorage
+            localStorage.setItem('userEmail', email);
+});
+
 // Check and update payment status
 const checkPaymentStatus = async () => {
     const userEmail = localStorage.getItem("userEmail");
@@ -162,7 +230,7 @@ const checkPaymentStatus = async () => {
 if (!window.location.pathname.includes("index.html")) {
     checkPaymentStatus();
 }
-});
+;
 
 
 // Function to update the dashboard dynamically
