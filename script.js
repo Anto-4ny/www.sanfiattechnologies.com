@@ -131,21 +131,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 signupMessage.textContent = 'Signup successful! Your referral link has been created.';
                 signupMessage.classList.add('success');
 
-                // Display referral link in the #referral-link element
-                const referralLink = `${window.location.origin}/signup?ref=${result.referralCode}`;
-                referralLinkElement.textContent = referralLink;
+                // Ensure referralLinkElement exists before setting its content
+                if (referralLinkElement) {
+                    const referralLink = `${window.location.origin}/signup?ref=${result.referralCode}`;
+                    referralLinkElement.textContent = referralLink;
 
-                // Show copy button and WhatsApp share button
-                // Copy link functionality
-                copyButton.addEventListener('click', () => {
-                    navigator.clipboard
-                        .writeText(referralLink)
-                        .then(() => alert('Referral link copied to clipboard!'))
-                        .catch(() => alert('Failed to copy referral link.'));
-                });
+                    // Show copy button and WhatsApp share button
+                    // Copy link functionality
+                    copyButton.addEventListener('click', () => {
+                        navigator.clipboard
+                            .writeText(referralLink)
+                            .then(() => alert('Referral link copied to clipboard!'))
+                            .catch(() => alert('Failed to copy referral link.'));
+                    });
 
-                // Set WhatsApp share link
-                whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+                    // Set WhatsApp share link
+                    whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+                }
 
                 // Optionally redirect to the dashboard after a short delay
                 setTimeout(() => {
@@ -210,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 
  
 // Check and update payment status
