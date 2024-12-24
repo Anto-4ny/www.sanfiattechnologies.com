@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (signupMessage) {
-                    signupMessage.textContent = 'Signup successful! Your referral link has been created.';
+                    signupMessage.textContent = 'Signup successful! Your referral link has been created and is accessible in your dashboard.';
                     signupMessage.classList.add('success');
                 }
 
