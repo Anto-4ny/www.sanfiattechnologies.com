@@ -352,7 +352,7 @@ input {
 
             const initiatePayment = async (phoneNumber, email) => {
                 try {
-                    const response = await fetch("/api/pay", {
+                    const response = await fetch("./api/pay", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ phoneNumber, email }),

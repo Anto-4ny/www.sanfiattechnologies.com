@@ -20,6 +20,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
+
 // Exporting functions for use in other scripts
 export { db, auth, doc, getDoc };
 
@@ -110,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('login-password').value.trim();
 
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch('./api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password }),
