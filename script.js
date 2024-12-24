@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, auth, db, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
 // Firebase configuration
@@ -20,6 +20,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
+// Exporting functions for use in other scripts
 export { db, auth, doc, getDoc };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -208,11 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
- 
+// Payment checking function
 const checkPaymentStatus = async () => {
     const userEmail = localStorage.getItem("userEmail");
 
-    // Only redirect unauthenticated users to login if they are not on index.html
     if (!userEmail) {
         if (!window.location.pathname.includes("index.html")) {
             console.log("No user email found. Redirecting to login...");
@@ -234,7 +234,6 @@ const checkPaymentStatus = async () => {
                 console.log("User has paid. No redirection needed.");
             } else {
                 localStorage.setItem("paymentStatus", "not-paid");
-                // Redirect to dashboard only if the user is not already there
                 if (!window.location.pathname.includes("dashboard.html")) {
                     console.log("User has not paid. Redirecting to dashboard...");
                     window.location.href = "dashboard.html";
@@ -249,9 +248,17 @@ const checkPaymentStatus = async () => {
 };
 
 // Check payment status only if the user is not on the login page
-if (!window.location.pathname.includes("index.html")) {
-    checkPaymentStatus();
-}
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        console.log("User authenticated:", user.email);
+        checkPaymentStatus();
+    } else {
+        if (!window.location.pathname.includes("index.html")) {
+            console.log("No user authenticated. Redirecting to login...");
+            window.location.href = "index.html";
+        }
+    }
+});
 
 
 // Function to update the dashboard dynamically
