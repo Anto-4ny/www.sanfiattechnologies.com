@@ -209,14 +209,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
  
-// Check and update payment status
 const checkPaymentStatus = async () => {
     const userEmail = localStorage.getItem("userEmail");
 
-    // Redirect only if user is authenticated and on the correct page
     if (!userEmail) {
-        if (window.location.pathname.includes("dashboard.html")) {
-            window.location.href = "index.html"; // Redirect to login only on dashboard
+        // Redirect to login if user is not authenticated
+        if (!window.location.pathname.includes("index.html")) {
+            window.location.href = "index.html";
         }
         return;
     }
@@ -231,10 +230,11 @@ const checkPaymentStatus = async () => {
 
             if (paymentStatus === "paid") {
                 localStorage.setItem("paymentStatus", "paid");
+                // No redirection needed for paid users
             } else {
                 localStorage.setItem("paymentStatus", "not-paid");
+                // Redirect to dashboard only if not already there
                 if (!window.location.pathname.includes("dashboard.html")) {
-                    // Redirect to dashboard only if not already there
                     window.location.href = "dashboard.html";
                 }
             }
@@ -250,7 +250,6 @@ const checkPaymentStatus = async () => {
 if (!window.location.pathname.includes("index.html")) {
     checkPaymentStatus();
 }
-
 
 
 // Function to update the dashboard dynamically
