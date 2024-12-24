@@ -121,32 +121,14 @@ input {
   <button type="button" id="logout-button"><i class="fas fa-sign-out-alt"></i> Log Out</button>
   </nav>
 <body>
-    <div id="payment-popup" class="popup">
+    <div id="payment-popup" class="popup hidden">
         <div class="popup-content">
-            <h2>Activate Your Account</h2>
-            <p>Your account needs to be activated to access all features.</p>
-            <button id="activate-btn" class="activate-btn">Activate Account</button>
-    
-            
-            <div id="payment-section" class="payment-section" style="display: none;">
-                <label for="phone-number">Enter your MPESA Number:</label>
-                <input
-                    type="text"
-                    id="phone-number"
-                    placeholder="07XXXXXXXX"
-                    required
-                    pattern="^07\d{8}$"
-                    aria-describedby="phone-number-help"
-                    title="Phone number should start with '07' and be 10 digits long"
-                >
-                <small id="phone-number-help" class="form-text text-muted">
-                    Please enter a valid MPESA number starting with '07' (e.g., 0712345678).
-                </small>
-    
-                <label for="amount">Amount:</label>
-                <input type="text" id="amount" value="250" readonly>
-    
-                <button id="pay-btn" class="pay-btn">Pay Now</button>
+            <h3>Your payment status is pending. Please activate your account.</h3>
+            <button id="activate-btn">Activate Account</button>
+            <div id="payment-section" class="hidden">
+                <label for="phone-number">Enter Phone Number:</label>
+                <input type="text" id="phone-number" placeholder="Enter phone number">
+                <button id="pay-btn">Pay</button>
             </div>
         </div>
     </div>
