@@ -357,6 +357,7 @@ input {
                     });
                 }
             };
+        });
     
             // Function to initiate payment
             const initiatePayment = async (phoneNumber, email) => {
@@ -397,20 +398,20 @@ input {
                 }
             };
     
-            // Wait for Firebase Auth state to resolve
             auth.onAuthStateChanged((user) => {
-                if (user) {
-                    console.log("User authenticated:", user.email);
-                    initializeDashboard(user); // Pass user object to initializeDashboard
-                } else {
-                    console.log("No user authenticated. Redirecting to login...");
-                    window.location.href = "index.html"; // Redirect to login page
-                }
-            });
-        });
+    if (user) {
+        const userEmail = user.email;
+        localStorage.setItem("userEmail", userEmail);
+        checkPaymentStatus();
+    } else {
+        // Redirect to login if no user is authenticated
+        if (!window.location.pathname.includes("index.html")) {
+            console.log("No user authenticated. Redirecting to login...");
+            window.location.href = "index.html";
+        }
+    }
+});
+
     </script>
-    
-    
-    
 </body>
 </html>

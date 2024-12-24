@@ -212,9 +212,10 @@ document.addEventListener('DOMContentLoaded', () => {
 const checkPaymentStatus = async () => {
     const userEmail = localStorage.getItem("userEmail");
 
+    // Only redirect unauthenticated users to login if they are not on index.html
     if (!userEmail) {
-        // Redirect to login if user is not authenticated
         if (!window.location.pathname.includes("index.html")) {
+            console.log("No user email found. Redirecting to login...");
             window.location.href = "index.html";
         }
         return;
@@ -230,23 +231,24 @@ const checkPaymentStatus = async () => {
 
             if (paymentStatus === "paid") {
                 localStorage.setItem("paymentStatus", "paid");
-                // No redirection needed for paid users
+                console.log("User has paid. No redirection needed.");
             } else {
                 localStorage.setItem("paymentStatus", "not-paid");
-                // Redirect to dashboard only if not already there
+                // Redirect to dashboard only if the user is not already there
                 if (!window.location.pathname.includes("dashboard.html")) {
+                    console.log("User has not paid. Redirecting to dashboard...");
                     window.location.href = "dashboard.html";
                 }
             }
         } else {
-            console.error("User document not found.");
+            console.error("User document not found in Firestore.");
         }
     } catch (error) {
         console.error("Error checking payment status:", error);
     }
 };
 
-// Only check payment status if not on index.html
+// Check payment status only if the user is not on the login page
 if (!window.location.pathname.includes("index.html")) {
     checkPaymentStatus();
 }
