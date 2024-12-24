@@ -288,133 +288,128 @@ input {
         import { auth, db, doc, getDoc } from "./script.js";
     
         document.addEventListener("DOMContentLoaded", () => {
-
             // Function to check if the user has paid
-            const checkUserPaymentStatus = async () => {
-    try {
-        const user = auth.currentUser;
-
-        // Redirect if no user is logged in
-        if (!user) {
-            console.error("No user logged in.");
-            window.location.href = "index.html"; // Redirect to login
-            return false;
-        }
-
-        // Fetch the user's Firestore document
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-            const paymentStatus = userDoc.data().paymentStatus;
-            if (paymentStatus === "paid") {
-                console.log("User payment verified.");
-                localStorage.setItem("paymentStatus", "paid"); // Save in local storage
-                return true;
-            } else {
-                console.log("User has not completed payment.");
-                return false;
-            }
-        } else {
-            console.error("User document not found in Firestore.");
-            return false;
-        }
-    } catch (error) {
-        console.error("Error checking payment status:", error);
-        return false;
-    }
-};     
+            const checkUserPaymentStatus = async (user) => {
+                try {
+                    // Fetch the user's Firestore document
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists()) {
+                        const paymentStatus = userDoc.data().paymentStatus;
+                        if (paymentStatus === "paid") {
+                            console.log("User payment verified.");
+                            localStorage.setItem("paymentStatus", "paid"); // Save in local storage
+                            return true;
+                        } else {
+                            console.log("User has not completed payment.");
+                            return false;
+                        }
+                    } else {
+                        console.error("User document not found in Firestore.");
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error checking payment status:", error);
+                    return false;
+                }
+            };
     
+            // Function to show the payment popup
             const showPaymentPopup = () => {
-    const popup = document.getElementById("payment-popup");
-    if (!popup) {
-        console.error("Payment popup not found.");
-        return;
-    }
-    popup.style.display = "block";
-
-    // Add event listener for "Activate Account" button
-    const activateBtn = document.getElementById("activate-btn");
-    if (activateBtn) {
-        activateBtn.addEventListener("click", () => {
-            const paymentSection = document.getElementById("payment-section");
-            if (paymentSection) {
-                paymentSection.style.display = "block";
-            }
-        });
-    }
-
-    // Add event listener for "Pay" button
-    const payBtn = document.getElementById("pay-btn");
-    if (payBtn) {
-        payBtn.addEventListener("click", async () => {
-            let phoneNumber = document.getElementById("phone-number")?.value.trim();
-            const user = auth.currentUser;
-
-            // Ensure phone number is in the correct format
-            if (phoneNumber.match(/^07\d{8}$/)) {
-                phoneNumber = phoneNumber.replace(/^0/, "254"); // Replace leading '0' with '254'
-            }
-
-            if (phoneNumber.match(/^254\d{9}$/) && user?.email) {
-                await initiatePayment(phoneNumber, user.email);
-            } else {
-                alert("Invalid phone number or email.");
-            }
-        });
-    }
-};
-
-           
-const initiatePayment = async (phoneNumber, email) => {
-    try {
-        const response = await fetch("/api/pay", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phoneNumber, email }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Payment failed.");
-        }
-
-        const data = await response.json();
-        alert(data.message || "Payment initiated successfully.");
-
-        // Update payment status in local storage
-        localStorage.setItem("paymentStatus", "paid");
-        location.reload(); // Reload the page to reflect the new status
-    } catch (error) {
-        console.error("Payment Error:", error.message);
-        alert(`Error: ${error.message}`);
-    }
-};
+                const popup = document.getElementById("payment-popup");
+                if (!popup) {
+                    console.error("Payment popup not found.");
+                    return;
+                }
+                popup.style.display = "block";
     
-            const initializeDashboard = async () => {
-    const user = auth.currentUser;
-
-    if (!user) {
-        window.location.href = "index.html"; // Redirect if user is not logged in
-        return;
-    }
-
-    const hasPaid = await checkUserPaymentStatus();
-    if (!hasPaid) {
-        showPaymentPopup(); // Show payment popup if the user hasn’t paid
-    }
-};
-
+                // Add event listener for "Activate Account" button
+                const activateBtn = document.getElementById("activate-btn");
+                if (activateBtn) {
+                    activateBtn.addEventListener("click", () => {
+                        const paymentSection = document.getElementById("payment-section");
+                        if (paymentSection) {
+                            paymentSection.style.display = "block";
+                        }
+                    });
+                }
     
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        console.log("User authenticated:", user.email);
-        initializeDashboard(); // Initialize the dashboard after login
-    } else {
-        console.log("No user authenticated. Redirecting to login...");
-        window.location.href = "index.html"; // Redirect to login page
-    }
-});
+                // Add event listener for "Pay" button
+                const payBtn = document.getElementById("pay-btn");
+                if (payBtn) {
+                    payBtn.addEventListener("click", async () => {
+                        let phoneNumber = document.getElementById("phone-number")?.value.trim();
+    
+                        // Ensure phone number is in the correct format
+                        if (phoneNumber.match(/^07\d{8}$/)) {
+                            phoneNumber = phoneNumber.replace(/^0/, "254"); // Replace leading '0' with '254'
+                        }
+    
+                        if (phoneNumber.match(/^254\d{9}$/)) {
+                            const user = auth.currentUser;
+                            if (user?.email) {
+                                await initiatePayment(phoneNumber, user.email);
+                            } else {
+                                alert("Error: User not authenticated.");
+                            }
+                        } else {
+                            alert("Invalid phone number format.");
+                        }
+                    });
+                }
+            };
+    
+            // Function to initiate payment
+            const initiatePayment = async (phoneNumber, email) => {
+                try {
+                    const response = await fetch("/api/pay", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ phoneNumber, email }),
+                    });
+    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || "Payment failed.");
+                    }
+    
+                    const data = await response.json();
+                    alert(data.message || "Payment initiated successfully.");
+    
+                    // Update payment status in local storage
+                    localStorage.setItem("paymentStatus", "paid");
+                    location.reload(); // Reload the page to reflect the new status
+                } catch (error) {
+                    console.error("Payment Error:", error.message);
+                    alert(`Error: ${error.message}`);
+                }
+            };
+    
+            // Initialize the dashboard
+            const initializeDashboard = async (user) => {
+                if (!user) {
+                    window.location.href = "index.html"; // Redirect if user is not logged in
+                    return;
+                }
+    
+                const hasPaid = await checkUserPaymentStatus(user);
+                if (!hasPaid) {
+                    showPaymentPopup(); // Show payment popup if the user hasn’t paid
+                }
+            };
+    
+            // Wait for Firebase Auth state to resolve
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    console.log("User authenticated:", user.email);
+                    initializeDashboard(user); // Pass user object to initializeDashboard
+                } else {
+                    console.log("No user authenticated. Redirecting to login...");
+                    window.location.href = "index.html"; // Redirect to login page
+                }
+            });
         });
     </script>
+    
     
     
 </body>
