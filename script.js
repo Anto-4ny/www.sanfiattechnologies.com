@@ -1,8 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, query, collection, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
-import { getStorage } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -12,213 +11,128 @@ const firebaseConfig = {
     storageBucket: "antocap-referrals.appspot.com",
     messagingSenderId: "1071760453747",
     appId: "1:1071760453747:web:fafa7ac624ba7452e6fa06",
-    measurementId: "G-EPLJB8MTRH"
+    measurementId: "G-EPLJB8MTRH",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const analytics = getAnalytics(app);
 const storage = getStorage(app);
 
-// Export the instances so they can be used in other parts of the script
 export { auth, db, doc, getDoc, query, collection, where, getDocs, storage };
 
+document.addEventListener("DOMContentLoaded", () => {
+    const loginSection = document.getElementById("login-section");
+    const signupSection = document.getElementById("signup-section");
+    const loginMessage = document.getElementById("login-message");
+    const signupMessage = document.getElementById("signup-message");
 
-document.addEventListener('DOMContentLoaded', () => {
-    const loginSection = document.getElementById('login-section');
-    const signupSection = document.getElementById('signup-section');
-    const showSignupButton = document.getElementById('show-signup');
-    const showLoginButton = document.getElementById('show-login');
-    const loginMessage = document.getElementById('login-message');
-    const signupMessage = document.getElementById('signup-message');
-    const toggleLoginPassword = document.getElementById('toggle-login-password');
-    const toggleSignupPassword = document.getElementById('toggle-signup-password');
-    const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
-    const referralLinkElement = document.getElementById('referral-link');
-    const copyButton = document.getElementById('copy-link-button');
-    const whatsappShareButton = document.getElementById('whatsapp-share-button');
-    const referredUsersList = document.getElementById('referred-users-list');
+    const showSignupButton = document.getElementById("show-signup");
+    const showLoginButton = document.getElementById("show-login");
 
-    // Toggle between login and signup sections
     if (showSignupButton) {
-        showSignupButton.addEventListener('click', () => {
-            loginSection.classList.add('hidden');
-            signupSection.classList.remove('hidden');
+        showSignupButton.addEventListener("click", () => {
+            loginSection.classList.add("hidden");
+            signupSection.classList.remove("hidden");
         });
     }
 
     if (showLoginButton) {
-        showLoginButton.addEventListener('click', () => {
-            signupSection.classList.add('hidden');
-            loginSection.classList.remove('hidden');
+        showLoginButton.addEventListener("click", () => {
+            signupSection.classList.add("hidden");
+            loginSection.classList.remove("hidden");
         });
     }
 
-    // Function to toggle password visibility
-    const togglePasswordVisibility = (input, eyeIcon) => {
-        if (input && eyeIcon) {
-            eyeIcon.addEventListener('click', () => {
-                const type = input.type === 'password' ? 'text' : 'password';
-                input.type = type;
-                // Toggle Font Awesome classes
-                eyeIcon.classList.toggle('fa-eye');
-                eyeIcon.classList.toggle('fa-eye-slash');
-            });
-        }
-    };
-
-    // Add password visibility togglers
-    togglePasswordVisibility(document.getElementById('login-password'), toggleLoginPassword);
-    togglePasswordVisibility(document.getElementById('signup-password'), toggleSignupPassword);
-    togglePasswordVisibility(document.getElementById('confirm-password'), toggleConfirmPassword);
-
-    // Function to display the referral link
-    const displayReferralLink = (referralLink) => {
-        if (referralLinkElement) {
-            referralLinkElement.textContent = referralLink;
-
-            // Add copy functionality
-            if (copyButton) {
-                copyButton.addEventListener('click', () => {
-                    navigator.clipboard
-                        .writeText(referralLink)
-                        .then(() => alert('Referral link copied to clipboard!'))
-                        .catch(() => alert('Failed to copy referral link.'));
-                });
-            }
-
-            // Set WhatsApp share link
-            if (whatsappShareButton) {
-                whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
-            }
-        }
-    };
-
-    // Retrieve and display referral link from localStorage
-    const storedReferralLink = localStorage.getItem('referralLink');
-    if (storedReferralLink) {
-        displayReferralLink(storedReferralLink);
-    }
-
-    // Handle login form submission
-    const loginForm = document.getElementById('login-form');
+    const loginForm = document.getElementById("login-form");
     if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
+        loginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
+            const email = document.getElementById("login-email").value.trim();
+            const password = document.getElementById("login-password").value.trim();
 
             try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password }),
-                });
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
 
-                if (!response.ok) {
-                    const text = await response.text();
-                    throw new Error(`Login failed: ${text}`);
+                if (user) {
+                    localStorage.setItem("userEmail", email);
+
+                    // Redirect to dashboard after login
+                    window.location.href = "dashboard.html";
                 }
-
-                const user = await response.json();
-
-                if (user && user.referralLink) {
-                    localStorage.setItem('referralLink', user.referralLink); // Store referral link
-                    displayReferralLink(user.referralLink); // Display referral link on the page
-                }
-
-                localStorage.setItem('userEmail', email); // Save user email for session persistence
-                window.location.href = 'dashboard.html';
             } catch (error) {
                 if (loginMessage) {
                     loginMessage.textContent = error.message;
-                    loginMessage.classList.add('error');
+                    loginMessage.classList.add("error");
                 }
-                console.error('Login error:', error);
             }
         });
     }
 
-    // Handle signup form submission
-    const signupForm = document.getElementById('signup-form');
+    const signupForm = document.getElementById("signup-form");
     if (signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
+        signupForm.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            const firstName = document.getElementById('first-name').value.trim();
-            const lastName = document.getElementById('last-name').value.trim();
-            const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value.trim();
-            const confirmPassword = document.getElementById('confirm-password').value.trim();
-            const referralCode = document.getElementById('referral-code').value.trim();
+            const firstName = document.getElementById("first-name").value.trim();
+            const lastName = document.getElementById("last-name").value.trim();
+            const email = document.getElementById("signup-email").value.trim();
+            const password = document.getElementById("signup-password").value.trim();
+            const confirmPassword = document.getElementById("confirm-password").value.trim();
+            const referralCode = document.getElementById("referral-code").value.trim();
 
             if (password !== confirmPassword) {
                 if (signupMessage) {
-                    signupMessage.textContent = 'Passwords do not match.';
-                    signupMessage.classList.add('error');
+                    signupMessage.textContent = "Passwords do not match.";
+                    signupMessage.classList.add("error");
                 }
                 return;
             }
 
             try {
-                const response = await fetch('./api/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ firstName, lastName, email, password, referralCode }),
-                });
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
 
-                if (!response.ok) {
-                    const text = await response.text();
-                    throw new Error(`Signup failed: ${text}`);
+                if (user) {
+                    // Generate unique referral link
+                    const referralLink = `${window.location.origin}/signup?ref=${user.uid}`;
+
+                    // Save user data to Firestore
+                    await setDoc(doc(db, "users", user.uid), {
+                        firstName,
+                        lastName,
+                        email,
+                        referralCode,
+                        referralLink,
+                        paymentStatus: false,
+                        amountPaid: 0,
+                        totalEarnings: 0,
+                        totalReferrals: 0,
+                        totalViews: 0,
+                        registeredAt: new Date(),
+                    });
+
+                    // Redirect to dashboard
+                    window.location.href = "dashboard.html";
                 }
-
-                const result = await response.json();
-                if (result.referralLink) {
-                    const referralLink = `${window.location.origin}/signup?ref=${result.referralLink}`;
-                    localStorage.setItem('referralLink', referralLink); // Store referral link
-                    displayReferralLink(referralLink); // Display referral link
-                }
-
-                if (signupMessage) {
-                    signupMessage.textContent = 'Signup successful! Your referral link has been created and is accessible in your dashboard.';
-                    signupMessage.classList.add('success');
-                }
-
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 2000);
             } catch (error) {
                 if (signupMessage) {
                     signupMessage.textContent = error.message;
-                    signupMessage.classList.add('error');
+                    signupMessage.classList.add("error");
                 }
-                console.error('Signup error:', error);
             }
         });
     }
-
-    // Populate referral code if accessed via referral link
-    const urlParams = new URLSearchParams(window.location.search);
-    const referralCodeFromURL = urlParams.get('ref');
-    if (referralCodeFromURL) {
-        const referralCodeInput = document.getElementById('referral-code');
-        if (referralCodeInput) {
-            referralCodeInput.value = referralCodeFromURL;
-        }
-    }
 });
 
-// Function to check user's authentication and payment status
+// Function to check user's payment status
 const checkAuthenticationAndPayment = async () => {
-    // Get user email from local storage
     const userEmail = localStorage.getItem("userEmail");
 
-    // If no email found in localStorage, redirect to login
     if (!userEmail) {
-        console.log("No user email found. Redirecting to login...");
+        // Redirect to login if no email is found in localStorage
         if (!window.location.pathname.includes("index.html")) {
             window.location.href = "index.html";
         }
@@ -226,55 +140,42 @@ const checkAuthenticationAndPayment = async () => {
     }
 
     try {
-        // Query Firestore to check payment status
         const q = query(collection(db, "users"), where("email", "==", userEmail));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
             const userDoc = querySnapshot.docs[0];
-            const paymentStatus = userDoc.data().paymentStatus;
+            const userData = userDoc.data();
 
-            if (paymentStatus === "paid") {
+            if (userData.paymentStatus) {
                 console.log("User has paid.");
                 localStorage.setItem("paymentStatus", "paid");
             } else {
                 console.log("User has not paid. Redirecting to dashboard...");
                 localStorage.setItem("paymentStatus", "not-paid");
-
                 if (!window.location.pathname.includes("dashboard.html")) {
                     window.location.href = "dashboard.html";
                 }
             }
         } else {
-            console.error("User document not found in Firestore.");
+            console.error("User document not found.");
         }
     } catch (error) {
         console.error("Error checking payment status:", error);
     }
 };
 
-// Function to verify if the user is authenticated
-const ensureAuthenticated = async () => {
-    auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            console.log("User authenticated:", user.email);
-
-            // Save user email in local storage for subsequent requests
-            localStorage.setItem("userEmail", user.email);
-
-            // Check payment status
-            await checkAuthenticationAndPayment();
-        } else {
-            console.log("User not authenticated. Redirecting to login...");
-            if (!window.location.pathname.includes("index.html")) {
-                window.location.href = "index.html";
-            }
+// Ensure user authentication and handle payment status
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        localStorage.setItem("userEmail", user.email);
+        await checkAuthenticationAndPayment();
+    } else {
+        if (!window.location.pathname.includes("index.html")) {
+            window.location.href = "index.html";
         }
-    });
-};
-
-export { ensureAuthenticated };
-
+    }
+});
 
 // Function to update the dashboard dynamically
 const updateDashboard = (userData) => {
