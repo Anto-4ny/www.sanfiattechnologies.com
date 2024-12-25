@@ -144,8 +144,21 @@
  
     <div id="payment-popup" class="popup hidden">
         <div class="popup-content">
-            <!-- Personalized welcome message -->
-            <div id="welcome-message"></div>
+            <!-- Static message with placeholder for personalization -->
+            <div id="welcome-message">
+                <h3>Welcome, <span id="firstName">User</span>!</h3>
+                <p>
+                    Thank you for joining Sanfiat Technologies. To unlock the full potential of this platform and start earning by advertising products from top companies, please activate your account.
+                </p>
+                <p>To activate your account:</p>
+                <ol>
+                    <li>Enter your phone number in the field provided. Make sure it starts with <strong>07</strong>.</li>
+                    <li>The amount to be paid is <strong>250 Ksh</strong>, which is already filled in for you.</li>
+                    <li>Click the <strong>Pay</strong> button to initiate the payment. You will receive an STK push on your phone to approve the payment.</li>
+                    <li>Once the payment is successful, please wait as we verify your payment. You will then be allowed to access the platform.</li>
+                </ol>
+                <p>We look forward to helping you earn and succeed!</p>
+            </div>
     
             <button id="activate-btn" class="activate-btn">Activate Account</button>
             <div id="payment-section" class="hidden">
@@ -155,10 +168,11 @@
                 <label for="amount-input">Amount to Pay (Ksh):</label>
                 <input type="text" id="amount-input" value="250" readonly>
     
-                <button id="pay-btn" class="pay-btn">Activate</button>
+                <button id="pay-btn" class="pay-btn">Pay</button>
             </div>
         </div>
     </div>
+    
     
 <section id="dashboard">
             <div id="dashboard-section">
@@ -290,93 +304,75 @@
        <!-- Your custom script -->
 <script type="module" src="script.js"></script>
 <script type="module">
-    import { auth } from './script.js';  // Import auth from script.js
+    import { auth, db, doc, getDoc } from './script.js'; // Import auth and Firestore functions from script.js
+
     document.addEventListener("DOMContentLoaded", () => {
-    const showPaymentPopup = () => {
-        const popup = document.getElementById("payment-popup");
-        popup.classList.remove("hidden");
+        const showPaymentPopup = () => {
+            const popup = document.getElementById("payment-popup");
+            popup.classList.remove("hidden");
 
-        const activateBtn = document.getElementById("activate-btn");
-        activateBtn.addEventListener("click", () => {
-            const paymentSection = document.getElementById("payment-section");
-            paymentSection.classList.remove("hidden");
-        });
+            const activateBtn = document.getElementById("activate-btn");
+            activateBtn.addEventListener("click", () => {
+                const paymentSection = document.getElementById("payment-section");
+                paymentSection.classList.remove("hidden");
+            });
 
-        const payBtn = document.getElementById("pay-btn");
-        payBtn.addEventListener("click", async () => {
-            const phoneNumberInput = document.getElementById("phone-number");
-            const amountInput = document.getElementById("amount-input");
-            let phoneNumber = phoneNumberInput.value.trim();
-            const amount = amountInput.value;
+            const payBtn = document.getElementById("pay-btn");
+            payBtn.addEventListener("click", async () => {
+                const phoneNumberInput = document.getElementById("phone-number");
+                const amountInput = document.getElementById("amount-input");
+                let phoneNumber = phoneNumberInput.value.trim();
+                const amount = amountInput.value;
 
-            // Ensure the phone number starts with 07 and convert to 254 format
-            if (phoneNumber.match(/^07\d{8}$/)) {
-                phoneNumber = phoneNumber.replace(/^0/, "254");
-            }
+                // Ensure the phone number starts with 07 and convert to 254 format
+                if (phoneNumber.match(/^07\d{8}$/)) {
+                    phoneNumber = phoneNumber.replace(/^0/, "254");
+                }
 
-            if (phoneNumber.match(/^254\d{9}$/)) {
-                const user = auth.currentUser;
+                if (phoneNumber.match(/^254\d{9}$/)) {
+                    const user = auth.currentUser;
 
-                if (user?.email) {
-                    try {
-                        const response = await fetch("./api/pay", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ phoneNumber, email: user.email, amount }),
-                        });
+                    if (user?.email) {
+                        try {
+                            const response = await fetch("./api/pay", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ phoneNumber, email: user.email, amount }),
+                            });
 
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.error || "Payment failed.");
+                            if (!response.ok) {
+                                const errorData = await response.json();
+                                throw new Error(errorData.error || "Payment failed.");
+                            }
+
+                            const data = await response.json();
+                            alert(data.message || "Payment initiated successfully. Check your phone for the STK push.");
+                            localStorage.setItem("paymentStatus", "paid");
+                            location.reload();
+                        } catch (error) {
+                            alert(`Payment Error: ${error.message}`);
                         }
-
-                        const data = await response.json();
-                        alert(data.message || "Payment initiated successfully. Check your phone for the STK push.");
-                        localStorage.setItem("paymentStatus", "paid");
-                        location.reload();
-                    } catch (error) {
-                        alert(`Payment Error: ${error.message}`);
+                    } else {
+                        alert("Error: User not authenticated.");
                     }
                 } else {
-                    alert("Error: User not authenticated.");
+                    alert("Invalid phone number format. Please enter a number starting with 07.");
                 }
-            } else {
-                alert("Invalid phone number format. Please enter a number starting with 07.");
+            });
+        };
+
+        const initializeDashboard = async () => {
+            const paymentStatus = localStorage.getItem("paymentStatus");
+
+            if (paymentStatus === "not-paid") {
+                showPaymentPopup();
             }
-        });
-    };
+        };
 
-    const initializeDashboard = async () => {
-        const paymentStatus = localStorage.getItem("paymentStatus");
-
-        if (paymentStatus === "not-paid") {
-            showPaymentPopup();
-        }
-
-        const user = auth.currentUser;
-        if (user?.firstName) {
-            const welcomeMessage = document.getElementById("welcome-message");
-            if (welcomeMessage) {
-                welcomeMessage.innerHTML = `
-                    <h3>Welcome, ${user.firstName}!</h3>
-                    <p>Thank you for joining Sanfiat Technologies. To unlock the full potential of this platform and start earning by advertising products from top companies, please activate your account.</p>
-                    <p>To activate your account:</p>
-                    <ol>
-                        <li>Enter your phone number in the field provided. Make sure it starts with <strong>07</strong>.</li>
-                        <li>The amount to be paid is <strong>250 Ksh</strong>, which is already filled in for you.</li>
-                        <li>Click the <strong>Activate</strong> button to initiate the payment. You will receive an STK push on your phone to approve the payment.</li>
-                        <li>Once the payment is successful, please wait as we verify your payment. You will then be allowed to access the platform.</li>
-                    </ol>
-                    <p>We look forward to helping you earn and succeed!</p>
-                `;
-            }
-        }
-    };
-
-    initializeDashboard();
-});
-
+        initializeDashboard();
+    });
 </script>
+
 
 </body>
 </html>
