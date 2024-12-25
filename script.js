@@ -4,6 +4,7 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     onAuthStateChanged,
+    ensureAuthenticated,
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
     getFirestore,
@@ -35,7 +36,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export { auth, db, doc, getDoc, query, collection, where, getDocs, storage };
+export { auth, db, doc, getDoc, query, collection, ensureAuthenticated, where, getDocs, storage };
 
 document.addEventListener("DOMContentLoaded", () => {
     const loginSection = document.getElementById("login-section");
