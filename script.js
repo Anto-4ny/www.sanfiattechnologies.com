@@ -35,8 +35,20 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export { auth, db, doc, getDoc, query, collection, ensureAuthenticated, where, getDocs, storage };
+// Exporting firebase-related modules for use elsewhere in the app
+export { auth, db, doc, getDoc, query, collection, where, getDocs, storage };
 
+// Define the ensureAuthenticated function to verify if the user is logged in
+export const ensureAuthenticated = () => {
+    const userEmail = localStorage.getItem("userEmail");
+
+    if (!userEmail) {
+        // If no user is authenticated, redirect to the login page
+        window.location.href = "index.html"; // Redirect to login page (adjust URL if necessary)
+    } else {
+        console.log("User is authenticated");
+    }
+};
 document.addEventListener("DOMContentLoaded", () => {
     const loginSection = document.getElementById("login-section");
     const signupSection = document.getElementById("signup-section");
