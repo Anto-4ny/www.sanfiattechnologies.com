@@ -211,20 +211,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Function to check the user's payment status
-const checkPaymentStatus = async () => {
+import { auth, db, doc, getDoc, query, collection, where, getDocs } from "./script.js";
+
+// Function to check user's authentication and payment status
+const checkAuthenticationAndPayment = async () => {
+    // Get user email from local storage
     const userEmail = localStorage.getItem("userEmail");
 
-    // Only redirect unauthenticated users to login if they are not on index.html
+    // If no email found in localStorage, redirect to login
     if (!userEmail) {
+        console.log("No user email found. Redirecting to login...");
         if (!window.location.pathname.includes("index.html")) {
-            console.log("No user email found. Redirecting to login...");
             window.location.href = "index.html";
         }
         return;
     }
 
     try {
+        // Query Firestore to check payment status
         const q = query(collection(db, "users"), where("email", "==", userEmail));
         const querySnapshot = await getDocs(q);
 
@@ -233,12 +237,13 @@ const checkPaymentStatus = async () => {
             const paymentStatus = userDoc.data().paymentStatus;
 
             if (paymentStatus === "paid") {
+                console.log("User has paid.");
                 localStorage.setItem("paymentStatus", "paid");
-                console.log("User has paid. No redirection needed.");
             } else {
+                console.log("User has not paid. Redirecting to dashboard...");
                 localStorage.setItem("paymentStatus", "not-paid");
+
                 if (!window.location.pathname.includes("dashboard.html")) {
-                    console.log("User has not paid. Redirecting to dashboard...");
                     window.location.href = "dashboard.html";
                 }
             }
@@ -250,18 +255,28 @@ const checkPaymentStatus = async () => {
     }
 };
 
-// Check payment status only if the user is not on the login page
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        console.log("User authenticated:", user.email);
-        checkPaymentStatus();
-    } else {
-        if (!window.location.pathname.includes("index.html")) {
-            console.log("No user authenticated. Redirecting to login...");
-            window.location.href = "index.html";
+// Function to verify if the user is authenticated
+const ensureAuthenticated = async () => {
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            console.log("User authenticated:", user.email);
+
+            // Save user email in local storage for subsequent requests
+            localStorage.setItem("userEmail", user.email);
+
+            // Check payment status
+            await checkAuthenticationAndPayment();
+        } else {
+            console.log("User not authenticated. Redirecting to login...");
+            if (!window.location.pathname.includes("index.html")) {
+                window.location.href = "index.html";
+            }
         }
-    }
-});
+    });
+};
+
+export { ensureAuthenticated };
+
 
 // Function to update the dashboard dynamically
 const updateDashboard = (userData) => {

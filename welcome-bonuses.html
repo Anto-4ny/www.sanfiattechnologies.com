@@ -16,7 +16,15 @@
     </head>
      <div id="deposit-header" onclick="window.location.href='deposit.html'">
     Deposit
-</div
+     </div>
+     <script type="module">
+        import { ensureAuthenticated } from "./script.js";
+    
+        document.addEventListener("DOMContentLoaded", () => {
+            ensureAuthenticated();
+        });
+    </script>
+    
   <header>
   <a href="index.html">
     <img id="logo" src="images/Photo_1723191951676.png" alt="Logo">

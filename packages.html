@@ -18,6 +18,14 @@
     window.location.href = 'dashboard.html'; // Redirect to the payment page
 }
 </script>
+<script type="module">
+    import { ensureAuthenticated } from "./script.js";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        ensureAuthenticated();
+    });
+</script>
+
 <style>
         /* Basic styling, adjust as needed */
         .hidden { display: none; }

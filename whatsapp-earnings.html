@@ -16,7 +16,14 @@
   </head>
     <div id="deposit-header" onclick="window.location.href='deposit.html'">
     Deposit
-</div
+    </div>
+    <script type="module">
+        import { ensureAuthenticated } from "./script.js";
+    
+        document.addEventListener("DOMContentLoaded", () => {
+            ensureAuthenticated();
+        });
+    </script>    
     
    <header>
   <a href="index.html">

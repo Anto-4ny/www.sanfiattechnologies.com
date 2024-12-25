@@ -13,61 +13,81 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="dashboard.css">
     <link rel="icon" href="images/Photo_1723191951676.png" type="image/x-icon">
-
-<style>
-    /* Style for the pop-up modal */
-.popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-     z-index: 1000; 
-}
-
-.popup-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.activate-btn, .pay-btn {
-    background-color: #28a745;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.activate-btn:hover, .pay-btn:hover {
-    background-color: #218838;
-}
-
-input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-}
-        /* Basic styling, adjust as needed */
-        .hidden { display: none; }
-        .show { display: block; }
-        .password-toggle { cursor: pointer; }
-        #payment-section { margin-top: 20px; }
-        .message { color: red; }
+    <script type="module">
+        import { ensureAuthenticated } from "./script.js";
     
-    </style>
+        document.addEventListener("DOMContentLoaded", () => {
+            ensureAuthenticated();
+        });
+    </script>
+    <style>
+    /* Style for the pop-up modal */
+    .popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000; /* Ensures popup is above other content */
+    }
+    
+    .popup.hidden {
+        display: none; /* Hide the popup when it is inactive */
+    }
+    
+    .popup-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .activate-btn, .pay-btn {
+        background-color: #28a745;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    
+    .activate-btn:hover, .pay-btn:hover {
+        background-color: #218838;
+    }
+    
+    input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+    
+    .hidden {
+        display: none; /* General class to hide elements */
+    }
+    
+    .show {
+        display: block; /* General class to show elements */
+    }
+    
+    #payment-section {
+        margin-top: 20px;
+    }
+    
+    .message {
+        color: red;
+        font-size: 14px;
+    }
+</style>    
     <div id="deposit-header" onclick="window.location.href='deposit.html'">
     Deposit
     </div>
@@ -121,18 +141,18 @@ input {
   <button type="button" id="logout-button"><i class="fas fa-sign-out-alt"></i> Log Out</button>
   </nav>
 <body>
+ 
     <div id="payment-popup" class="popup hidden">
         <div class="popup-content">
             <h3>Your payment status is pending. Please activate your account.</h3>
-            <button id="activate-btn">Activate Account</button>
+            <button id="activate-btn" class="activate-btn">Activate Account</button>
             <div id="payment-section" class="hidden">
                 <label for="phone-number">Enter Phone Number:</label>
                 <input type="text" id="phone-number" placeholder="Enter phone number">
-                <button id="pay-btn">Pay</button>
+                <button id="pay-btn" class="pay-btn">Pay</button>
             </div>
         </div>
-    </div>
-    
+    </div>      
      
 <section id="dashboard">
             <div id="dashboard-section">
@@ -267,117 +287,69 @@ input {
         <script type="module" src="script.js"></script>
         <script>
         import { auth, db, doc, getDoc } from "./script.js"; // Ensure proper imports
-
         document.addEventListener("DOMContentLoaded", () => {
-            const checkUserPaymentStatus = async (user) => {
-                try {
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
-                    if (userDoc.exists()) {
-                        const paymentStatus = userDoc.data().paymentStatus;
-                        if (paymentStatus === "paid") {
-                            console.log("User payment verified.");
-                            localStorage.setItem("paymentStatus", "paid");
-                            return true;
-                        } else {
-                            console.log("User has not completed payment.");
-                            return false;
-                        }
-                    } else {
-                        console.error("User document not found in Firestore.");
-                        return false;
-                    }
-                } catch (error) {
-                    console.error("Error checking payment status:", error);
-                    return false;
-                }
-            };
-        
-            const showPaymentPopup = () => {
-                const popup = document.getElementById("payment-popup");
-                if (!popup) {
-                    console.error("Payment popup not found.");
-                    return;
-                }
-                popup.classList.remove("hidden"); // Show popup
-        
-                const activateBtn = document.getElementById("activate-btn");
-                if (activateBtn) {
-                    activateBtn.addEventListener("click", () => {
-                        const paymentSection = document.getElementById("payment-section");
-                        if (paymentSection) {
-                            paymentSection.classList.remove("hidden"); // Show payment section
-                        }
-                    });
-                }
-        
-                const payBtn = document.getElementById("pay-btn");
-                if (payBtn) {
-                    payBtn.addEventListener("click", async () => {
-                        let phoneNumber = document.getElementById("phone-number")?.value.trim();
-        
-                        // Validate phone number
-                        if (phoneNumber.match(/^07\d{8}$/)) {
-                            phoneNumber = phoneNumber.replace(/^0/, "254");
-                        }
-        
-                        if (phoneNumber.match(/^254\d{9}$/)) {
-                            const user = auth.currentUser;
-                            if (user?.email) {
-                                await initiatePayment(phoneNumber, user.email);
-                            } else {
-                                alert("Error: User not authenticated.");
-                            }
-                        } else {
-                            alert("Invalid phone number format.");
-                        }
-                    });
-                }
-            };
-        
-            const initiatePayment = async (phoneNumber, email) => {
-                try {
-                    const response = await fetch("./api/pay", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ phoneNumber, email }),
-                    });
-        
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || "Payment failed.");
-                    }
-        
-                    const data = await response.json();
-                    alert(data.message || "Payment initiated successfully.");
-        
-                    localStorage.setItem("paymentStatus", "paid");
-                    location.reload();
-                } catch (error) {
-                    console.error("Payment Error:", error.message);
-                    alert(`Error: ${error.message}`);
-                }
-            };
-        
-            const initializeDashboard = async (user) => {
-                if (!user) {
-                    window.location.href = "index.html";
-                    return;
-                }
-        
-                const hasPaid = await checkUserPaymentStatus(user);
-                if (!hasPaid) {
-                    showPaymentPopup();
-                }
-            };
-        
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    initializeDashboard(user);
-                } else {
-                    window.location.href = "index.html";
-                }
-            });
+    const showPaymentPopup = () => {
+        const popup = document.getElementById("payment-popup");
+        popup.classList.remove("hidden");
+
+        const activateBtn = document.getElementById("activate-btn");
+        activateBtn.addEventListener("click", () => {
+            const paymentSection = document.getElementById("payment-section");
+            paymentSection.classList.remove("hidden");
         });
+
+        const payBtn = document.getElementById("pay-btn");
+        payBtn.addEventListener("click", async () => {
+            const phoneNumberInput = document.getElementById("phone-number");
+            const phoneNumber = phoneNumberInput.value.trim();
+
+            if (phoneNumber.match(/^07\d{8}$/)) {
+                phoneNumberInput.value = phoneNumber.replace(/^0/, "254");
+            }
+
+            if (phoneNumber.match(/^254\d{9}$/)) {
+                const user = auth.currentUser;
+
+                if (user?.email) {
+                    try {
+                        const response = await fetch("./api/pay", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ phoneNumber, email: user.email }),
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || "Payment failed.");
+                        }
+
+                        const data = await response.json();
+                        alert(data.message || "Payment initiated successfully.");
+                        localStorage.setItem("paymentStatus", "paid");
+                        location.reload();
+                    } catch (error) {
+                        alert(`Payment Error: ${error.message}`);
+                    }
+                } else {
+                    alert("Error: User not authenticated.");
+                }
+            } else {
+                alert("Invalid phone number format.");
+            }
+        });
+    };
+
+    const initializeDashboard = async () => {
+        const paymentStatus = localStorage.getItem("paymentStatus");
+
+        if (paymentStatus === "not-paid") {
+            showPaymentPopup();
+        }
+    };
+
+    initializeDashboard();
+});
+
 </script>        
 </body>
 </html>
