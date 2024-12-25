@@ -338,31 +338,47 @@ const listenForUpdates = (userId) => {
     });
 };
 
-// Periodic fetch of updated balance
-document.addEventListener('DOMContentLoaded', () => {
-    const balanceElement = document.getElementById('balance-amount');
-
-    function fetchUpdatedBalance() {
-        fetch('/api/payment-status')
-            .then(response => {
-                if (!response.ok) throw new Error('Failed to fetch balance');
-                return response.json();
-            })
-            .then(data => {
-                if (data.newBalance) {
-                    balanceElement.textContent = `${data.newBalance} Ksh`;
-                } else {
-                    balanceElement.textContent = '0 Ksh';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching balance:', error);
-                balanceElement.textContent = 'Error fetching balance';
-            });
+// Firebase authentication state listener
+onAuthStateChanged(auth, async (user) => {
+    if (!auth || !db) {
+        console.error('Firebase auth or db not initialized.');
+        return;
     }
 
-    if (balanceElement) fetchUpdatedBalance();
+    const fetchUpdatedBalance = async () => {
+        const balanceElement = document.getElementById('balance-amount');
+        if (!user || !balanceElement) return;
+
+        try {
+            // Fetch user document from Firestore
+            const userDocRef = doc(db, 'users', user.uid);
+            const userSnapshot = await getDoc(userDocRef);
+
+            if (userSnapshot.exists()) {
+                const userData = userSnapshot.data();
+                const balance = userData.balance || 0; // Get the balance field, default to 0 if not present
+                balanceElement.textContent = `${balance} Ksh`;
+            } else {
+                balanceElement.textContent = '0 Ksh'; // Default to 0 if user document doesn't exist
+            }
+        } catch (error) {
+            console.error('Error fetching balance:', error);
+            balanceElement.textContent = 'Error fetching balance';
+        }
+    };
+
+    // Fetch the balance when user is authenticated
+    await fetchUpdatedBalance();
 });
+
+// Periodic refresh (Optional, if you want to keep it updated automatically)
+document.addEventListener('DOMContentLoaded', () => {
+    setInterval(() => {
+        // Re-fetch the balance periodically, e.g., every 10 seconds
+        fetchUpdatedBalance();
+    }, 10000); // Refresh every 10 seconds
+});
+
 
 // Ensure real-time data updates once user is authenticated
 onAuthStateChanged(auth, (user) => {
