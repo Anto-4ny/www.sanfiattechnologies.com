@@ -21,72 +21,139 @@
         });
     </script>    
     <style>
-    /* Style for the pop-up modal */
-    .popup {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000; /* Ensures popup is above other content */
-    }
-    
-    .popup.hidden {
-        display: none; /* Hide the popup when it is inactive */
-    }
-    
+   /* Style for the pop-up modal */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow: auto; /* Allows scrolling on small screens */
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+    animation: fadeIn 0.5s ease-in-out;
+    background: #000;
+    background-size: cover;
+    background-image: url('https://source.unsplash.com/1600x900/?night,stars');
+}
+
+.popup.hidden {
+    display: none; /* Hide the popup when inactive */
+}
+
+.popup-content {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.5s ease-in-out;
+    position: relative;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
     .popup-content {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        text-align: center;
-        width: 100%;
-        max-width: 400px;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 15px;
     }
-    
-    .activate-btn, .pay-btn {
-        background-color: #28a745;
-        color: #fff;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 10px;
+
+    .popup-content h3 {
+        font-size: 18px;
     }
-    
-    .activate-btn:hover, .pay-btn:hover {
-        background-color: #218838;
-    }
-    
-    input {
-        width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-    }
-    
-    .hidden {
-        display: none; /* General class to hide elements */
-    }
-    
-    .show {
-        display: block; /* General class to show elements */
-    }
-    
-    #payment-section {
-        margin-top: 20px;
-    }
-    
-    .message {
-        color: red;
+
+    .popup-content p, .popup-content ol {
         font-size: 14px;
     }
+}
+
+/* Buttons */
+.activate-btn, .pay-btn {
+    background-color: #28a745;
+    color: #fff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.activate-btn:hover, .pay-btn:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* Payment section */
+#payment-section {
+    margin-top: 20px;
+}
+
+/* Starburst animation background */
+@keyframes starburst {
+    0% {
+        background-position: 0 0, 50% 50%;
+    }
+    100% {
+        background-position: 100% 100%, 50% 50%;
+    }
+}
+
+.popup {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.3) 1%, transparent 20%), 
+                      url('https://source.unsplash.com/1600x900/?stars,night-sky');
+    background-size: 200% 200%, cover;
+    animation: starburst 8s infinite alternate ease-in-out;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Slide in animation for the popup */
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Message styling */
+.message {
+    color: red;
+    font-size: 14px;
+}
+
 </style>    
     <div id="deposit-header" onclick="window.location.href='deposit.html'">
     Deposit
@@ -141,7 +208,6 @@
   <button type="button" id="logout-button"><i class="fas fa-sign-out-alt"></i> Log Out</button>
   </nav>
 <body>
- 
     <div id="payment-popup" class="popup hidden">
         <div class="popup-content">
             <!-- Static message with placeholder for personalization -->
@@ -152,9 +218,9 @@
                 </p>
                 <p>To activate your account:</p>
                 <ol>
-                    <li>Enter your phone number in the field provided. Make sure it starts with <strong>07</strong>.</li>
+                    <li>Enter your phone number in the field provided below. Make sure it starts with <strong>07</strong>.</li>
                     <li>The amount to be paid is <strong>250 Ksh</strong>, which is already filled in for you.</li>
-                    <li>Click the <strong>Pay</strong> button to initiate the payment. You will receive an STK push on your phone to approve the payment.</li>
+                    <li>Click the <strong>activate</strong> button to initiate the payment. You will receive an STK push on your phone to approve the payment.</li>
                     <li>Once the payment is successful, please wait as we verify your payment. You will then be allowed to access the platform.</li>
                 </ol>
                 <p>We look forward to helping you earn and succeed!</p>
@@ -164,20 +230,19 @@
             <div id="payment-section" class="hidden">
                 <label for="phone-number">Enter Phone Number:</label>
                 <input type="text" id="phone-number" placeholder="07xxxxxxxx">
-                
+    
                 <label for="amount-input">Amount to Pay (Ksh):</label>
                 <input type="text" id="amount-input" value="250" readonly>
     
-                <button id="pay-btn" class="pay-btn">Pay</button>
+                <button id="pay-btn" class="pay-btn">Activate</button>
             </div>
         </div>
-    </div>
-    
+    </div>    
     
 <section id="dashboard">
             <div id="dashboard-section">
                 <section class="dashboard-welcome-box">
-                    <h1>Welcome back <span id="firstName"></span>💰</h1>
+                    <h1>Its good to have you on board <span id="firstName"></span>💰</h1>
                         <!-- Notification Bar -->
 <div id="notification-bar">
     Cashback Offers Activated Successfully: Purchase Standard package @2,800 Receive 5,600KES Cashback, Purchase Ultimate package @6,000 Receive 12,000KES Cashback bonus. All Cashbacks are instant!
