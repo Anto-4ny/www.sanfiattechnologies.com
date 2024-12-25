@@ -265,7 +265,9 @@ input {
         
         <!-- Your custom script -->
         <script type="module" src="script.js"></script>
-        <script>        
+        <script>
+        import { auth, db, doc, getDoc } from "./script.js"; // Ensure proper imports
+
         document.addEventListener("DOMContentLoaded", () => {
             const checkUserPaymentStatus = async (user) => {
                 try {
@@ -289,34 +291,35 @@ input {
                     return false;
                 }
             };
-
+        
             const showPaymentPopup = () => {
                 const popup = document.getElementById("payment-popup");
                 if (!popup) {
                     console.error("Payment popup not found.");
                     return;
                 }
-                popup.style.display = "block";
-
+                popup.classList.remove("hidden"); // Show popup
+        
                 const activateBtn = document.getElementById("activate-btn");
                 if (activateBtn) {
                     activateBtn.addEventListener("click", () => {
                         const paymentSection = document.getElementById("payment-section");
                         if (paymentSection) {
-                            paymentSection.style.display = "block";
+                            paymentSection.classList.remove("hidden"); // Show payment section
                         }
                     });
                 }
-
+        
                 const payBtn = document.getElementById("pay-btn");
                 if (payBtn) {
                     payBtn.addEventListener("click", async () => {
                         let phoneNumber = document.getElementById("phone-number")?.value.trim();
-
+        
+                        // Validate phone number
                         if (phoneNumber.match(/^07\d{8}$/)) {
                             phoneNumber = phoneNumber.replace(/^0/, "254");
                         }
-
+        
                         if (phoneNumber.match(/^254\d{9}$/)) {
                             const user = auth.currentUser;
                             if (user?.email) {
@@ -330,7 +333,7 @@ input {
                     });
                 }
             };
-
+        
             const initiatePayment = async (phoneNumber, email) => {
                 try {
                     const response = await fetch("./api/pay", {
@@ -338,15 +341,15 @@ input {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ phoneNumber, email }),
                     });
-
+        
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.error || "Payment failed.");
                     }
-
+        
                     const data = await response.json();
                     alert(data.message || "Payment initiated successfully.");
-
+        
                     localStorage.setItem("paymentStatus", "paid");
                     location.reload();
                 } catch (error) {
@@ -354,29 +357,27 @@ input {
                     alert(`Error: ${error.message}`);
                 }
             };
-
+        
             const initializeDashboard = async (user) => {
                 if (!user) {
                     window.location.href = "index.html";
                     return;
                 }
-
+        
                 const hasPaid = await checkUserPaymentStatus(user);
                 if (!hasPaid) {
                     showPaymentPopup();
                 }
             };
-
+        
             auth.onAuthStateChanged((user) => {
                 if (user) {
-                    const userEmail = user.email;
-                    localStorage.setItem("userEmail", userEmail);
                     initializeDashboard(user);
                 } else {
                     window.location.href = "index.html";
                 }
             });
         });
-    </script>
+</script>        
 </body>
 </html>
