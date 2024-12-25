@@ -116,7 +116,7 @@
 </header>
     <div id="balance-section">
     <i class="fas fa-wallet"></i>
-    <span>Balance: 0 Ksh</span>
+    <span>Balance:  Ksh</span>
         </div>
 
 <div id="overlay"></div>
@@ -144,15 +144,17 @@
  
     <div id="payment-popup" class="popup hidden">
         <div class="popup-content">
-            <h3>Your payment status is pending. Please activate your account.</h3>
-            <button id="activate-btn" class="activate-btn">Activate Account</button>
+            <!-- Personalized welcome message -->
+            <div id="welcome-message"></div>
+    
+            <button id="activate-btn" class="activate-btn">Activate Your Account</button>
             <div id="payment-section" class="hidden">
-                <label for="phone-number">Enter Phone Number:</label>
-                <input type="text" id="phone-number" placeholder="Enter phone number">
-                <button id="pay-btn" class="pay-btn">Pay</button>
+                <label for="phone-number">Enter Your Phone Number:</label>
+                <input type="text" id="phone-number" placeholder="Enter your phone number">
+                <button id="pay-btn" class="pay-btn">Activate</button>
             </div>
         </div>
-    </div>      
+    </div>    
      
 <section id="dashboard">
             <div id="dashboard-section">
@@ -281,10 +283,12 @@
         <script type="module" src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js"></script>
         <script type="module" src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js"></script>
         
-        <!-- Your custom script -->
-        <script type="module" src="script.js"></script>
-        <script>
-        document.addEventListener("DOMContentLoaded", () => {
+       <!-- Your custom script -->
+<script type="module" src="script.js"></script>
+<script type="module">
+    import { auth } from './script.js';  // Import auth from script.js
+
+    document.addEventListener("DOMContentLoaded", () => {
     const showPaymentPopup = () => {
         const popup = document.getElementById("payment-popup");
         popup.classList.remove("hidden");
@@ -298,10 +302,11 @@
         const payBtn = document.getElementById("pay-btn");
         payBtn.addEventListener("click", async () => {
             const phoneNumberInput = document.getElementById("phone-number");
-            const phoneNumber = phoneNumberInput.value.trim();
+            let phoneNumber = phoneNumberInput.value.trim();
 
+            // Ensure the phone number starts with 07, then convert to 254 format
             if (phoneNumber.match(/^07\d{8}$/)) {
-                phoneNumberInput.value = phoneNumber.replace(/^0/, "254");
+                phoneNumber = phoneNumber.replace(/^0/, "254");
             }
 
             if (phoneNumber.match(/^254\d{9}$/)) {
@@ -331,7 +336,7 @@
                     alert("Error: User not authenticated.");
                 }
             } else {
-                alert("Invalid phone number format.");
+                alert("Invalid phone number format. Please enter a number starting with 07.");
             }
         });
     };
@@ -342,11 +347,23 @@
         if (paymentStatus === "not-paid") {
             showPaymentPopup();
         }
+
+        const user = auth.currentUser;
+        if (user?.displayName) {
+            const welcomeMessage = document.getElementById("welcome-message");
+            if (welcomeMessage) {
+                welcomeMessage.innerHTML = `
+                    <h3>Welcome, ${user.displayName}!</h3>
+                    <p>To start enjoying the benefits of Sanfiat Technologies and begin earning by advertising products from top companies, please activate your account.</p>
+                    <p>Once activated, you'll gain full access to the platform and start earning!</p>
+                `;
+            }
+        }
     };
 
     initializeDashboard();
 });
+</script>
 
-</script>        
 </body>
 </html>
