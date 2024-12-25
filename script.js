@@ -211,8 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-import { auth, db, doc, getDoc, query, collection, where, getDocs } from "./script.js";
-
 // Function to check user's authentication and payment status
 const checkAuthenticationAndPayment = async () => {
     // Get user email from local storage
