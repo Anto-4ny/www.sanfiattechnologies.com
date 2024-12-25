@@ -190,7 +190,7 @@ const displayReferralLink = (referralLink) => {
         }
 
         if (whatsappShareButton) {
-            whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+            whatsappShareButton.href = `https://wa.me/?text=Lets Earn Together Buddy: ${referralLink}`;
         }
     }
 };
@@ -262,6 +262,7 @@ auth.onAuthStateChanged(async (user) => {
     }
 });
 
+
 // Function to update the dashboard dynamically
 const updateDashboard = (userData) => {
     const firstNameElement = document.getElementById('firstName');
@@ -298,42 +299,28 @@ function updateProgressBar(elementId, percentage) {
     }
 }
 
-// Firebase authentication state listener
-onAuthStateChanged(auth, async (user) => {
-    if (!auth || !db) {
-        console.error('Firebase auth or db not initialized.');
-        return;
-    }
+// Function to fetch and update balance
+const fetchUpdatedBalance = async (user) => {
+    const balanceElement = document.getElementById('balance-amount');
+    if (!user || !balanceElement) return;
 
-    const fetchAndUpdateUserData = async (user) => {
-        const loadingElement = document.getElementById('loading');
-        if (loadingElement) loadingElement.style.display = 'block';
+    try {
+        // Fetch user document from Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        const userSnapshot = await getDoc(userDocRef);
 
-        if (user) {
-            try {
-                const userDocRef = doc(db, 'users', user.uid);
-                const userSnapshot = await getDoc(userDocRef);
-
-                if (userSnapshot.exists()) {
-                    const userData = userSnapshot.data();
-                    userData.email = user.email; // Add email from auth
-                    updateDashboard(userData);
-                } else {
-                    updateDashboard({ email: user.email }); // Basic fallback
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            } finally {
-                if (loadingElement) loadingElement.style.display = 'none';
-            }
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            const balance = userData.balance || 0; // Get the balance field, default to 0 if not present
+            balanceElement.textContent = `${balance} Ksh`;
         } else {
-            const loginSection = document.getElementById('login-section');
-            if (loginSection) loginSection.scrollIntoView({ behavior: 'smooth' });
+            balanceElement.textContent = '0 Ksh'; // Default to 0 if user document doesn't exist
         }
-    };
-
-    fetchAndUpdateUserData(user);
-});
+    } catch (error) {
+        console.error('Error fetching balance:', error);
+        balanceElement.textContent = 'Error fetching balance';
+    }
+};
 
 // Real-time updates from Firestore
 const listenForUpdates = (userId) => {
@@ -343,6 +330,7 @@ const listenForUpdates = (userId) => {
             const userData = docSnapshot.data();
             userData.email = docSnapshot.id; // Ensure email matches the document ID
             updateDashboard(userData);
+            fetchUpdatedBalance(docSnapshot.id); // Re-fetch balance with real-time updates
         } else {
             console.error('User data does not exist');
         }
@@ -356,49 +344,45 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
-    const fetchUpdatedBalance = async () => {
-        const balanceElement = document.getElementById('balance-amount');
-        if (!user || !balanceElement) return;
+    const loadingElement = document.getElementById('loading');
+    if (loadingElement) loadingElement.style.display = 'block';
 
+    if (user) {
         try {
-            // Fetch user document from Firestore
             const userDocRef = doc(db, 'users', user.uid);
             const userSnapshot = await getDoc(userDocRef);
 
             if (userSnapshot.exists()) {
                 const userData = userSnapshot.data();
-                const balance = userData.balance || 0; // Get the balance field, default to 0 if not present
-                balanceElement.textContent = `${balance} Ksh`;
+                userData.email = user.email; // Add email from auth
+                updateDashboard(userData); // Update dashboard
+                fetchUpdatedBalance(user); // Fetch balance when user is authenticated
             } else {
-                balanceElement.textContent = '0 Ksh'; // Default to 0 if user document doesn't exist
+                updateDashboard({ email: user.email }); // Basic fallback
             }
+
+            listenForUpdates(user.uid); // Listen for real-time updates from Firestore
         } catch (error) {
-            console.error('Error fetching balance:', error);
-            balanceElement.textContent = 'Error fetching balance';
+            console.error('Error fetching user data:', error);
+        } finally {
+            if (loadingElement) loadingElement.style.display = 'none';
         }
-    };
-
-    // Fetch the balance when user is authenticated
-    await fetchUpdatedBalance();
-});
-
-// Periodic refresh (Optional, if you want to keep it updated automatically)
-document.addEventListener('DOMContentLoaded', () => {
-    setInterval(() => {
-        // Re-fetch the balance periodically, e.g., every 10 seconds
-        fetchUpdatedBalance();
-    }, 10000); // Refresh every 10 seconds
-});
-
-
-// Ensure real-time data updates once user is authenticated
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        listenForUpdates(user.uid); // Listen for updates in the Firestore document
+    } else {
+        const loginSection = document.getElementById('login-section');
+        if (loginSection) loginSection.scrollIntoView({ behavior: 'smooth' });
     }
 });
 
-              
+// Periodic refresh (Optional, if you want to keep the balance updated automatically)
+document.addEventListener('DOMContentLoaded', () => {
+    setInterval(() => {
+        const user = auth.currentUser;
+        if (user) {
+            fetchUpdatedBalance(user); // Re-fetch the balance periodically, e.g., every 10 seconds
+        }
+    }, 10000); // Refresh every 10 seconds
+});
+             
 
 // Automatic pop-in effect on page load
 document.addEventListener('DOMContentLoaded', function () {
