@@ -11,6 +11,7 @@ import {
     setDoc,
     getDoc,
     query,
+    onSnapshot,
     collection,
     where,
     getDocs,
@@ -248,8 +249,6 @@ auth.onAuthStateChanged(async (user) => {
         }
     }
 });
-
-import { getDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 // Function to update the dashboard dynamically
 const updateDashboard = (userData) => {
