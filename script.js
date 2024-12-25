@@ -1,6 +1,20 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, query, collection, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    query,
+    collection,
+    where,
+    getDocs,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
 // Firebase configuration
@@ -31,6 +45,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const showSignupButton = document.getElementById("show-signup");
     const showLoginButton = document.getElementById("show-login");
 
+    // Password toggle functionality
+    const togglePasswordVisibility = (inputId, toggleId) => {
+        const input = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(toggleId);
+        if (input && toggleIcon) {
+            toggleIcon.addEventListener("click", () => {
+                const type = input.type === "password" ? "text" : "password";
+                input.type = type;
+                toggleIcon.classList.toggle("fa-eye");
+                toggleIcon.classList.toggle("fa-eye-slash");
+            });
+        }
+    };
+
+    togglePasswordVisibility("login-password", "toggle-login-password");
+    togglePasswordVisibility("signup-password", "toggle-signup-password");
+    togglePasswordVisibility("confirm-password", "toggle-confirm-password");
+
     if (showSignupButton) {
         showSignupButton.addEventListener("click", () => {
             loginSection.classList.add("hidden");
@@ -58,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (user) {
                     localStorage.setItem("userEmail", email);
-
                     // Redirect to dashboard after login
                     window.location.href = "dashboard.html";
                 }
@@ -127,6 +158,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// Display referral link and handle sharing
+const referralLinkElement = document.getElementById("referral-link");
+const copyButton = document.getElementById("copy-link-button");
+const whatsappShareButton = document.getElementById("whatsapp-share-button");
+
+const displayReferralLink = (referralLink) => {
+    if (referralLinkElement) {
+        referralLinkElement.textContent = referralLink;
+
+        if (copyButton) {
+            copyButton.addEventListener("click", () => {
+                navigator.clipboard
+                    .writeText(referralLink)
+                    .then(() => alert("Referral link copied to clipboard!"))
+                    .catch(() => alert("Failed to copy referral link."));
+            });
+        }
+
+        if (whatsappShareButton) {
+            whatsappShareButton.href = `https://wa.me/?text=Join via my referral link: ${referralLink}`;
+        }
+    }
+};
+
+// Load referral link from Firestore if logged in
+const loadReferralLink = async () => {
+    const userEmail = localStorage.getItem("userEmail");
+    if (userEmail) {
+        const q = query(collection(db, "users"), where("email", "==", userEmail));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+            const referralLink = userDoc.data().referralLink;
+            displayReferralLink(referralLink);
+        }
+    }
+};
+
+loadReferralLink();
+
 // Function to check user's payment status
 const checkAuthenticationAndPayment = async () => {
     const userEmail = localStorage.getItem("userEmail");
@@ -176,6 +248,8 @@ auth.onAuthStateChanged(async (user) => {
         }
     }
 });
+
+import { getDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 // Function to update the dashboard dynamically
 const updateDashboard = (userData) => {
@@ -250,6 +324,20 @@ onAuthStateChanged(auth, async (user) => {
     fetchAndUpdateUserData(user);
 });
 
+// Real-time updates from Firestore
+const listenForUpdates = (userId) => {
+    const userDocRef = doc(db, 'users', userId);
+    onSnapshot(userDocRef, (docSnapshot) => {
+        if (docSnapshot.exists()) {
+            const userData = docSnapshot.data();
+            userData.email = docSnapshot.id; // Ensure email matches the document ID
+            updateDashboard(userData);
+        } else {
+            console.error('User data does not exist');
+        }
+    });
+};
+
 // Periodic fetch of updated balance
 document.addEventListener('DOMContentLoaded', () => {
     const balanceElement = document.getElementById('balance-amount');
@@ -275,6 +363,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (balanceElement) fetchUpdatedBalance();
 });
+
+// Ensure real-time data updates once user is authenticated
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        listenForUpdates(user.uid); // Listen for updates in the Firestore document
+    }
+});
+
               
 
 // Automatic pop-in effect on page load
