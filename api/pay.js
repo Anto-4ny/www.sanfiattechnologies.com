@@ -44,8 +44,13 @@ function generatePassword(shortCode) {
 
 async function getAccessToken() {
     try {
-        // Set up the Basic Authorization header
+        // Log the consumer key and secret for debugging
+        console.log('Consumer Key:', process.env.LIVE_APP_CONSUMER_KEY);
+        console.log('Consumer Secret:', process.env.LIVE_APP_CONSUMER_SECRET);
+
+        // Construct Basic Authorization header
         const authHeader = `Basic ${Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
+        console.log('Authorization Header:', authHeader); // Check if the header is correctly constructed
 
         const response = await axios.post(
             process.env.OAUTH_TOKEN_URL, 
@@ -58,7 +63,7 @@ async function getAccessToken() {
             }
         );
 
-        console.log('Access Token Response:', response.data); // Check the full response
+        console.log('Access Token Response:', response.data); // Full response to verify
         if (!response.data.access_token) {
             throw new Error('Access token not received');
         }
@@ -72,6 +77,7 @@ async function getAccessToken() {
         throw new Error('Failed to fetch access token');
     }
 }
+
 
 // Initiate STK Push to Safaricom
 async function initiateSTKPush(token, phoneNumber, amount) {
