@@ -55,7 +55,7 @@
     max-width: 400px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
     animation: slideIn 0.5s ease-in-out;
-    margin: 30px auto; /* Adds margin to prevent the popup from sticking at the top */
+    margin: 50px auto; /* Adds margin to prevent the popup from sticking at the top */
     position: relative;
 }
 
@@ -221,7 +221,7 @@ input {
                 </ol>
                 <p>We look forward to helping you earn and succeed!</p>
             </div>
-    
+            <div id="error-message" class="hidden" style="color: red; margin-top: 10px;"></div>
             <button id="activate-btn" class="activate-btn">Activate Account</button>
             <div id="payment-section" class="hidden">
                 <label for="phone-number">Enter Phone Number:</label>
@@ -365,7 +365,7 @@ input {
        <!-- Your custom script -->
 <script type="module" src="script.js"></script>
 <script type="module">
-    import { auth, db, doc, getDoc } from './script.js'; // Import auth and Firestore functions from script.js
+    import { auth, db, doc, getDoc } from './script.js';
 
     document.addEventListener("DOMContentLoaded", () => {
         const showPaymentPopup = () => {
@@ -382,8 +382,12 @@ input {
             payBtn.addEventListener("click", async () => {
                 const phoneNumberInput = document.getElementById("phone-number");
                 const amountInput = document.getElementById("amount-input");
+                const errorMessageDiv = document.getElementById("error-message");
+
                 let phoneNumber = phoneNumberInput.value.trim();
                 const amount = amountInput.value;
+
+                errorMessageDiv.classList.add("hidden");
 
                 // Ensure the phone number starts with 07 and convert to 254 format
                 if (phoneNumber.match(/^07\d{8}$/)) {
@@ -395,11 +399,17 @@ input {
 
                     if (user?.email) {
                         try {
+                            payBtn.disabled = true;
+                            payBtn.textContent = "Processing...";
+
                             const response = await fetch("./api/pay", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ phoneNumber, email: user.email, amount }),
                             });
+
+                            payBtn.disabled = false;
+                            payBtn.textContent = "Pay";
 
                             if (!response.ok) {
                                 const errorData = await response.json();
@@ -411,13 +421,16 @@ input {
                             localStorage.setItem("paymentStatus", "paid");
                             location.reload();
                         } catch (error) {
-                            alert(`Payment Error: ${error.message}`);
+                            errorMessageDiv.textContent = `Payment Error: ${error.message}`;
+                            errorMessageDiv.classList.remove("hidden");
                         }
                     } else {
                         alert("Error: User not authenticated.");
                     }
                 } else {
-                    alert("Invalid phone number format. Please enter a number starting with 07.");
+                    phoneNumberInput.classList.add("error");
+                    errorMessageDiv.textContent = "Invalid phone number format. Please use a valid number starting with 07.";
+                    errorMessageDiv.classList.remove("hidden");
                 }
             });
         };

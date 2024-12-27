@@ -28,25 +28,21 @@ function generatePassword(shortCode) {
     return Buffer.from(password).toString('base64');
 }
 
-// Fetch Access Token from Safaricom API
 async function getAccessToken() {
     try {
         const response = await axios.post(
-            process.env.OAUTH_TOKEN_URL, // URL remains the same
-            new URLSearchParams({
-                grant_type: 'client_credentials', // Correct the format of the body
-            }),
+            process.env.OAUTH_TOKEN_URL,
+            new URLSearchParams({ grant_type: 'client_credentials' }),
             {
                 auth: {
-                    username: process.env.LIVE_APP_CONSUMER_KEY, // Your Consumer Key
-                    password: process.env.LIVE_APP_CONSUMER_SECRET, // Your Consumer Secret
+                    username: process.env.LIVE_APP_CONSUMER_KEY,
+                    password: process.env.LIVE_APP_CONSUMER_SECRET,
                 },
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded', // Ensure correct content type
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             }
         );
 
+        console.log('Access Token Response:', response.data); // Debug full response
         if (!response.data.access_token) {
             throw new Error('Access token not received');
         }
@@ -54,9 +50,12 @@ async function getAccessToken() {
         return response.data.access_token;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
+        console.error('Status:', error.response?.status);
+        console.error('Headers:', error.response?.headers);
         throw new Error('Failed to fetch access token');
     }
 }
+
 
 // Initiate STK Push to Safaricom
 async function initiateSTKPush(token, phoneNumber, amount) {
