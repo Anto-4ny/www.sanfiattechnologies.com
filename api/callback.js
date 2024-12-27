@@ -44,16 +44,18 @@ module.exports = async (req, res) => {
 
         const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
 
-        // Fetch the payment record using CheckoutRequestID
-        const paymentRef = await db
-            .collection('payments')
-            .where('mpesaCheckoutRequestID', '==', CheckoutRequestID)
-            .get();
+      // Fetch the payment record using CheckoutRequestID
+const paymentRef = await db
+.collection('payments')
+.where('mpesaCheckoutRequestID', '==', CheckoutRequestID)
+.get();
 
-        if (paymentRef.empty) {
-            console.error('No payment record found for CheckoutRequestID:', CheckoutRequestID);
-            return res.status(404).send('Payment record not found');
-        }
+if (paymentRef.empty) {
+console.error('No payment record found for CheckoutRequestID:', CheckoutRequestID);
+console.error('Available payments in Firestore:', await db.collection('payments').get());
+return res.status(404).send('Payment record not found');
+}
+
 
         // Extract the Mpesa receipt number from CallbackMetadata
         let mpesaCode = '';

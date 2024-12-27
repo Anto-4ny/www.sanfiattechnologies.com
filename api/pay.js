@@ -172,6 +172,7 @@ module.exports = async (req, res) => {
             phoneNumber,
             amount,
             status: 'initiated',
+            mpesaCheckoutRequestID: stkResponse.CheckoutRequestID,
             timestamp: new Date(),
         });
 
