@@ -387,6 +387,7 @@ input {
                 let phoneNumber = phoneNumberInput.value.trim();
                 const amount = amountInput.value;
 
+                // Hide any previous error message
                 errorMessageDiv.classList.add("hidden");
 
                 // Ensure the phone number starts with 07 and convert to 254 format
@@ -399,35 +400,50 @@ input {
 
                     if (user?.email) {
                         try {
+                            console.log('Preparing payment payload...');
+                            const payload = { phoneNumber, email: user.email, amount };
+                            console.log('Payload:', payload);
+
+                            // Disable the button to prevent multiple submissions
                             payBtn.disabled = true;
                             payBtn.textContent = "Processing...";
 
+                            // Send the payment request to the server
                             const response = await fetch("/api/pay", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ phoneNumber, email: user.email, amount }),
+                                body: JSON.stringify(payload),
                             });
 
+                            // Re-enable the button after processing
                             payBtn.disabled = false;
                             payBtn.textContent = "Pay";
 
+                            // Check if the response is not OK and handle the error
                             if (!response.ok) {
                                 const errorData = await response.json();
+                                console.error('Payment API Error:', errorData);
                                 throw new Error(errorData.error || "Payment failed.");
                             }
 
+                            // Parse the response and display success message
                             const data = await response.json();
+                            console.log('Payment Success:', data);
+
                             alert(data.message || "Payment initiated successfully. Check your phone for the STK push.");
                             localStorage.setItem("paymentStatus", "paid");
                             location.reload();
                         } catch (error) {
+                            console.error('Error during payment process:', error.message);
                             errorMessageDiv.textContent = `Payment Error: ${error.message}`;
                             errorMessageDiv.classList.remove("hidden");
                         }
                     } else {
+                        console.error("Error: User not authenticated.");
                         alert("Error: User not authenticated.");
                     }
                 } else {
+                    // Highlight the phone number input and show an error message
                     phoneNumberInput.classList.add("error");
                     errorMessageDiv.textContent = "Invalid phone number format. Please use a valid number starting with 07.";
                     errorMessageDiv.classList.remove("hidden");
@@ -438,15 +454,16 @@ input {
         const initializeDashboard = async () => {
             const paymentStatus = localStorage.getItem("paymentStatus");
 
+            // Show the payment popup if payment status is "not-paid"
             if (paymentStatus === "not-paid") {
                 showPaymentPopup();
             }
         };
 
+        // Initialize the dashboard on page load
         initializeDashboard();
     });
 </script>
-
 
 </body>
 </html>
