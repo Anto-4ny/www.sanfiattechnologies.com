@@ -1,9 +1,23 @@
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin SDK only if it's not already initialized
+// Initialize Firebase Admin SDK with environment variables
+const serviceAccount = {
+    type: "service_account",
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Fix newlines in private key
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    client_id: process.env.FIREBASE_CLIENT_ID,
+    auth_uri: process.env.FIREBASE_AUTH_URI,
+    token_uri: process.env.FIREBASE_TOKEN_URI,
+    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+    client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+};
+
+// Initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
     admin.initializeApp({
-        credential: admin.credential.applicationDefault(),
+        credential: admin.credential.cert(serviceAccount),
     });
 }
 
@@ -13,25 +27,22 @@ const db = admin.firestore();
 module.exports = async (req, res) => {
     // Check if the method is POST
     if (req.method !== 'POST') {
-        console.error('Error: Method not allowed');
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // Log the incoming request body for debugging
-        console.log('Step 1: Received callback:', JSON.stringify(req.body, null, 2));
+        console.log('Step 1: Received callback:', req.body);
 
-        // Ensure the body has the necessary structure
+        // Extract necessary data from the request body
         const { Body } = req.body;
         if (!Body || !Body.stkCallback) {
-            console.error('Step 2: Invalid request body');
             return res.status(400).json({ error: 'Invalid request body' });
         }
 
         const { stkCallback } = Body;
-        const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
-
         console.log('Step 3: Extracted stkCallback:', stkCallback);
+
+        const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
 
         // Fetch the payment record using CheckoutRequestID
         const paymentRef = await db
@@ -40,11 +51,9 @@ module.exports = async (req, res) => {
             .get();
 
         if (paymentRef.empty) {
-            console.error('Step 4: No payment record found for CheckoutRequestID:', CheckoutRequestID);
+            console.error('No payment record found for CheckoutRequestID:', CheckoutRequestID);
             return res.status(404).send('Payment record not found');
         }
-
-        console.log('Step 5: Payment records found:', paymentRef.docs.map((doc) => doc.data()));
 
         // Extract the Mpesa receipt number from CallbackMetadata
         let mpesaCode = '';
@@ -54,38 +63,25 @@ module.exports = async (req, res) => {
         }
 
         const status = ResultCode === 0 ? 'Success' : 'Failed';
-        console.log('Step 6: Payment status:', status, 'Mpesa Code:', mpesaCode);
-
         const batch = db.batch();
 
         // Update payment status in the Firestore collection
         paymentRef.forEach((doc) => {
-            console.log('Step 7: Updating payment record:', doc.id);
             batch.update(doc.ref, { status, mpesaCode });
         });
 
         await batch.commit();
-        console.log('Step 8: Payment records updated successfully');
 
         // Update the user's balance if the payment was successful
         if (status === 'Success') {
             const paymentData = paymentRef.docs[0].data(); // Assume one record
-            console.log('Step 9: Payment Data:', paymentData);
-
             const userDocRef = db.collection('users').doc(paymentData.email);
 
             const userDoc = await userDocRef.get();
             if (userDoc.exists) {
                 const newBalance = (userDoc.data().balance || 0) + paymentData.amount;
-                console.log('Step 10: Updating user balance to:', newBalance);
-
                 await userDocRef.update({ balance: newBalance, paidRegistration: true });
-                console.log('Step 11: User balance updated successfully');
-
                 return res.status(200).json({ message: 'Payment successful', newBalance, mpesaCode });
-            } else {
-                console.error('Step 12: User not found in the database');
-                return res.status(404).json({ error: 'User not found in the database' });
             }
         }
 

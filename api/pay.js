@@ -4,8 +4,22 @@ require('dotenv').config(); // Load environment variables
 
 // Initialize Firebase Admin SDK (only initialize once globally)
 if (!admin.apps.length) {
-    admin.initializeApp();
+    admin.initializeApp({
+        credential: admin.credential.cert({
+            type: "service_account",
+            project_id: process.env.FIREBASE_PROJECT_ID,
+            private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+            private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Fix newlines in private key
+            client_email: process.env.FIREBASE_CLIENT_EMAIL,
+            client_id: process.env.FIREBASE_CLIENT_ID,
+            auth_uri: process.env.FIREBASE_AUTH_URI,
+            token_uri: process.env.FIREBASE_TOKEN_URI,
+            auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+            client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+        }),
+    });
 }
+
 const db = admin.firestore();
 
 // Helper to get the current timestamp in Safaricom's expected format
@@ -56,7 +70,6 @@ async function getAccessToken() {
     }
 }
 
-
 // Initiate STK Push to Safaricom
 async function initiateSTKPush(token, phoneNumber, amount) {
     const headers = {
@@ -75,7 +88,7 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         PartyA: formattedPhoneNumber,
         PartyB: process.env.BUSINESS_SHORT_CODE,
         PhoneNumber: formattedPhoneNumber,
-        CallBackURL: process.env.CALLBACK_URL, 
+        CallBackURL: process.env.CALLBACK_URL,
         AccountReference: formattedPhoneNumber,
         TransactionDesc: `Payment to till ${process.env.BUSINESS_SHORT_CODE}`,
     };
@@ -107,10 +120,10 @@ async function registerCallbackURLs(token) {
     };
 
     const payload = {
-        ShortCode: process.env.BUSINESS_SHORT_CODE, 
-        ResponseType: 'Completed', 
-        ConfirmationURL: process.env.CONFIRMATION_URL, 
-        ValidationURL: process.env.VALIDATION_URL, 
+        ShortCode: process.env.BUSINESS_SHORT_CODE,
+        ResponseType: 'Completed',
+        ConfirmationURL: process.env.CONFIRMATION_URL,
+        ValidationURL: process.env.VALIDATION_URL,
     };
 
     try {
