@@ -16,39 +16,47 @@ module.exports = async (req, res) => {
         // Destructure the request body
         const { Body } = req.body;
 
-        // Check if required fields exist in the request body
+        // Validate the request body
         if (!Body || !Body.stkCallback) {
+            console.error('Invalid request body received:', req.body);
             return res.status(400).json({ error: 'Invalid request body' });
         }
 
         const { stkCallback } = Body;
         const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
 
-        // Ensure necessary fields are available
-        if (!CheckoutRequestID || !ResultCode) {
+        // Check for required fields
+        if (!CheckoutRequestID || typeof ResultCode === 'undefined') {
+            console.error('Missing required fields in callback:', { CheckoutRequestID, ResultCode });
             return res.status(400).json({ error: 'Missing required fields in the callback' });
         }
 
-        // Optionally validate the payment request (e.g., checking phone number, amount)
-        const validationStatus = ResultCode === 0 ? 'Success' : 'Failed';
-
-        // Log for debugging purposes
-        console.log('Validation received:', {
+        // Log callback data for debugging purposes
+        console.log('Received validation callback:', {
             CheckoutRequestID,
             ResultCode,
             CallbackMetadata,
         });
 
-        // Construct the validation response that Safaricom expects
+        // Determine validation status based on ResultCode
+        const validationStatus = ResultCode === 0 ? 'Success' : 'Failed';
+
+        // Log validation status
+        console.log(`Validation status for CheckoutRequestID ${CheckoutRequestID}:`, validationStatus);
+
+        // Prepare the response expected by Safaricom
         const validationResponse = {
             ResultCode: validationStatus === 'Success' ? 0 : 1,
-            ResultDesc: validationStatus === 'Success' ? 'Success' : 'Validation failed',
+            ResultDesc: validationStatus === 'Success' ? 'Validation successful' : 'Validation failed',
         };
 
-        // Send the response to Safaricom's validation request
+        // Send response to Safaricom
         res.status(200).json(validationResponse);
     } catch (error) {
-        console.error('Validation error:', error.message || error);
+        // Log errors for debugging
+        console.error('Error during validation processing:', error.message || error);
+
+        // Send a failure response to Safaricom
         res.status(500).json({ error: 'Error during validation' });
     }
 };
