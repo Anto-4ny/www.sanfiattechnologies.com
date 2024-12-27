@@ -1,7 +1,7 @@
-const { db } = require('./firebase-admin');
+const { db } = require('./firebase-admin'); // Import Firestore instance
 const axios = require('axios');
 
-// Helper to get the current timestamp in Safaricom's expected format
+// Helper: Get the current timestamp in Safaricom's expected format
 function getCurrentTimestamp() {
     const now = new Date();
     return (
@@ -14,34 +14,26 @@ function getCurrentTimestamp() {
     );
 }
 
-// Helper to generate the password for STK push
+// Helper: Generate the password for STK push
 function generatePassword(shortCode) {
     const timestamp = getCurrentTimestamp();
     const password = `${shortCode}${process.env.LIVE_APP_PASSKEY}${timestamp}`;
     return Buffer.from(password).toString('base64');
 }
 
+// Caching for access token
 let cachedToken = null;
 let tokenExpiry = null;
 
-// Helper function to get access token
+// Helper: Get access token
 async function getAccessToken() {
+    if (cachedToken && tokenExpiry > Date.now()) {
+        console.log('Using cached access token.');
+        return cachedToken;
+    }
+
     try {
-        // Check if token is cached and still valid
-        if (cachedToken && tokenExpiry > Date.now()) {
-            console.log('Using cached access token.');
-            return cachedToken;
-        }
-
-        // Debug log for better troubleshooting
         console.log('Fetching new access token...');
-        console.log('Environment Variables:', {
-            consumerKey: process.env.LIVE_APP_CONSUMER_KEY,
-            consumerSecret: process.env.LIVE_APP_CONSUMER_SECRET,
-            tokenUrl: process.env.OAUTH_TOKEN_URL,
-        });
-
-        // Construct Basic Authorization header
         const authHeader = `Basic ${Buffer.from(
             `${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`
         ).toString('base64')}`;
@@ -52,7 +44,7 @@ async function getAccessToken() {
             {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': authHeader,
+                    Authorization: authHeader,
                 },
             }
         );
@@ -64,6 +56,7 @@ async function getAccessToken() {
         // Cache the token with a buffer before expiry
         cachedToken = response.data.access_token;
         tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;
+
         console.log('Access token fetched successfully.');
         return cachedToken;
     } catch (error) {
@@ -72,7 +65,7 @@ async function getAccessToken() {
     }
 }
 
-// Initiate STK Push to Safaricom
+// Helper: Initiate STK push
 async function initiateSTKPush(token, phoneNumber, amount) {
     const headers = {
         Authorization: `Bearer ${token}`,
@@ -106,7 +99,7 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     }
 }
 
-// Register Callback URLs with Safaricom
+// Helper: Register Callback URLs with Safaricom
 async function registerCallbackURLs(token) {
     try {
         const headers = {
@@ -135,7 +128,7 @@ async function registerCallbackURLs(token) {
     }
 }
 
-// Main handler function to coordinate payment initiation
+// Main handler: Coordinate payment initiation
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -152,10 +145,13 @@ module.exports = async (req, res) => {
     try {
         const token = await getAccessToken();
 
+        // Register Callback URLs (executed only once)
         await registerCallbackURLs(token);
 
+        // Initiate STK push
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
 
+        // Save payment record in Firestore
         await db.collection('payments').add({
             email,
             phoneNumber,
@@ -227,71 +223,6 @@ module.exports.callback = async (req, res) => {
         res.status(200).json({ message: 'Payment updated successfully', status });
     } catch (error) {
         console.error('Callback processing error:', error.message);
-        res.status(500).send('Error processing callback');
-    }
-};
-
-// api/confirm.js
-
-const { db } = require('./firebase-admin'); // Import Firestore instance
-
-module.exports = async (req, res) => {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
-
-    try {
-        const { Body } = req.body;
-        if (!Body || !Body.stkCallback) {
-            return res.status(400).json({ error: 'Invalid request body' });
-        }
-
-        const { stkCallback } = Body;
-        const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
-
-        // Fetch payment record based on CheckoutRequestID
-        const paymentRef = await db
-            .collection('payments')
-            .where('mpesaCheckoutRequestID', '==', CheckoutRequestID)
-            .get();
-
-        if (paymentRef.empty) {
-            console.error('No payment record found for CheckoutRequestID:', CheckoutRequestID);
-            return res.status(404).send('Payment record not found');
-        }
-
-        let mpesaCode = '';
-        if (CallbackMetadata?.Item) {
-            mpesaCode =
-                CallbackMetadata.Item.find((item) => item.Name === 'MpesaReceiptNumber')?.Value || '';
-        }
-
-        const status = ResultCode === 0 ? 'Success' : 'Failed';
-        const batch = db.batch();
-
-        // Update payment status in the Firestore collection
-        paymentRef.forEach((doc) => {
-            batch.update(doc.ref, { status, mpesaCode });
-        });
-
-        await batch.commit();
-
-        // If payment was successful, update user's balance
-        if (status === 'Success') {
-            const paymentData = paymentRef.docs[0].data(); // Assume one record
-            const userDocRef = db.collection('users').doc(paymentData.email);
-
-            const userDoc = await userDocRef.get();
-            if (userDoc.exists) {
-                const newBalance = (userDoc.data().balance || 0) + paymentData.amount;
-                await userDocRef.update({ balance: newBalance, paidRegistration: true });
-                return res.status(200).json({ message: 'Payment successful', newBalance, mpesaCode });
-            }
-        }
-
-        res.status(200).json({ message: 'Payment updated successfully', status });
-    } catch (error) {
-        console.error('Callback processing error:', error.message || error);
         res.status(500).send('Error processing callback');
     }
 };
