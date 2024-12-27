@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
+const admin = require('firebase-admin');
 const axios = require('axios');
-require('dotenv').config(); // Load environment variables
 
 // Initialize Firebase Admin SDK (only initialize once globally)
 if (!admin.apps.length) {
@@ -52,12 +52,6 @@ async function getAccessToken() {
         if (cachedToken && tokenExpiry > Date.now()) {
             console.log('Using cached access token.');
             return cachedToken;
-        }
-
-        // Log the consumer key and secret for debugging (Ensure this is only for development)
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('Consumer Key:', process.env.LIVE_APP_CONSUMER_KEY);
-            console.log('Consumer Secret:', process.env.LIVE_APP_CONSUMER_SECRET);
         }
 
         // Construct Basic Authorization header
