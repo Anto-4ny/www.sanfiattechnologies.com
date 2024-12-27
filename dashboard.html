@@ -431,8 +431,28 @@ input {
                             console.log('Payment Success:', data);
 
                             alert(data.message || "Payment initiated successfully. Check your phone for the STK push.");
-                            localStorage.setItem("paymentStatus", "paid");
-                            location.reload();
+
+                            // Poll for payment status
+                            const checkPaymentStatus = setInterval(async () => {
+                                const statusResponse = await fetch(`/api/check-status/${data.stkResponse.CheckoutRequestID}`);
+                                const statusData = await statusResponse.json();
+
+                                if (statusData.status === "Success" || statusData.status === "Failed") {
+                                    clearInterval(checkPaymentStatus); // Stop polling
+
+                                    if (statusData.status === "Success") {
+                                        alert("Payment was successful! Your balance has been updated.");
+                                    } else {
+                                        alert("Payment failed. Please try again.");
+                                    }
+                                    localStorage.setItem("paymentStatus", statusData.status);
+                                    location.reload();
+                                }
+                            }, 5000); // Check status every 5 seconds
+
+                            // Save the payment status in localStorage
+                            localStorage.setItem("paymentStatus", "not-paid");
+
                         } catch (error) {
                             console.error('Error during payment process:', error.message);
                             errorMessageDiv.textContent = `Payment Error: ${error.message}`;
@@ -464,6 +484,5 @@ input {
         initializeDashboard();
     });
 </script>
-
 </body>
 </html>
