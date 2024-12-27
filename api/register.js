@@ -1,28 +1,10 @@
+// api/register.js
+
 const { v4: uuidv4 } = require('uuid');
-const admin = require('firebase-admin');
+const bcrypt = require('bcrypt');
+const { db } = require('./firebase-admin'); // Import Firestore instance
 
-// Initialize Firebase Admin SDK with environment variables
-const serviceAccount = {
-    type: "service_account",
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Fix newlines in private key
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    client_id: process.env.FIREBASE_CLIENT_ID,
-    auth_uri: process.env.FIREBASE_AUTH_URI,
-    token_uri: process.env.FIREBASE_TOKEN_URI,
-    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-    client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
-};
-
-// Initialize Firebase Admin SDK only if it's not already initialized
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-    });
-}
-
-const db = admin.firestore();
+const SALT_ROUNDS = 10; // Define a salt round value for bcrypt
 
 /**
  * Generate a referral code based on the user's email
@@ -67,24 +49,21 @@ module.exports = async (req, res) => {
         const newReferralCode = generateReferralCode(email);
         const referralLink = `${req.headers.origin}/signup?ref=${newReferralCode}`;
 
-        const bcrypt = require('bcrypt');
-const SALT_ROUNDS = 10; // Define a salt round value for bcrypt
+        // Hash the password before saving
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-// Replace this block in your `/api/register` endpoint
-const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-const newUser = {
-    firstName,
-    lastName,
-    email,
-    password: hashedPassword, // Store the hashed password
-    referralCode: newReferralCode,
-    referralLink,
-    referredBy: referralCode || null,
-    balance: 0,
-    isActive: false,
-    referredUsers: [],
-};
-
+        const newUser = {
+            firstName,
+            lastName,
+            email,
+            password: hashedPassword, // Store the hashed password
+            referralCode: newReferralCode,
+            referralLink,
+            referredBy: referralCode || null,
+            balance: 0,
+            isActive: false,
+            referredUsers: [],
+        };
 
         // Save the new user to Firestore
         await saveUserToDatabase(newUser);
