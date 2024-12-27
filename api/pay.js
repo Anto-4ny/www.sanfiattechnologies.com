@@ -1,4 +1,3 @@
-// Backend (api/pay.js)
 const { db } = require('./firebase-admin');
 const axios = require('axios');
 
@@ -34,8 +33,18 @@ async function getAccessToken() {
             return cachedToken;
         }
 
+        // Debug log for better troubleshooting
+        console.log('Fetching new access token...');
+        console.log('Environment Variables:', {
+            consumerKey: process.env.LIVE_APP_CONSUMER_KEY,
+            consumerSecret: process.env.LIVE_APP_CONSUMER_SECRET,
+            tokenUrl: process.env.OAUTH_TOKEN_URL,
+        });
+
         // Construct Basic Authorization header
-        const authHeader = `Basic ${Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
+        const authHeader = `Basic ${Buffer.from(
+            `${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`
+        ).toString('base64')}`;
 
         const response = await axios.post(
             process.env.OAUTH_TOKEN_URL,
@@ -52,8 +61,10 @@ async function getAccessToken() {
             throw new Error('Access token not received');
         }
 
+        // Cache the token with a buffer before expiry
         cachedToken = response.data.access_token;
-        tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000; // Token expiry minus 60 seconds buffer
+        tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;
+        console.log('Access token fetched successfully.');
         return cachedToken;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
@@ -85,7 +96,9 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     };
 
     try {
+        console.log('Initiating STK push:', payload);
         const response = await axios.post(process.env.STK_PUSH_URL, payload, { headers });
+        console.log('STK push response:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error in STK Push:', error.response?.data || error.message);
@@ -108,6 +121,7 @@ async function registerCallbackURLs(token) {
             ValidationURL: process.env.VALIDATION_URL,
         };
 
+        console.log('Registering callback URLs:', payload);
         const response = await axios.post('https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl', payload, { headers });
 
         if (response.data.ResponseCode === '0') {
