@@ -44,22 +44,21 @@ function generatePassword(shortCode) {
 
 async function getAccessToken() {
     try {
-        // Create Authorization header manually to ensure it is correct
-        const authHeader = 'Basic ' + Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64');
-        console.log('Authorization Header:', authHeader); // Debugging step
+        // Set up the Basic Authorization header
+        const authHeader = `Basic ${Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
 
         const response = await axios.post(
-            process.env.OAUTH_TOKEN_URL, // Make sure it's the correct live URL
-            new URLSearchParams({ grant_type: 'client_credentials' }),
-            {
-                headers: {
+            process.env.OAUTH_TOKEN_URL, 
+            new URLSearchParams({ grant_type: 'client_credentials' }), 
+            { 
+                headers: { 
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    Authorization: authHeader, // Use the manual Authorization header
-                },
+                    'Authorization': authHeader 
+                } 
             }
         );
 
-        console.log('Access Token Response:', response.data); // Debug full response
+        console.log('Access Token Response:', response.data); // Check the full response
         if (!response.data.access_token) {
             throw new Error('Access token not received');
         }
@@ -67,8 +66,9 @@ async function getAccessToken() {
         return response.data.access_token;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
-        console.error('Status:', error.response?.status);
-        console.error('Headers:', error.response?.headers);
+        if (error.response) {
+            console.error('Full error response:', error.response.data); // Log full response for debugging
+        }
         throw new Error('Failed to fetch access token');
     }
 }
