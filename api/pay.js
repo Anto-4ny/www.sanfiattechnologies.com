@@ -44,15 +44,18 @@ function generatePassword(shortCode) {
 
 async function getAccessToken() {
     try {
+        // Create Authorization header manually to ensure it is correct
+        const authHeader = 'Basic ' + Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64');
+        console.log('Authorization Header:', authHeader); // Debugging step
+
         const response = await axios.post(
-            process.env.OAUTH_TOKEN_URL,
+            process.env.OAUTH_TOKEN_URL, // Make sure it's the correct live URL
             new URLSearchParams({ grant_type: 'client_credentials' }),
             {
-                auth: {
-                    username: process.env.LIVE_APP_CONSUMER_KEY,
-                    password: process.env.LIVE_APP_CONSUMER_SECRET,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    Authorization: authHeader, // Use the manual Authorization header
                 },
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             }
         );
 
