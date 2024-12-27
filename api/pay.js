@@ -48,8 +48,6 @@ async function getAccessToken() {
             }
         );
 
-        console.log('Access Token Response:', response.data);
-
         if (!response.data.access_token) {
             throw new Error('Access token not received');
         }
@@ -59,9 +57,6 @@ async function getAccessToken() {
         return cachedToken;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
-        if (error.response) {
-            console.error('Full error response:', error.response.data);
-        }
         throw new Error('Failed to fetch access token');
     }
 }
@@ -91,20 +86,14 @@ async function initiateSTKPush(token, phoneNumber, amount) {
 
     try {
         const response = await axios.post(process.env.STK_PUSH_URL, payload, { headers });
-        console.log('STK Push Response:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error in STK Push:', error.response?.data || error.message);
-        if (error.response) {
-            console.error('Status:', error.response.status);
-            console.error('Headers:', error.response.headers);
-            console.error('Data:', error.response.data);
-        }
         throw new Error('Failed to initiate STK push');
     }
 }
 
-// Register Callback URLs with Safaricom (only if not already registered)
+// Register Callback URLs with Safaricom
 async function registerCallbackURLs(token) {
     try {
         const headers = {
@@ -121,28 +110,19 @@ async function registerCallbackURLs(token) {
 
         const response = await axios.post('https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl', payload, { headers });
 
-        // Check if the response indicates success in registering the URLs
-        if (response.data && response.data.ResponseCode === '0') {
+        if (response.data.ResponseCode === '0') {
             console.log('Callback URLs registered successfully:', response.data);
         } else {
-            console.log('Callback URLs might already be registered or encountered an issue:', response.data);
+            console.log('Callback URLs might already be registered:', response.data);
         }
-
-        return response.data;
     } catch (error) {
         console.error('Error registering callback URLs:', error.response?.data || error.message);
-        if (error.response) {
-            console.error('Status:', error.response.status);
-            console.error('Headers:', error.response.headers);
-            console.error('Data:', error.response.data);
-        }
         throw new Error('Failed to register callback URLs');
     }
 }
 
-// Main handler function that coordinates the payment initiation
+// Main handler function to coordinate payment initiation
 module.exports = async (req, res) => {
-    // Check if the method is POST
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -153,24 +133,15 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Phone number and email are required.' });
     }
 
-    const amount = 250; // Set fixed amount for payment
+    const amount = 250;
 
     try {
-        console.log('Fetching access token...');
         const token = await getAccessToken();
 
-        if (!token) {
-            return res.status(401).json({ error: 'Invalid access token' });
-        }
-        console.log('Access token fetched successfully:', token);
-
-        // Register Callback URLs (only if not registered)
         await registerCallbackURLs(token);
 
-        // Initiate STK push (this will trigger the payment process)
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
 
-        // Save payment details to Firestore database
         await db.collection('payments').add({
             email,
             phoneNumber,
@@ -180,47 +151,38 @@ module.exports = async (req, res) => {
             timestamp: new Date(),
         });
 
-        return res.status(200).json({ message: 'Payment initiated successfully', stkResponse });
+        res.status(200).json({ message: 'Payment initiated successfully', stkResponse });
     } catch (error) {
         console.error('Error during payment process:', error.message);
-        return res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 };
 
 // Callback handler for Safaricom
 module.exports.callback = async (req, res) => {
-    // Check if the method is POST
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        console.log('Step 1: Received callback:', req.body);
-
-        // Extract necessary data from the request body
         const { Body } = req.body;
+
         if (!Body || !Body.stkCallback) {
             return res.status(400).json({ error: 'Invalid request body' });
         }
 
         const { stkCallback } = Body;
-        console.log('Step 3: Extracted stkCallback:', stkCallback);
-
         const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
 
-        // Fetch the payment record using CheckoutRequestID
         const paymentRef = await db
             .collection('payments')
             .where('mpesaCheckoutRequestID', '==', CheckoutRequestID)
             .get();
 
         if (paymentRef.empty) {
-            console.error('No payment record found for CheckoutRequestID:', CheckoutRequestID);
-            console.error('Available payments in Firestore:', await db.collection('payments').get());
-            return res.status(404).send('Payment record not found');
+            return res.status(404).json({ error: 'Payment record not found' });
         }
 
-        // Extract the Mpesa receipt number from CallbackMetadata
         let mpesaCode = '';
         if (CallbackMetadata?.Item) {
             mpesaCode =
@@ -230,16 +192,14 @@ module.exports.callback = async (req, res) => {
         const status = ResultCode === 0 ? 'Success' : 'Failed';
         const batch = db.batch();
 
-        // Update payment status in the Firestore collection
         paymentRef.forEach((doc) => {
             batch.update(doc.ref, { status, mpesaCode });
         });
 
         await batch.commit();
 
-        // Update the user's balance if the payment was successful
         if (status === 'Success') {
-            const paymentData = paymentRef.docs[0].data(); // Assume one record
+            const paymentData = paymentRef.docs[0].data();
             const userDocRef = db.collection('users').doc(paymentData.email);
 
             const userDoc = await userDocRef.get();
@@ -252,7 +212,7 @@ module.exports.callback = async (req, res) => {
 
         res.status(200).json({ message: 'Payment updated successfully', status });
     } catch (error) {
-        console.error('Callback processing error:', error.message || error);
+        console.error('Callback processing error:', error.message);
         res.status(500).send('Error processing callback');
     }
 };
