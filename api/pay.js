@@ -42,42 +42,55 @@ function generatePassword(shortCode) {
     return Buffer.from(password).toString('base64');
 }
 
+let cachedToken = null;
+let tokenExpiry = null;
+
+// Helper function to get access token
 async function getAccessToken() {
     try {
-        // Log the consumer key and secret for debugging
-        console.log('Consumer Key:', process.env.LIVE_APP_CONSUMER_KEY);
-        console.log('Consumer Secret:', process.env.LIVE_APP_CONSUMER_SECRET);
+        // Check if token is cached and still valid
+        if (cachedToken && tokenExpiry > Date.now()) {
+            console.log('Using cached access token.');
+            return cachedToken;
+        }
+
+        // Log the consumer key and secret for debugging (Ensure this is only for development)
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('Consumer Key:', process.env.LIVE_APP_CONSUMER_KEY);
+            console.log('Consumer Secret:', process.env.LIVE_APP_CONSUMER_SECRET);
+        }
 
         // Construct Basic Authorization header
         const authHeader = `Basic ${Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
-        console.log('Authorization Header:', authHeader); // Check if the header is correctly constructed
 
         const response = await axios.post(
-            process.env.OAUTH_TOKEN_URL, 
-            new URLSearchParams({ grant_type: 'client_credentials' }), 
-            { 
-                headers: { 
+            process.env.OAUTH_TOKEN_URL,
+            new URLSearchParams({ grant_type: 'client_credentials' }),
+            {
+                headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': authHeader 
-                } 
+                    'Authorization': authHeader,
+                },
             }
         );
 
-        console.log('Access Token Response:', response.data); // Full response to verify
+        console.log('Access Token Response:', response.data);
+
         if (!response.data.access_token) {
             throw new Error('Access token not received');
         }
 
-        return response.data.access_token;
+        cachedToken = response.data.access_token;
+        tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000; // Token expiry minus 60 seconds buffer
+        return cachedToken;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
         if (error.response) {
-            console.error('Full error response:', error.response.data); // Log full response for debugging
+            console.error('Full error response:', error.response.data);
         }
         throw new Error('Failed to fetch access token');
     }
 }
-
 
 // Initiate STK Push to Safaricom
 async function initiateSTKPush(token, phoneNumber, amount) {
@@ -117,27 +130,30 @@ async function initiateSTKPush(token, phoneNumber, amount) {
     }
 }
 
-// Register Callback URLs with Safaricom
+// Register Callback URLs with Safaricom (only if not already registered)
 async function registerCallbackURLs(token) {
-    if (!token) {
-        throw new Error('Invalid or missing access token');
-    }
-
-    const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-    };
-
-    const payload = {
-        ShortCode: process.env.BUSINESS_SHORT_CODE,
-        ResponseType: 'Completed',
-        ConfirmationURL: process.env.CONFIRMATION_URL,
-        ValidationURL: process.env.VALIDATION_URL,
-    };
-
     try {
+        const headers = {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        };
+
+        const payload = {
+            ShortCode: process.env.BUSINESS_SHORT_CODE,
+            ResponseType: 'Completed',
+            ConfirmationURL: process.env.CONFIRMATION_URL,
+            ValidationURL: process.env.VALIDATION_URL,
+        };
+
         const response = await axios.post('https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl', payload, { headers });
-        console.log('Callback URLs registered successfully:', response.data);
+
+        // Check if the response indicates success in registering the URLs
+        if (response.data && response.data.ResponseCode === '0') {
+            console.log('Callback URLs registered successfully:', response.data);
+        } else {
+            console.log('Callback URLs might already be registered or encountered an issue:', response.data);
+        }
+
         return response.data;
     } catch (error) {
         console.error('Error registering callback URLs:', error.response?.data || error.message);
@@ -169,7 +185,7 @@ module.exports = async (req, res) => {
         }
         console.log('Access token fetched successfully:', token);
 
-        // Register Callback URLs (can be skipped if already done)
+        // Register Callback URLs (only if not registered)
         await registerCallbackURLs(token);
 
         // Initiate STK push (this will trigger the payment process)
