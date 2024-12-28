@@ -15,37 +15,32 @@ module.exports = async (req, res) => {
         const { stkCallback } = Body;
         const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
 
-        // Fetch the payment record based on the CheckoutRequestID
         const paymentRef = await db
             .collection('payments')
             .where('mpesaCheckoutRequestID', '==', CheckoutRequestID)
             .get();
 
         if (paymentRef.empty) {
-            console.error('Payment record not found for CheckoutRequestID:', CheckoutRequestID);
-            return res.status(404).send('Payment record not found');
+            return res.status(404).json({ error: 'Payment record not found' });
         }
 
         let mpesaCode = '';
         if (CallbackMetadata?.Item) {
-            mpesaCode =
-                CallbackMetadata.Item.find((item) => item.Name === 'MpesaReceiptNumber')?.Value || '';
+            mpesaCode = CallbackMetadata.Item.find((item) => item.Name === 'MpesaReceiptNumber')?.Value || '';
         }
 
-        // Determine the payment status based on ResultCode
         const status = ResultCode === 0 ? 'Success' : 'Failed';
+
         const batch = db.batch();
 
-        // Update the payment status in the Firestore collection
         paymentRef.forEach((doc) => {
             batch.update(doc.ref, { status, mpesaCode });
         });
 
         await batch.commit();
 
-        // If payment was successful, update the user's balance
         if (status === 'Success') {
-            const paymentData = paymentRef.docs[0].data(); // Assume one record
+            const paymentData = paymentRef.docs[0].data();
             const userDocRef = db.collection('users').doc(paymentData.email);
 
             const userDoc = await userDocRef.get();
@@ -56,9 +51,9 @@ module.exports = async (req, res) => {
             }
         }
 
-        res.status(200).json({ message: 'Payment updated successfully', status });
+        res.status(200).json({ message: 'Payment status updated', status });
     } catch (error) {
-        console.error('Callback processing error:', error.message || error);
-        res.status(500).send('Error processing confirmation');
+        console.error('Confirmation callback error:', error.message);
+        res.status(500).json({ error: 'Error processing confirmation callback' });
     }
 };
