@@ -1,8 +1,8 @@
 const axios = require('axios');
 
 // Safaricom credentials
-const LIVE_APP_CONSUMER_KEY = 'WhuFPb2pGxtaFQN5hx7HxV6JixQE9Tl3JQWJV7XxDJtvl3J4';
-const LIVE_APP_CONSUMER_SECRET = 's0WL93eRWFjkUAgdoKsT58fYABKNRly4AJ9A97UWgaXblV1zpgzog5wjJhvHGsii';
+const LIVE_APP_CONSUMER_KEY = 'x7JrWzpTYip5hX6nXK7Za1Na8T8SJMbWlUAglUByjcfQVs7h';
+const LIVE_APP_CONSUMER_SECRET = 'kT0vRQQ6cY6TDEL3px6HMkV55NFeySEbHYHevfDHqAeV2lDsm6woy4aBr5Gd6Yfp';
 
 // API URL for access token generation
 const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
