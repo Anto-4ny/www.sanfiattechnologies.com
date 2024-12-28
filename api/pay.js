@@ -24,12 +24,14 @@ async function getAccessToken() {
     }
 
     const authHeader = `Basic ${Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
+    const oauthUrl = "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"; // Replace if different
+    console.log("Requesting token from:", oauthUrl);
     const response = await axios.post(
-        process.env.OAUTH_TOKEN_URL,
+        oauthUrl,
         new URLSearchParams({ grant_type: 'client_credentials' }),
         { headers: { Authorization: authHeader, 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
-
+    
     cachedToken = response.data.access_token;
     tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;
     return cachedToken;
