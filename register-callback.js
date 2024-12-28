@@ -1,20 +1,27 @@
 const axios = require('axios');
 
-const LIVE_APP_CONSUMER_KEY = 'WhuFPb2pGxtaFQN5hx7HxV6JixQE9Tl3JQWJV7XxDJtvl3J4'; // Direct key
-const LIVE_APP_CONSUMER_SECRET = 's0WL93eRWFjkUAgdoKsT58fYABKNRly4AJ9A97UWgaXblV1zpgzog5wjJhvHGsii'; // Direct secret
-const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'; // Direct URL
+// Direct Safaricom API credentials and URLs
+const LIVE_APP_CONSUMER_KEY = 'WhuFPb2pGxtaFQN5hx7HxV6JixQE9Tl3JQWJV7XxDJtvl3J4';
+const LIVE_APP_CONSUMER_SECRET = 's0WL93eRWFjkUAgdoKsT58fYABKNRly4AJ9A97UWgaXblV1zpgzog5wjJhvHGsii';
+const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
 async function getAccessToken() {
+    // Ensure Basic Authorization header is formatted correctly
     const authHeader = `Basic ${Buffer.from(`${LIVE_APP_CONSUMER_KEY}:${LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
     console.log('Authorization Header:', authHeader); // Log the Authorization header
 
     try {
         const response = await axios.post(
-            OAUTH_TOKEN_URL,
-            new URLSearchParams({ grant_type: 'client_credentials' }).toString(), // Ensure proper formatting
-            { headers: { Authorization: authHeader, 'Content-Type': 'application/x-www-form-urlencoded' } }
+            OAUTH_TOKEN_URL, // Ensure URL is correct
+            {},  // No request body needed since the parameters are in the URL
+            {
+                headers: {
+                    Authorization: authHeader,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            }
         );
-        console.log('Access Token Response:', response.data); // Log the response to check
+        console.log('Access Token Response:', response.data); // Log the response
         return response.data.access_token;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
@@ -30,7 +37,7 @@ async function registerCallbackURLs() {
     }
 
     const payload = {
-        Shortcode: '5467572', // Use direct shortcode
+        Shortcode: '5467572', // Direct shortcode value
         ResponseType: 'Completed',
         ConfirmationURL: 'https://sanfiat.antocapteknologies.com/api/confirmation',
         ValidationURL: 'https://sanfiat.antocapteknologies.com/api/validation',
