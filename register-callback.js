@@ -11,7 +11,7 @@ async function getAccessToken() {
     try {
         const response = await axios.post(
             OAUTH_TOKEN_URL,
-            new URLSearchParams({ grant_type: 'client_credentials' }),
+            new URLSearchParams({ grant_type: 'client_credentials' }).toString(), // Ensure proper formatting
             { headers: { Authorization: authHeader, 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
         console.log('Access Token Response:', response.data); // Log the response to check
