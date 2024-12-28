@@ -37,7 +37,7 @@ async function registerC2B() {
     }
 
     const payload = {
-        Shortcode: '5467572', // Shortcode from Safaricom portal
+        Shortcode: '4904474', // Shortcode from Safaricom portal
         ResponseType: 'Completed',
         ConfirmationURL: 'https://sanfiat.antocapteknologies.com/api/confirmation', // Your confirmation URL
         ValidationURL: 'https://sanfiat.antocapteknologies.com/api/validation', // Your validation URL
