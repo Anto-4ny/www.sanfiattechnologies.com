@@ -25,16 +25,16 @@ async function getAccessToken() {
     }
 
     const authHeader = `Basic ${Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
-    const oauthUrl = `https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials`; // Corrected to GET URL
+    const oauthUrl = `https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials`;
 
     console.log("Requesting token from:", oauthUrl);
     try {
         const response = await axios.get(oauthUrl, {
-            headers: { Authorization: authHeader }, // GET request doesn't need body
+            headers: { Authorization: authHeader },
         });
-        
+
         cachedToken = response.data.access_token;
-        tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;  // Cache token and expiry
+        tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;
         return cachedToken;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
@@ -66,11 +66,12 @@ async function initiateSTKPush(token, phoneNumber, amount) {
 }
 
 module.exports = async (req, res) => {
-    if (req.method !== 'POST') {
+    if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { phoneNumber, email, amount } = req.body;
+    // Extract parameters from query string
+    const { phoneNumber, email, amount } = req.query;
 
     if (!phoneNumber || !email || !amount) {
         return res.status(400).json({ error: 'Phone number, email, and amount are required.' });
@@ -92,6 +93,7 @@ module.exports = async (req, res) => {
 
         res.status(200).json({ message: 'Payment initiated successfully', stkResponse });
     } catch (error) {
+        console.error('Error initiating payment:', error.response?.data || error.message);
         res.status(500).json({ error: error.message });
     }
 };
