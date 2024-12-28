@@ -34,7 +34,7 @@ async function registerCallbackURLs() {
 
     try {
         const response = await axios.post(
-            `${process.env.MPESA_BASE_URL}/mpesa/c2b/v1/registerurl`,
+            `${process.env.MPESA_BASE_URL}/mpesa/c2b/v2/registerurl `,
             payload,
             {
                 headers: {
