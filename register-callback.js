@@ -24,7 +24,7 @@ async function registerCallbackURLs() {
     }
 
     const payload = {
-        ShortCode: process.env.BUSINESS_SHORT_CODE,
+        Shortcode: process.env.BUSINESS_SHORT_CODE,
         ResponseType: 'Completed',
         ConfirmationURL: process.env.CONFIRMATION_URL,
         ValidationURL: process.env.VALIDATION_URL,
@@ -34,7 +34,7 @@ async function registerCallbackURLs() {
 
     try {
         const response = await axios.post(
-            `${process.env.MPESA_BASE_URL}/mpesa/c2b/v2/registerurl `,
+            `${process.env.MPESA_BASE_URL}/mpesa/c2b/v2/registerurl`,
             payload,
             {
                 headers: {
