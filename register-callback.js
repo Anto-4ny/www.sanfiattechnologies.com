@@ -1,27 +1,30 @@
 const axios = require('axios');
 
-// Direct Safaricom API credentials and URLs
+// Safaricom credentials
 const LIVE_APP_CONSUMER_KEY = 'WhuFPb2pGxtaFQN5hx7HxV6JixQE9Tl3JQWJV7XxDJtvl3J4';
 const LIVE_APP_CONSUMER_SECRET = 's0WL93eRWFjkUAgdoKsT58fYABKNRly4AJ9A97UWgaXblV1zpgzog5wjJhvHGsii';
+
+// API URL for access token generation
 const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
+// Function to get access token
 async function getAccessToken() {
-    // Ensure Basic Authorization header is formatted correctly
     const authHeader = `Basic ${Buffer.from(`${LIVE_APP_CONSUMER_KEY}:${LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
-    console.log('Authorization Header:', authHeader); // Log the Authorization header
+    console.log('Authorization Header:', authHeader);  // Log the Authorization header to ensure it's correct
 
     try {
         const response = await axios.post(
-            OAUTH_TOKEN_URL, // Ensure URL is correct
-            {},  // No request body needed since the parameters are in the URL
+            OAUTH_TOKEN_URL,  // Correct URL for token generation
+            {},  // Empty body, parameters are already in the URL
             {
                 headers: {
-                    Authorization: authHeader,
+                    Authorization: authHeader,  // Authorization header with base64 encoded credentials
                     'Content-Type': 'application/x-www-form-urlencoded',
                 }
             }
         );
-        console.log('Access Token Response:', response.data); // Log the response
+        
+        console.log('Access Token Response:', response.data); // Log the access token response
         return response.data.access_token;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
@@ -29,7 +32,8 @@ async function getAccessToken() {
     }
 }
 
-async function registerCallbackURLs() {
+// Example of making a C2B registration call
+async function registerC2B() {
     const token = await getAccessToken();
     if (!token) {
         console.error('Failed to get access token.');
@@ -37,34 +41,35 @@ async function registerCallbackURLs() {
     }
 
     const payload = {
-        Shortcode: '5467572', // Direct shortcode value
+        Shortcode: '5467572', // Shortcode from Safaricom portal
         ResponseType: 'Completed',
-        ConfirmationURL: 'https://sanfiat.antocapteknologies.com/api/confirmation',
-        ValidationURL: 'https://sanfiat.antocapteknologies.com/api/validation',
+        ConfirmationURL: 'https://sanfiat.antocapteknologies.com/api/confirmation', // Your confirmation URL
+        ValidationURL: 'https://sanfiat.antocapteknologies.com/api/validation', // Your validation URL
     };
 
-    console.log('Payload:', payload); // Log the payload to check values
+    console.log('Payload:', payload);  // Log the payload to ensure it is set correctly
 
     try {
         const response = await axios.post(
-            'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl',
+            'https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl',  // C2B Registration URL
             payload,
             {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`,  // Use the access token here
                     'Content-Type': 'application/json',
                 },
             }
         );
 
         if (response.data.ResponseCode === '0') {
-            console.log('Callback URLs registered successfully:', response.data);
+            console.log('C2B Registration successful:', response.data);
         } else {
-            console.error('Callback URL registration issue:', response.data);
+            console.error('C2B Registration issue:', response.data);
         }
     } catch (error) {
-        console.error('Error during callback URL registration:', error.response?.data || error.message);
+        console.error('Error during C2B registration:', error.response?.data || error.message);
     }
 }
 
-registerCallbackURLs();
+// Run the function to register C2B
+registerC2B();
