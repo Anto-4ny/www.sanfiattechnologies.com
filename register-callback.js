@@ -5,7 +5,7 @@ const LIVE_APP_CONSUMER_KEY = 'WhuFPb2pGxtaFQN5hx7HxV6JixQE9Tl3JQWJV7XxDJtvl3J4'
 const LIVE_APP_CONSUMER_SECRET = 's0WL93eRWFjkUAgdoKsT58fYABKNRly4AJ9A97UWgaXblV1zpgzog5wjJhvHGsii';
 
 // API URL for access token generation
-const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
+const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
 // Function to get access token
 async function getAccessToken() {
@@ -13,16 +13,12 @@ async function getAccessToken() {
     console.log('Authorization Header:', authHeader);  // Log the Authorization header to ensure it's correct
 
     try {
-        const response = await axios.post(
-            OAUTH_TOKEN_URL,  // Correct URL for token generation
-            {},  // Empty body, parameters are already in the URL
-            {
-                headers: {
-                    Authorization: authHeader,  // Authorization header with base64 encoded credentials
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }
+        const response = await axios.get(OAUTH_TOKEN_URL, {
+            headers: {
+                Authorization: authHeader,  // Authorization header with base64 encoded credentials
+                'Content-Type': 'application/x-www-form-urlencoded', // You can remove this line if it's not required in the GET request
             }
-        );
+        });
         
         console.log('Access Token Response:', response.data); // Log the access token response
         return response.data.access_token;
