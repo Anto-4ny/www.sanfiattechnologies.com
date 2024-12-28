@@ -17,6 +17,7 @@ async function getAccessToken() {
             new URLSearchParams({ grant_type: 'client_credentials' }),
             { headers: { Authorization: authHeader, 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
+        console.log('Access Token Response:', response.data); // Log the response to check
         return response.data.access_token;
     } catch (error) {
         console.error('Error fetching access token:', error.response?.data || error.message);
