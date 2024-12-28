@@ -242,12 +242,15 @@
         function getQueryParams() {
           const queryString = window.location.search;
           const urlParams = new URLSearchParams(queryString);
-          const packageName = urlParams.get('packageName');
-          const packagePrice = urlParams.get('packagePrice');
+          const packageName = urlParams.get("packageName");
+          const packagePrice = urlParams.get("packagePrice");
     
-          if (packagePrice) {
-            document.getElementById('package-amount').textContent = `${packagePrice} Ksh`;
-            document.getElementById('amount').value = packagePrice;
+          if (packagePrice && !isNaN(packagePrice)) {
+            document.getElementById("package-amount").textContent = `${packagePrice} Ksh`;
+            document.getElementById("amount").value = packagePrice;
+          } else {
+            console.error("Invalid or missing package price in URL parameters.");
+            document.getElementById("package-amount").textContent = "Error: Invalid package price.";
           }
     
           return { packageName, packagePrice };
@@ -263,7 +266,7 @@
         const phoneNumberInput = document.getElementById("phone-number");
         const phoneNumberError = document.getElementById("phone-number-error");
     
-        phoneNumberInput.addEventListener("input", function() {
+        phoneNumberInput.addEventListener("input", function () {
           const phoneNumber = phoneNumberInput.value.trim();
           if (!phoneNumber.match(/^07\d{8}$/)) {
             phoneNumberError.textContent = "Invalid phone number. Please enter a valid MPESA number.";
@@ -277,7 +280,7 @@
         const amountInput = document.getElementById("amount");
         const amountError = document.getElementById("amount-error");
     
-        amountInput.addEventListener("input", function() {
+        amountInput.addEventListener("input", function () {
           const amount = amountInput.value.trim();
           if (isNaN(amount) || amount <= 0) {
             amountError.textContent = "Please enter a valid amount.";
@@ -290,38 +293,42 @@
         // Function to set the amount automatically in the input field
         function setAmount(amount) {
           // Set the value of the amount input field
-          document.getElementById('amount').value = amount;
+          document.getElementById("amount").value = amount;
     
-          // Optionally, clear the error message if the amount is valid
-          amountError.textContent = "";  // Clear error message
+          // Clear error message if the amount is valid
+          amountError.textContent = ""; // Clear error message
         }
     
         // Handle payment initiation
         document.getElementById("pay-button").addEventListener("click", async function () {
-          const phoneNumber = document.getElementById("phone-number").value.trim();
+          let phoneNumber = document.getElementById("phone-number").value.trim();
           const amount = document.getElementById("amount").value.trim();
           const email = getUserEmail();
     
-          if (phoneNumber.match(/^07\d{8}$/) && amount > 0 && email) {
+          // Convert phone number to international format if needed
+          if (phoneNumber.match(/^07\d{8}$/)) {
+            phoneNumber = phoneNumber.replace(/^0/, "254");
+          }
+    
+          if (phoneNumber.match(/^254\d{9}$/) && amount > 0 && email) {
             try {
-              const response = await fetch('/api/pay', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phoneNumber, amount, email })
-              });
+              const response = await fetch(
+                `/api/pay?phoneNumber=${phoneNumber}&amount=${amount}&email=${encodeURIComponent(email)}`,
+                { method: "GET" }
+              );
               const data = await response.json();
     
-              if (data.status === 'Success') {
+              if (data.status === "Success") {
                 document.getElementById("confirmation-section").style.display = "block"; // Show confirmation section after payment initiation
-                alert('Payment initiation successful. Please proceed with your MPESA transaction.');
+                alert("Payment initiation successful. Please proceed with your MPESA transaction.");
               } else {
-                alert('Error initiating payment. Please try again.');
+                alert("Error initiating payment. Please try again.");
               }
             } catch (error) {
-              console.error('Payment initiation error:', error);
+              console.error("Payment initiation error:", error);
             }
           } else {
-            alert('Please fill in the valid phone number, amount, and make sure you are logged in.');
+            alert("Please fill in the valid phone number, amount, and make sure you are logged in.");
           }
         });
     
@@ -383,14 +390,14 @@
         const packageInfo = getQueryParams();
     
         // Amount suggestion buttons click listener
-        document.querySelectorAll('.amount-suggestion').forEach(button => {
-          button.addEventListener('click', () => {
+        document.querySelectorAll(".amount-suggestion").forEach((button) => {
+          button.addEventListener("click", () => {
             const amount = button.textContent.trim();
-            setAmount(amount);  // Set amount when button is clicked
+            setAmount(amount); // Set amount when button is clicked
           });
         });
       });
-    </script>
+    </script>    
     
 </body>
 </html>

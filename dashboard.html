@@ -409,10 +409,8 @@ input {
                             payBtn.textContent = "Processing...";
 
                             // Send the payment request to the server
-                            const response = await fetch("/api/pay", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(payload),
+                            const response = await fetch(`/api/pay?phoneNumber=${phoneNumber}&email=${encodeURIComponent(user.email)}&amount=${amount}`, {
+                                method: "GET", // Updated to GET
                             });
 
                             // Re-enable the button after processing
@@ -434,7 +432,7 @@ input {
 
                             // Poll for payment status
                             const checkPaymentStatus = setInterval(async () => {
-                                const statusResponse = await fetch(`/api/check-status/${data.stkResponse.CheckoutRequestID}`);
+                                const statusResponse = await fetch(`/api/check-status?CheckoutRequestID=${data.stkResponse.CheckoutRequestID}`); // Updated to use query parameter
                                 const statusData = await statusResponse.json();
 
                                 if (statusData.status === "Success" || statusData.status === "Failed") {
