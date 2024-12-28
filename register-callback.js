@@ -20,28 +20,38 @@ async function getAccessToken() {
     return response.data.access_token;
 }
 
-// Helper: Register callback URLs
 async function registerCallbackURLs() {
-    const token = await getAccessToken();
+    try {
+        const token = await getAccessToken();
 
-    const payload = {
-        ShortCode: process.env.BUSINESS_SHORT_CODE,
-        ResponseType: 'Completed',
-        ConfirmationURL: process.env.CONFIRMATION_URL,
-        ValidationURL: process.env.VALIDATION_URL,
-    };
+        const payload = {
+            ShortCode: process.env.BUSINESS_SHORT_CODE,
+            ResponseType: 'Completed',
+            ConfirmationURL: process.env.CONFIRMATION_URL,
+            ValidationURL: process.env.VALIDATION_URL,
+        };
 
-    const response = await axios.post(`${process.env.MPESA_BASE_URL}/mpesa/c2b/v1/registerurl`, payload, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
-    });
+        console.log("Payload:", payload);
+        console.log("Request URL:", `${process.env.MPESA_BASE_URL}/mpesa/c2b/v1/registerurl`);
 
-    if (response.data.ResponseCode === '0') {
-        console.log('Callback URLs registered successfully:', response.data);
-    } else {
-        console.error('Failed to register callback URLs:', response.data);
+        const response = await axios.post(
+            `${process.env.MPESA_BASE_URL}/mpesa/c2b/v1/registerurl`,
+            payload,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (response.data.ResponseCode === '0') {
+            console.log('Callback URLs registered successfully:', response.data);
+        } else {
+            console.error('Callback URL registration issue:', response.data);
+        }
+    } catch (error) {
+        console.error('Error during callback URL registration:', error.response?.data || error.message);
     }
 }
 
