@@ -5,7 +5,7 @@ const LIVE_APP_CONSUMER_KEY = 'WhuFPb2pGxtaFQN5hx7HxV6JixQE9Tl3JQWJV7XxDJtvl3J4'
 const LIVE_APP_CONSUMER_SECRET = 's0WL93eRWFjkUAgdoKsT58fYABKNRly4AJ9A97UWgaXblV1zpgzog5wjJhvHGsii';
 
 // API URL for access token generation
-const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
+const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
 
 // Function to get access token
 async function getAccessToken() {
@@ -13,13 +13,13 @@ async function getAccessToken() {
     console.log('Authorization Header:', authHeader);  // Log the Authorization header to ensure it's correct
 
     try {
+        // Sending GET request to fetch the access token
         const response = await axios.get(OAUTH_TOKEN_URL, {
             headers: {
                 Authorization: authHeader,  // Authorization header with base64 encoded credentials
-                'Content-Type': 'application/x-www-form-urlencoded', // You can remove this line if it's not required in the GET request
             }
         });
-        
+
         console.log('Access Token Response:', response.data); // Log the access token response
         return response.data.access_token;
     } catch (error) {
@@ -37,15 +37,16 @@ async function registerC2B() {
     }
 
     const payload = {
-        Shortcode: '4904474', // Shortcode from Safaricom portal
+        Shortcode: '5467572', // Correct Shortcode from Safaricom portal
         ResponseType: 'Completed',
         ConfirmationURL: 'https://sanfiat.antocapteknologies.com/api/confirmation', // Your confirmation URL
         ValidationURL: 'https://sanfiat.antocapteknologies.com/api/validation', // Your validation URL
     };
 
-    console.log('Payload:', payload);  // Log the payload to ensure it is set correctly
+    console.log('Payload:', payload);  // Log the payload to ensure it is correct
 
     try {
+        // Send C2B registration request
         const response = await axios.post(
             'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl',  // C2B Registration URL
             payload,

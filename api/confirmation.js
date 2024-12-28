@@ -1,19 +1,19 @@
 const { db } = require('./firebase-admin'); // Import Firestore instance
 
 module.exports = async (req, res) => {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method not allowed, only GET is allowed' });
     }
 
     try {
-        const { Body } = req.body;
+        const { CheckoutRequestID, ResultCode, MpesaReceiptNumber } = req.query;
 
-        if (!Body || !Body.stkCallback) {
-            return res.status(400).json({ error: 'Invalid request body' });
+        if (!CheckoutRequestID || !ResultCode) {
+            return res.status(400).json({ error: 'Missing required parameters' });
         }
 
-        const { stkCallback } = Body;
-        const { CheckoutRequestID, ResultCode, CallbackMetadata } = stkCallback;
+        // Check if MpesaReceiptNumber is provided in the query
+        let mpesaCode = MpesaReceiptNumber || '';
 
         const paymentRef = await db
             .collection('payments')
@@ -24,12 +24,7 @@ module.exports = async (req, res) => {
             return res.status(404).json({ error: 'Payment record not found' });
         }
 
-        let mpesaCode = '';
-        if (CallbackMetadata?.Item) {
-            mpesaCode = CallbackMetadata.Item.find((item) => item.Name === 'MpesaReceiptNumber')?.Value || '';
-        }
-
-        const status = ResultCode === 0 ? 'Success' : 'Failed';
+        const status = ResultCode === '0' ? 'Success' : 'Failed';
 
         const batch = db.batch();
 

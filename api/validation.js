@@ -1,10 +1,10 @@
 module.exports = async (req, res) => {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method not allowed, only GET is allowed' });
     }
 
     try {
-        const { TransactionType, TransID, TransAmount, BusinessShortCode, MSISDN, InvoiceNumber } = req.body;
+        const { TransactionType, TransID, TransAmount, BusinessShortCode, MSISDN, InvoiceNumber } = req.query;
 
         // Implement your validation logic here
         const isValidTransaction = TransAmount >= 250 && BusinessShortCode === process.env.BUSINESS_SHORT_CODE;

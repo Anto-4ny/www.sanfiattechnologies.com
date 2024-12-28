@@ -18,23 +18,28 @@ function generatePassword(shortCode) {
 let cachedToken = null;
 let tokenExpiry = null;
 
+// Updated to use GET for access token request
 async function getAccessToken() {
     if (cachedToken && tokenExpiry > Date.now()) {
         return cachedToken;
     }
 
     const authHeader = `Basic ${Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
-    const oauthUrl = "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"; // Replace if different
+    const oauthUrl = `https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials`; // Corrected to GET URL
+
     console.log("Requesting token from:", oauthUrl);
-    const response = await axios.post(
-        oauthUrl,
-        new URLSearchParams({ grant_type: 'client_credentials' }),
-        { headers: { Authorization: authHeader, 'Content-Type': 'application/x-www-form-urlencoded' } }
-    );
-    
-    cachedToken = response.data.access_token;
-    tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;
-    return cachedToken;
+    try {
+        const response = await axios.get(oauthUrl, {
+            headers: { Authorization: authHeader }, // GET request doesn't need body
+        });
+        
+        cachedToken = response.data.access_token;
+        tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;  // Cache token and expiry
+        return cachedToken;
+    } catch (error) {
+        console.error('Error fetching access token:', error.response?.data || error.message);
+        throw new Error('Failed to fetch access token');
+    }
 }
 
 // Initiate STK push

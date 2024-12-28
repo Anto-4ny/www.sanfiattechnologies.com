@@ -1,8 +1,15 @@
-// api/check-status.js
 const { db } = require('./firebase-admin');
 
 module.exports = async (req, res) => {
-    const { CheckoutRequestID } = req.params;
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method not allowed, only GET is allowed' });
+    }
+
+    const { CheckoutRequestID } = req.query; // Use req.query to access query parameters
+
+    if (!CheckoutRequestID) {
+        return res.status(400).json({ error: 'CheckoutRequestID is required' });
+    }
 
     try {
         const paymentRef = await db
