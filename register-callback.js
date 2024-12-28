@@ -1,38 +1,38 @@
 const axios = require('axios');
+require('dotenv').config();
 
-// Helper: Get access token
 async function getAccessToken() {
-    const authHeader = `Basic ${Buffer.from(
-        `${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`
-    ).toString('base64')}`;
-
-    const response = await axios.post(
-        process.env.OAUTH_TOKEN_URL,
-        new URLSearchParams({ grant_type: 'client_credentials' }),
-        {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                Authorization: authHeader,
-            },
-        }
-    );
-
-    return response.data.access_token;
-}
-async function registerCallbackURLs() {
+    const authHeader = `Basic ${Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
     try {
-        const token = await getAccessToken();
+        const response = await axios.post(
+            process.env.OAUTH_TOKEN_URL,
+            new URLSearchParams({ grant_type: 'client_credentials' }),
+            { headers: { Authorization: authHeader, 'Content-Type': 'application/x-www-form-urlencoded' } }
+        );
+        return response.data.access_token;
+    } catch (error) {
+        console.error('Error fetching access token:', error.response?.data || error.message);
+        return null;
+    }
+}
 
-        const payload = {
-            ShortCode: process.env.BUSINESS_SHORT_CODE,
-            ResponseType: 'Completed',
-            ConfirmationURL: process.env.CONFIRMATION_URL,
-            ValidationURL: process.env.VALIDATION_URL,
-        };
+async function registerCallbackURLs() {
+    const token = await getAccessToken();
+    if (!token) {
+        console.error('Failed to get access token.');
+        return;
+    }
 
-        console.log("Payload:", payload);
-        console.log("Request URL:", `${process.env.MPESA_BASE_URL}/mpesa/c2b/v1/registerurl`);
+    const payload = {
+        ShortCode: process.env.BUSINESS_SHORT_CODE,
+        ResponseType: 'Completed',
+        ConfirmationURL: process.env.CONFIRMATION_URL,
+        ValidationURL: process.env.VALIDATION_URL,
+    };
 
+    console.log('Payload:', payload);  // Log the payload to check values
+
+    try {
         const response = await axios.post(
             `${process.env.MPESA_BASE_URL}/mpesa/c2b/v1/registerurl`,
             payload,
@@ -53,3 +53,5 @@ async function registerCallbackURLs() {
         console.error('Error during callback URL registration:', error.response?.data || error.message);
     }
 }
+
+registerCallbackURLs();
