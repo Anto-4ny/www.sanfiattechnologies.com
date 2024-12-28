@@ -19,7 +19,6 @@ async function getAccessToken() {
 
     return response.data.access_token;
 }
-
 async function registerCallbackURLs() {
     try {
         const token = await getAccessToken();
@@ -54,13 +53,3 @@ async function registerCallbackURLs() {
         console.error('Error during callback URL registration:', error.response?.data || error.message);
     }
 }
-
-// Run the script
-(async () => {
-    try {
-        await registerCallbackURLs();
-        console.log('Callback URL registration completed.');
-    } catch (error) {
-        console.error('Error during callback URL registration:', error.response?.data || error.message);
-    }
-})();
