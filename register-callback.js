@@ -1,16 +1,13 @@
 const axios = require('axios');
 
-// Safaricom API credentials and endpoints
-const LIVE_APP_CONSUMER_KEY = 'WhuFPb2pGxtaFQN5hx7HxV6JixQE9Tl3JQWJV7XxDJtvl3J4';  // Replace with your actual key
-const LIVE_APP_CONSUMER_SECRET = 's0WL93eRWFjkUAgdoKsT58fYABKNRly4AJ9A97UWgaXblV1zpgzog5wjJhvHGsii';  // Replace with your actual secret
-const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
-const MPESA_BASE_URL = 'https://api.safaricom.co.ke';
-const BUSINESS_SHORT_CODE = '5467572';  // Replace with your shortcode
-const CONFIRMATION_URL = 'https://sanfiat.antocapteknologies.com/api/confirmation';  // Replace with your confirmation URL
-const VALIDATION_URL = 'https://sanfiat.antocapteknologies.com/api/validation';  // Replace with your validation URL
+const LIVE_APP_CONSUMER_KEY = 'WhuFPb2pGxtaFQN5hx7HxV6JixQE9Tl3JQWJV7XxDJtvl3J4'; // Direct key
+const LIVE_APP_CONSUMER_SECRET = 's0WL93eRWFjkUAgdoKsT58fYABKNRly4AJ9A97UWgaXblV1zpgzog5wjJhvHGsii'; // Direct secret
+const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'; // Direct URL
 
 async function getAccessToken() {
     const authHeader = `Basic ${Buffer.from(`${LIVE_APP_CONSUMER_KEY}:${LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
+    console.log('Authorization Header:', authHeader); // Log the Authorization header
+
     try {
         const response = await axios.post(
             OAUTH_TOKEN_URL,
@@ -33,17 +30,17 @@ async function registerCallbackURLs() {
     }
 
     const payload = {
-        Shortcode: BUSINESS_SHORT_CODE,
+        Shortcode: '5467572', // Use direct shortcode
         ResponseType: 'Completed',
-        ConfirmationURL: CONFIRMATION_URL,
-        ValidationURL: VALIDATION_URL,
+        ConfirmationURL: 'https://sanfiat.antocapteknologies.com/api/confirmation',
+        ValidationURL: 'https://sanfiat.antocapteknologies.com/api/validation',
     };
 
-    console.log('Payload:', payload);  // Log the payload to check values
+    console.log('Payload:', payload); // Log the payload to check values
 
     try {
         const response = await axios.post(
-            `${MPESA_BASE_URL}/mpesa/c2b/v2/registerurl`,
+            'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl',
             payload,
             {
                 headers: {
