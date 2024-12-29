@@ -8,9 +8,9 @@ function getCurrentTimestamp() {
 }
 
 // Helper: Generate STK push password
-function generatePassword(shortCode) {
+function generatePassword() {
     const timestamp = getCurrentTimestamp();
-    const password = `${shortCode}${process.env.LIVE_APP_PASSKEY}${timestamp}`;
+    const password = `${process.env.BUSINESS_SHORT_CODE}${process.env.LIVE_APP_PASSKEY}${timestamp}`;
     return Buffer.from(password).toString('base64');
 }
 
@@ -45,7 +45,7 @@ async function getAccessToken() {
 async function initiateSTKPush(token, phoneNumber, amount) {
     const payload = {
         BusinessShortCode: process.env.BUSINESS_SHORT_CODE, // This is the Till Number
-        Password: generatePassword(process.env.BUSINESS_SHORT_CODE),
+        Password: generatePassword(),
         Timestamp: getCurrentTimestamp(),
         TransactionType: 'CustomerBuyGoodsOnline', // Correct TransactionType for Till Numbers
         Amount: amount,

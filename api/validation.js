@@ -6,6 +6,14 @@ module.exports = async (req, res) => {
     try {
         const { TransactionType, TransID, TransAmount, BusinessShortCode, MSISDN, InvoiceNumber } = req.query;
 
+        // Validate that all required fields are present
+        if (!TransactionType || !TransID || !TransAmount || !BusinessShortCode || !MSISDN || !InvoiceNumber) {
+            return res.status(400).json({
+                ResultCode: 1, // Reject transaction
+                ResultDesc: 'Missing required parameters.',
+            });
+        }
+
         // Implement your validation logic here
         const isValidTransaction = TransAmount >= 250 && BusinessShortCode === process.env.BUSINESS_SHORT_CODE;
 

@@ -1,8 +1,12 @@
 const axios = require('axios');
 
-// Safaricom credentials
-const LIVE_APP_CONSUMER_KEY = 'WhuFPb2pGxtaFQN5hx7HxV6JixQE9Tl3JQWJV7XxDJtvl3J4';
-const LIVE_APP_CONSUMER_SECRET = 's0WL93eRWFjkUAgdoKsT58fYABKNRly4AJ9A97UWgaXblV1zpgzog5wjJhvHGsii';
+// Safaricom credentials from environment variables
+const LIVE_APP_CONSUMER_KEY = process.env.LIVE_APP_CONSUMER_KEY;
+const LIVE_APP_CONSUMER_SECRET = process.env.LIVE_APP_CONSUMER_SECRET;
+const BUSINESS_SHORT_CODE = process.env.BUSINESS_SHORT_CODE;
+const CALLBACK_URL = process.env.CALLBACK_URL;
+const VALIDATION_URL = process.env.VALIDATION_URL;
+const STK_PUSH_URL = process.env.STK_PUSH_URL;
 
 // API URL for access token generation
 const OAUTH_TOKEN_URL = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
@@ -37,10 +41,10 @@ async function registerC2B() {
     }
 
     const payload = {
-        Shortcode: '5467572', // Correct Shortcode from Safaricom portal
+        Shortcode: BUSINESS_SHORT_CODE, // Correct Shortcode from Safaricom portal
         ResponseType: 'Completed',
-        ConfirmationURL: 'https://sanfiat.antocapteknologies.com/api/confirmation', // Your confirmation URL
-        ValidationURL: 'https://sanfiat.antocapteknologies.com/api/validation', // Your validation URL
+        ConfirmationURL: CALLBACK_URL, // Your confirmation URL
+        ValidationURL: VALIDATION_URL, // Your validation URL
     };
 
     console.log('Payload:', payload);  // Log the payload to ensure it is correct
