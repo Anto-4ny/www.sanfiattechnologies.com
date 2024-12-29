@@ -44,17 +44,17 @@ async function getAccessToken() {
 // Function: Initiate STK push
 async function initiateSTKPush(token, phoneNumber, amount) {
     const payload = {
-        BusinessShortCode: process.env.BUSINESS_SHORT_CODE,
+        BusinessShortCode: process.env.BUSINESS_SHORT_CODE, // This is the Till Number
         Password: generatePassword(process.env.BUSINESS_SHORT_CODE),
         Timestamp: getCurrentTimestamp(),
-        TransactionType: 'CustomerPayBillOnline',
+        TransactionType: 'CustomerBuyGoodsOnline', // Correct TransactionType for Till Numbers
         Amount: amount,
-        PartyA: phoneNumber,
-        PartyB: process.env.BUSINESS_SHORT_CODE,
+        PartyA: phoneNumber, // Customer phone number
+        PartyB: process.env.BUSINESS_SHORT_CODE, // Till Number
         PhoneNumber: phoneNumber,
-        CallBackURL: process.env.CALLBACK_URL,
-        AccountReference: phoneNumber,
-        TransactionDesc: `Payment to ${process.env.BUSINESS_SHORT_CODE}`,
+        CallBackURL: process.env.CALLBACK_URL, // Your callback URL
+        AccountReference: `Ref-${phoneNumber}`, // Reference for the transaction
+        TransactionDesc: `Payment to ${process.env.BUSINESS_SHORT_CODE}`, // Description of the transaction
     };
 
     try {
