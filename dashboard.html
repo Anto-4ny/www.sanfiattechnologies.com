@@ -389,8 +389,8 @@ input {
                 // Hide any previous error message
                 errorMessageDiv.classList.add("hidden");
 
-                // Ensure the phone number starts with valid formats and convert to 254 format
-                if (phoneNumber.match(/^(07|01)\d{7}$/)) {
+                // Allow phone numbers starting with 07, 01, or full 254 format
+                if (phoneNumber.match(/^(07|01)\d{8}$/)) {
                     phoneNumber = phoneNumber.replace(/^0/, "254");
                 }
 
@@ -409,21 +409,19 @@ input {
 
                             // Send the payment request to the server
                             const response = await fetch(`/api/pay?phoneNumber=${phoneNumber}&email=${encodeURIComponent(user.email)}&amount=${amount}`, {
-                                method: "GET", // Updated to GET
+                                method: "GET",
                             });
 
                             // Re-enable the button after processing
                             payBtn.disabled = false;
                             payBtn.textContent = "Pay";
 
-                            // Check if the response is not OK and handle the error
                             if (!response.ok) {
                                 const errorData = await response.json();
                                 console.error('Payment API Error:', errorData);
                                 throw new Error(errorData.error || "Payment failed.");
                             }
 
-                            // Parse the response and display success message
                             const data = await response.json();
                             console.log('Payment Success:', data);
 
@@ -435,21 +433,21 @@ input {
                                 const statusData = await statusResponse.json();
 
                                 if (statusData.status === "Success" || statusData.status === "Failed") {
-                                    clearInterval(checkPaymentStatus); // Stop polling
+                                    clearInterval(checkPaymentStatus);
 
                                     if (statusData.status === "Success") {
                                         alert("Payment was successful! Your balance has been updated.");
                                     } else {
                                         alert("Payment failed. Please try again.");
                                     }
+
                                     localStorage.setItem("paymentStatus", statusData.status);
                                     location.reload();
                                 }
-                            }, 5000); // Check status every 5 seconds
+                            }, 5000);
 
                             // Save the payment status in localStorage
                             localStorage.setItem("paymentStatus", "not-paid");
-
                         } catch (error) {
                             console.error('Error during payment process:', error.message);
                             errorMessageDiv.textContent = `Payment Error: ${error.message}`;
@@ -460,7 +458,6 @@ input {
                         alert("Error: User not authenticated.");
                     }
                 } else {
-                    // Highlight the phone number input and show an error message
                     phoneNumberInput.classList.add("error");
                     errorMessageDiv.textContent = "Invalid phone number format. Please use a valid number starting with 07 or 01.";
                     errorMessageDiv.classList.remove("hidden");
@@ -471,13 +468,11 @@ input {
         const initializeDashboard = async () => {
             const paymentStatus = localStorage.getItem("paymentStatus");
 
-            // Show the payment popup if payment status is "not-paid"
             if (paymentStatus === "not-paid") {
                 showPaymentPopup();
             }
         };
 
-        // Initialize the dashboard on page load
         initializeDashboard();
     });
 </script>

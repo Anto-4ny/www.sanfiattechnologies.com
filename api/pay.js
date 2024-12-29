@@ -1,48 +1,6 @@
 const { db } = require('./firebase-admin');
 const axios = require('axios');
 
-// Helper: Get current timestamp in Safaricom's expected format
-function getCurrentTimestamp() {
-    const now = new Date();
-    return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
-}
-
-// Helper: Generate STK push password
-function generatePassword(shortCode) {
-    const timestamp = getCurrentTimestamp();
-    const password = `${shortCode}${process.env.LIVE_APP_PASSKEY}${timestamp}`;
-    return Buffer.from(password).toString('base64');
-}
-
-// Cached token management
-let cachedToken = null;
-let tokenExpiry = null;
-
-// Updated to use GET for access token request
-async function getAccessToken() {
-    if (cachedToken && tokenExpiry > Date.now()) {
-        return cachedToken;
-    }
-
-    const authHeader = `Basic ${Buffer.from(`${process.env.LIVE_APP_CONSUMER_KEY}:${process.env.LIVE_APP_CONSUMER_SECRET}`).toString('base64')}`;
-    const oauthUrl = `https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials`;
-
-    console.log("Requesting token from:", oauthUrl);
-    try {
-        const response = await axios.get(oauthUrl, {
-            headers: { Authorization: authHeader },
-        });
-
-        cachedToken = response.data.access_token;
-        tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;
-        return cachedToken;
-    } catch (error) {
-        console.error('Error fetching access token:', error.response?.data || error.message);
-        throw new Error('Failed to fetch access token');
-    }
-}
-
-// Initiate STK push
 async function initiateSTKPush(token, phoneNumber, amount) {
     const payload = {
         BusinessShortCode: process.env.BUSINESS_SHORT_CODE,
@@ -58,11 +16,16 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         TransactionDesc: `Payment to ${process.env.BUSINESS_SHORT_CODE}`,
     };
 
-    const response = await axios.post(process.env.STK_PUSH_URL, payload, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    });
+    try {
+        const response = await axios.post(process.env.STK_PUSH_URL, payload, {
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        });
 
-    return response.data;
+        return response.data;
+    } catch (error) {
+        console.error('Error initiating STK Push:', error.response?.data || error.message);
+        throw new Error('Failed to initiate STK Push.');
+    }
 }
 
 module.exports = async (req, res) => {
@@ -70,7 +33,6 @@ module.exports = async (req, res) => {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Extract parameters from query string
     const { phoneNumber, email, amount } = req.query;
 
     if (!phoneNumber || !email || !amount) {
@@ -81,7 +43,6 @@ module.exports = async (req, res) => {
         const token = await getAccessToken();
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
 
-        // Save payment record in Firestore
         await db.collection('payments').add({
             email,
             phoneNumber,
@@ -93,7 +54,6 @@ module.exports = async (req, res) => {
 
         res.status(200).json({ message: 'Payment initiated successfully', stkResponse });
     } catch (error) {
-        console.error('Error initiating payment:', error.response?.data || error.message);
         res.status(500).json({ error: error.message });
     }
 };
