@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (user) {
                     // Generate unique referral link
-                    const referralLink = `${window.location.origin}/signup?ref=${user.uid}`;
+                    const referralLink = `${window.location.origin}/index.html?ref=${user.uid}`;
 
                     // Save user data to Firestore
                     await setDoc(doc(db, "users", user.uid), {
