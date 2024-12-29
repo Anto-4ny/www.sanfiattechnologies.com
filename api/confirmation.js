@@ -1,20 +1,30 @@
 const { db } = require('./firebase-admin'); // Import Firestore instance
 
 module.exports = async (req, res) => {
-    if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed, only GET is allowed' });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed, only POST is allowed' });
     }
 
     try {
-        const { CheckoutRequestID, ResultCode, MpesaReceiptNumber } = req.query;
+        const { Body } = req.body;
 
-        if (!CheckoutRequestID || !ResultCode) {
-            return res.status(400).json({ error: 'Missing required parameters' });
+        if (!Body) {
+            return res.status(400).json({ error: 'Missing required data in request body' });
         }
 
-        // Check if MpesaReceiptNumber is provided in the query
-        let mpesaCode = MpesaReceiptNumber || '';
+        // Extract callback data
+        const callback = Body.stkCallback;
+        const CheckoutRequestID = callback.CheckoutRequestID;
+        const ResultCode = callback.ResultCode;
+        const MpesaReceiptNumber = callback.CallbackMetadata?.Item.find(
+            (item) => item.Name === 'MpesaReceiptNumber'
+        )?.Value || '';
 
+        if (!CheckoutRequestID || ResultCode === undefined) {
+            return res.status(400).json({ error: 'Missing required parameters in callback data' });
+        }
+
+        // Find the payment record in Firestore
         const paymentRef = await db
             .collection('payments')
             .where('mpesaCheckoutRequestID', '==', CheckoutRequestID)
@@ -24,12 +34,12 @@ module.exports = async (req, res) => {
             return res.status(404).json({ error: 'Payment record not found' });
         }
 
-        const status = ResultCode === '0' ? 'Success' : 'Failed';
+        const status = ResultCode === 0 ? 'Success' : 'Failed';
 
+        // Update the payment record in Firestore
         const batch = db.batch();
-
         paymentRef.forEach((doc) => {
-            batch.update(doc.ref, { status, mpesaCode });
+            batch.update(doc.ref, { status, mpesaCode: MpesaReceiptNumber });
         });
 
         await batch.commit();
@@ -42,7 +52,8 @@ module.exports = async (req, res) => {
             if (userDoc.exists) {
                 const newBalance = (userDoc.data().balance || 0) + paymentData.amount;
                 await userDocRef.update({ balance: newBalance, paidRegistration: true });
-                return res.status(200).json({ message: 'Payment successful', newBalance, mpesaCode });
+
+                return res.status(200).json({ message: 'Payment successful', newBalance, mpesaCode: MpesaReceiptNumber });
             }
         }
 
