@@ -12,13 +12,18 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: 'Missing required data in request body' });
         }
 
+        // Log the full callback data for debugging purposes
+        console.log('Received M-PESA Callback:', Body);
+
         // Extract callback data
         const callback = Body.stkCallback;
         const CheckoutRequestID = callback.CheckoutRequestID;
         const ResultCode = callback.ResultCode;
+
+        // Safeguard against potential undefined/empty CallbackMetadata
         const MpesaReceiptNumber = callback.CallbackMetadata?.Item.find(
             (item) => item.Name === 'MpesaReceiptNumber'
-        )?.Value || '';
+        )?.Value || ''; // If no receipt number, set as empty string
 
         if (!CheckoutRequestID || ResultCode === undefined) {
             return res.status(400).json({ error: 'Missing required parameters in callback data' });
@@ -53,13 +58,21 @@ module.exports = async (req, res) => {
                 const newBalance = (userDoc.data().balance || 0) + paymentData.amount;
                 await userDocRef.update({ balance: newBalance, paidRegistration: true });
 
-                return res.status(200).json({ message: 'Payment successful', newBalance, mpesaCode: MpesaReceiptNumber });
+                // Send success response back with updated balance and receipt number
+                return res.status(200).json({ 
+                    message: 'Payment successful', 
+                    newBalance, 
+                    mpesaCode: MpesaReceiptNumber 
+                });
+            } else {
+                console.error('User not found in database:', paymentData.email);
+                return res.status(404).json({ error: 'User not found for payment' });
             }
         }
 
         res.status(200).json({ message: 'Payment status updated', status });
     } catch (error) {
-        console.error('Confirmation callback error:', error.message);
+        console.error('Error processing confirmation callback:', error.message);
         res.status(500).json({ error: 'Error processing confirmation callback' });
     }
 };
