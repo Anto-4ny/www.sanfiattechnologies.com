@@ -75,6 +75,13 @@ module.exports = async (req, res) => {
         }
 
         res.status(200).json({ message: 'Payment status updated', status });
+
+        // Ensure you send the appropriate response to M-Pesa to finalize the transaction:
+        res.status(200).json({
+            ResultCode: 0,  // Success code
+            ResultDesc: 'The payment has been processed successfully',
+        });
+
     } catch (error) {
         console.error('Error processing confirmation callback:', error.message);
         res.status(500).json({ error: 'Error processing confirmation callback' });
