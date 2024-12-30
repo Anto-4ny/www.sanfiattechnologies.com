@@ -11,7 +11,7 @@ function getCurrentTimestamp() {
 // Helper: Generate STK push password
 function generatePassword() {
     const timestamp = getCurrentTimestamp();
-    const password = `${process.env.PARENT_SHORT_CODE}${process.env.LIVE_APP_PASSKEY}${timestamp}`;
+    const password = `${process.env.BUSINESS_SHORT_CODE}${process.env.LIVE_APP_PASSKEY}${timestamp}`;
     return Buffer.from(password).toString('base64');
 }
 
@@ -37,7 +37,7 @@ async function getAccessToken() {
         tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000; // Cache token with a buffer of 60 seconds
         return cachedToken;
     } catch (error) {
-        console.error('Error fetching access token:', error.response?.data || error.message);
+        console.error('Error fetching access token:', error.message); // Log only error message in production
         throw new Error('Failed to fetch access token.');
     }
 }
@@ -45,7 +45,7 @@ async function getAccessToken() {
 // Function: Initiate STK push
 async function initiateSTKPush(token, phoneNumber, amount) {
     const payload = {
-        BusinessShortCode: process.env.PARENT_SHORT_CODE,  // Use the actual parent shortcode (e.g., 5467572)
+        BusinessShortCode: process.env.BUSINESS_SHORT_CODE,  // Use the actual parent shortcode (e.g., 5467572)
         Password: generatePassword(),
         Timestamp: getCurrentTimestamp(),
         TransactionType: 'CustomerBuyGoodsOnline', // Correct TransactionType for Till Numbers
@@ -62,10 +62,9 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         const response = await axios.post(process.env.STK_PUSH_URL, payload, {
             headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         });
-
         return response.data;
     } catch (error) {
-        console.error('Error initiating STK Push:', error.response?.data || error.message);
+        console.error('Error initiating STK Push:', error.message); // Log only error message in production
         throw new Error('Failed to initiate STK Push.');
     }
 }
@@ -81,6 +80,7 @@ module.exports = async (req, res) => {
     if (!phoneNumber || !email || !amount) {
         return res.status(400).json({ error: 'Phone number, email, and amount are required.' });
     }
+
     try {
         const token = await getAccessToken();
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
@@ -99,10 +99,11 @@ module.exports = async (req, res) => {
         res.status(200).json({
             message: 'Payment initiated successfully',
             stkResponse,
-            businessShortCode: process.env.PARENT_SHORT_CODE, // Include BUSINESS_SHORT_CODE in the response
+            businessShortCode: process.env.BUSINESS_SHORT_CODE, // Include BUSINESS_SHORT_CODE in the response
         });
     } catch (error) {
-        console.error('Error initiating payment:', error.message);
-        res.status(500).json({ error: error.message });
+        // Log errors with specific messages but avoid too much detail for production
+        console.error('Error initiating payment:', error.message); // Log only error message
+        res.status(500).json({ error: 'Failed to initiate payment. Please try again later.' });
     }
 };

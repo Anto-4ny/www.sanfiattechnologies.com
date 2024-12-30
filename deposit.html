@@ -234,17 +234,17 @@
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
     <script type="module">
-      // Import Firebase instances and functions from script.js
       import { auth, db, doc, getDoc } from "./script.js";
     
       document.addEventListener("DOMContentLoaded", () => {
-        // Extract package info from query params
+        // Extract package info from query parameters
         function getQueryParams() {
           const queryString = window.location.search;
           const urlParams = new URLSearchParams(queryString);
           const packageName = urlParams.get("packageName");
           const packagePrice = urlParams.get("packagePrice");
     
+          // Display package price if valid
           if (packagePrice && !isNaN(packagePrice)) {
             document.getElementById("package-amount").textContent = `${packagePrice} Ksh`;
             document.getElementById("amount").value = packagePrice;
@@ -256,7 +256,7 @@
           return { packageName, packagePrice };
         }
     
-        // Fetch user's email
+        // Fetch user's email from Firebase Auth
         const getUserEmail = () => {
           const user = auth.currentUser;
           return user ? user.email : null;
@@ -276,87 +276,74 @@
           }
         });
     
-        // Amount validation
-        const amountInput = document.getElementById("amount");
-        const amountError = document.getElementById("amount-error");
-    
-        amountInput.addEventListener("input", function () {
-          const amount = amountInput.value.trim();
-          if (isNaN(amount) || amount <= 0) {
-            amountError.textContent = "Please enter a valid amount.";
-            amountError.style.color = "red";
-          } else {
-            amountError.textContent = "";
-          }
-        });
-    
-        // Function to set the amount automatically in the input field
-        function setAmount(amount) {
-          // Set the value of the amount input field
-          document.getElementById("amount").value = amount;
-    
-          // Clear error message if the amount is valid
-          amountError.textContent = ""; // Clear error message
-        }
-    
-        // Handle payment initiation
+        // Payment initiation
         document.getElementById("pay-button").addEventListener("click", async function () {
-          let phoneNumber = document.getElementById("phone-number").value.trim();
+          let phoneNumber = phoneNumberInput.value.trim();
           const amount = document.getElementById("amount").value.trim();
           const email = getUserEmail();
     
-          // Convert phone number to international format if needed
+          // Normalize phone number to international format
           if (phoneNumber.match(/^07\d{8}$/)) {
             phoneNumber = phoneNumber.replace(/^0/, "254");
           }
     
-          if (phoneNumber.match(/^254\d{9}$/) && amount > 0 && email) {
-            try {
-              const payload = { phoneNumber, amount, email };
-              const response = await fetch("/api/pay", {
-                method: "POST", // Use POST instead of GET
-                headers: {
-                  "Content-Type": "application/json", // Set content type to JSON
-                },
-                body: JSON.stringify(payload), // Send the payload as JSON
-              });
+          // Ensure valid input
+          if (!phoneNumber.match(/^254\d{9}$/)) {
+            phoneNumberError.textContent = "Invalid phone number format.";
+            phoneNumberError.style.color = "red";
+            return;
+          }
+          if (!amount || isNaN(amount) || amount <= 0) {
+            alert("Please enter a valid amount.");
+            return;
+          }
+          if (!email) {
+            alert("You need to be logged in to proceed.");
+            return;
+          }
     
-              const data = await response.json();
+          // Initiate payment
+          try {
+            const payload = { phoneNumber, amount, email };
+            const response = await fetch("/api/pay", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            });
     
-              if (data.status === "Success") {
-                document.getElementById("confirmation-section").style.display = "block"; // Show confirmation section after payment initiation
-                alert("Payment initiation successful. Please proceed with your MPESA transaction.");
-              } else {
-                alert("Error initiating payment. Please try again.");
-              }
-            } catch (error) {
-              console.error("Payment initiation error:", error);
+            const data = await response.json();
+    
+            if (response.ok && data.status === "Success") {
+              alert(data.message || "Payment initiation successful. Check your phone for the MPESA STK push.");
+              document.getElementById("confirmation-section").style.display = "block";
+            } else {
+              throw new Error(data.error || "Payment initiation failed. Please try again.");
             }
-          } else {
-            alert("Please fill in the valid phone number, amount, and make sure you are logged in.");
+          } catch (error) {
+            console.error("Payment initiation error:", error);
+            alert(`Error: ${error.message}`);
           }
         });
     
-        // Check user payment status on page load
+        // Check payment status on page load
         const checkUserPaymentStatus = async () => {
           try {
             const user = auth.currentUser;
-    
-            // Redirect if no user is logged in
             if (!user) {
               console.error("No user logged in.");
-              window.location.href = "index.html"; // Redirect to login
+              window.location.href = "index.html"; // Redirect to login page
               return false;
             }
     
-            // Fetch the user's Firestore document
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (userDoc.exists() && userDoc.data().paymentStatus === "paid") {
               console.log("User payment verified.");
               localStorage.setItem("paymentStatus", "paid"); // Save in local storage
               return true;
             } else {
-              console.error("User has not completed payment.");
+              console.warn("User has not completed payment.");
               return false;
             }
           } catch (error) {
@@ -365,12 +352,11 @@
           }
         };
     
-        // Initialize the payment check
+        // Initialize payment handling
         const initializePayment = async () => {
           const user = auth.currentUser;
-    
           if (!user) {
-            window.location.href = "index.html"; // Redirect if user is not logged in
+            window.location.href = "index.html"; // Redirect if not logged in
             return;
           }
     
@@ -380,29 +366,28 @@
           }
         };
     
-        // Wait for Firebase Auth state to resolve
+        // Handle Firebase Auth state
         auth.onAuthStateChanged((user) => {
           if (user) {
             console.log("User authenticated:", user.email);
             initializePayment();
           } else {
             console.log("No user authenticated. Redirecting to login...");
-            window.location.href = "index.html"; // Redirect to login page
+            window.location.href = "index.html";
           }
         });
     
-        // Run on page load
-        const packageInfo = getQueryParams();
+        // Parse query parameters and populate the UI
+        getQueryParams();
     
-        // Amount suggestion buttons click listener
+        // Amount suggestion buttons
         document.querySelectorAll(".amount-suggestion").forEach((button) => {
           button.addEventListener("click", () => {
             const amount = button.textContent.trim();
-            setAmount(amount); // Set amount when button is clicked
+            document.getElementById("amount").value = amount;
           });
         });
       });
-    </script>    
-    
+    </script>        
 </body>
 </html>

@@ -364,7 +364,7 @@ input {
        <!-- Your custom script -->
 <script type="module" src="script.js"></script>
 <script type="module">
-    import { auth, db, doc, getDoc } from './script.js';
+    import { auth } from './script.js';
 
     document.addEventListener("DOMContentLoaded", () => {
         const showPaymentPopup = () => {
@@ -394,6 +394,7 @@ input {
                     phoneNumber = phoneNumber.replace(/^0/, "254");
                 }
 
+                // Validate phone number in 254 format
                 if (phoneNumber.match(/^254\d{9}$/)) {
                     const user = auth.currentUser;
 
@@ -401,36 +402,18 @@ input {
                         try {
                             console.log('Preparing payment payload...');
                             const payload = { phoneNumber, email: user.email, amount };
-                            console.log('Payload:', payload);
-
-                            // Fetch the BUSINESS_SHORT_CODE from the backend
-                            const businessResponse = await fetch('/api/pay', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(payload),  // Send the payload
-                            });
-
-                            const businessData = await businessResponse.json();
-
-                            if (!businessData.businessShortCode) {
-                                throw new Error("Business Short Code not found.");
-                            }
-
-                            // Include the BUSINESS_SHORT_CODE in the payload for validation
-                            payload.businessShortCode = businessData.businessShortCode;
 
                             // Disable the button to prevent multiple submissions
                             payBtn.disabled = true;
                             payBtn.textContent = "Processing...";
 
+                            // Fetch the BUSINESS_SHORT_CODE and initiate payment in a single request
                             const response = await fetch('/api/pay', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                 },
-                                body: JSON.stringify(payload),  // Send the payload again for the actual payment
+                                body: JSON.stringify(payload),
                             });
 
                             // Re-enable the button after processing
