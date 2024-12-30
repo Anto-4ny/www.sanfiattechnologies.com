@@ -1,4 +1,4 @@
-const { db } = require('./firebase-admin');
+require('dotenv').config(); // Load environment variables from .env file
 const axios = require('axios');
 
 // Helper: Get current timestamp in Safaricom's expected format
@@ -85,7 +85,7 @@ module.exports = async (req, res) => {
         const token = await getAccessToken();
         const stkResponse = await initiateSTKPush(token, phoneNumber, amount);
 
-        // Save payment record in Firestore
+        // Save payment record in Firestore (Make sure `db` is initialized and working)
         await db.collection('payments').add({
             email,
             phoneNumber,

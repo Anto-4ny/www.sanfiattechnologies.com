@@ -47,7 +47,7 @@ module.exports = async (req, res) => {
 
         // Generate new referral code and referral link
         const newReferralCode = generateReferralCode(email);
-        const referralLink = `${req.headers.origin}/signup?ref=${newReferralCode}`;
+        const referralLink = `${req.headers.origin}/index.html?ref=${newReferralCode}`;
 
         // Hash the password before saving
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);

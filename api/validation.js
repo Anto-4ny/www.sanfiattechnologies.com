@@ -1,3 +1,5 @@
+require('dotenv').config(); // Load environment variables from .env file
+
 module.exports = async (req, res) => {
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed, only GET is allowed' });
