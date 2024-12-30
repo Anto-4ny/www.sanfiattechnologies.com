@@ -53,6 +53,7 @@ module.exports = async (req, res) => {
 
         await batch.commit();
 
+        // If payment is successful, update the user's balance
         if (status === 'Success') {
             const paymentData = paymentRef.docs[0].data();
             const userDocRef = db.collection('users').doc(paymentData.email);
@@ -62,28 +63,23 @@ module.exports = async (req, res) => {
                 const newBalance = (userDoc.data().balance || 0) + paymentData.amount;
                 await userDocRef.update({ balance: newBalance, paidRegistration: true });
 
-                // Send success response back with updated balance and receipt number
-                return res.status(200).json({ 
-                    message: 'Payment successful', 
-                    newBalance, 
-                    mpesaCode: MpesaReceiptNumber 
-                });
+                console.log('User balance updated successfully.');
             } else {
                 console.error('User not found in database:', paymentData.email);
-                return res.status(404).json({ error: 'User not found for payment' });
             }
         }
 
-        res.status(200).json({ message: 'Payment status updated', status });
-
-        // Ensure you send the appropriate response to M-Pesa to finalize the transaction:
-        res.status(200).json({
-            ResultCode: 0,  // Success code
-            ResultDesc: 'The payment has been processed successfully',
+        // Send response to M-PESA indicating success or failure
+        return res.status(200).json({
+            ResultCode: ResultCode === 0 ? 0 : 1, // 0 = Success, 1 = Failure
+            ResultDesc: ResultCode === 0
+                ? 'The payment has been processed successfully.'
+                : `Payment failed: ${ResultDesc}`,
         });
-
     } catch (error) {
         console.error('Error processing confirmation callback:', error.message);
-        res.status(500).json({ error: 'Error processing confirmation callback' });
+        if (!res.headersSent) {
+            return res.status(500).json({ error: 'Error processing confirmation callback' });
+        }
     }
 };
