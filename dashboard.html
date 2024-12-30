@@ -403,7 +403,15 @@ input {
                             const payload = { phoneNumber, email: user.email, amount };
                             console.log('Payload:', payload);
 
-                        
+                            // Fetch the BUSINESS_SHORT_CODE from the backend
+                            const businessResponse = await fetch('/api/pay', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(payload),  // Send the payload
+                            });
+
                             const businessData = await businessResponse.json();
 
                             if (!businessData.businessShortCode) {
@@ -417,14 +425,13 @@ input {
                             payBtn.disabled = true;
                             payBtn.textContent = "Processing...";
 
-                            const businessResponse = await fetch('/api/pay', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),  // Ensure you're sending the payload
-});
-
+                            const response = await fetch('/api/pay', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(payload),  // Send the payload again for the actual payment
+                            });
 
                             // Re-enable the button after processing
                             payBtn.disabled = false;
