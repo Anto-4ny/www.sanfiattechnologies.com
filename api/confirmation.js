@@ -13,12 +13,13 @@ module.exports = async (req, res) => {
         }
 
         // Log the full callback data for debugging purposes
-        console.log('Received M-PESA Callback:', Body);
+        console.log('Received M-PESA Callback:', JSON.stringify(Body, null, 2));
 
         // Extract callback data
         const callback = Body.stkCallback;
         const CheckoutRequestID = callback.CheckoutRequestID;
         const ResultCode = callback.ResultCode;
+        const ResultDesc = callback.ResultDesc;
 
         // Safeguard against potential undefined/empty CallbackMetadata
         const MpesaReceiptNumber = callback.CallbackMetadata?.Item.find(
@@ -40,6 +41,9 @@ module.exports = async (req, res) => {
         }
 
         const status = ResultCode === 0 ? 'Success' : 'Failed';
+        const failureDetails = ResultCode !== 0 ? { code: ResultCode, description: ResultDesc } : null;
+
+        console.log(failureDetails ? `Payment failed with error: ${JSON.stringify(failureDetails)}` : 'Payment successful');
 
         // Update the payment record in Firestore
         const batch = db.batch();

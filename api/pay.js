@@ -72,11 +72,11 @@ async function initiateSTKPush(token, phoneNumber, amount) {
 
 // Main handler function
 module.exports = async (req, res) => {
-    if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed' });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed, only POST is allowed' });
     }
 
-    const { phoneNumber, email, amount } = req.query;
+    const { phoneNumber, email, amount } = req.body; // Use req.body for POST data
 
     if (!phoneNumber || !email || !amount) {
         return res.status(400).json({ error: 'Phone number, email, and amount are required.' });

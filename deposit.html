@@ -312,10 +312,15 @@
     
           if (phoneNumber.match(/^254\d{9}$/) && amount > 0 && email) {
             try {
-              const response = await fetch(
-                `/api/pay?phoneNumber=${phoneNumber}&amount=${amount}&email=${encodeURIComponent(email)}`,
-                { method: "GET" }
-              );
+              const payload = { phoneNumber, amount, email };
+              const response = await fetch("/api/pay", {
+                method: "POST", // Use POST instead of GET
+                headers: {
+                  "Content-Type": "application/json", // Set content type to JSON
+                },
+                body: JSON.stringify(payload), // Send the payload as JSON
+              });
+    
               const data = await response.json();
     
               if (data.status === "Success") {

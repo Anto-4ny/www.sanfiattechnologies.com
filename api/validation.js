@@ -1,12 +1,13 @@
 require('dotenv').config(); // Load environment variables from .env file
 
 module.exports = async (req, res) => {
-    if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed, only GET is allowed' });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed, only POST is allowed' });
     }
 
     try {
-        const { TransactionType, TransID, TransAmount, BusinessShortCode, MSISDN, InvoiceNumber } = req.query;
+        // Extract parameters from the request body
+        const { TransactionType, TransID, TransAmount, BusinessShortCode, MSISDN, InvoiceNumber } = req.body;
 
         // Validate that all required fields are present
         if (!TransactionType || !TransID || !TransAmount || !BusinessShortCode || !MSISDN || !InvoiceNumber) {
