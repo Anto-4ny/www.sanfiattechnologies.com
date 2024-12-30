@@ -42,21 +42,19 @@ async function getAccessToken() {
     }
 }
 
-// Function: Initiate STK push
-async function initiateSTKPush(token, phoneNumber, amount) {
-    const payload = {
-        BusinessShortCode: process.env.BUSINESS_SHORT_CODE, // This is the Till Number
-        Password: generatePassword(),
-        Timestamp: getCurrentTimestamp(),
-        TransactionType: 'CustomerBuyGoodsOnline', // Correct TransactionType for Till Numbers
-        Amount: amount,
-        PartyA: phoneNumber, // Customer phone number
-        PartyB: process.env.BUSINESS_SHORT_CODE, // Till Number
-        PhoneNumber: phoneNumber,
-        CallBackURL: process.env.CALLBACK_URL, // Your callback URL
-        AccountReference: `Ref-${phoneNumber}`, // Reference for the transaction
-        TransactionDesc: `Payment to ${process.env.BUSINESS_SHORT_CODE}`, // Description of the transaction
-    };
+const payload = {
+    BusinessShortCode: '5467572',  // Use the actual Till number directly
+    Password: generatePassword(),
+    Timestamp: getCurrentTimestamp(),
+    TransactionType: 'CustomerBuyGoodsOnline', // Correct TransactionType for Till Numbers
+    Amount: amount,
+    PartyA: phoneNumber, // Customer phone number
+    PartyB: '5467572', // Till Number
+    PhoneNumber: phoneNumber,
+    CallBackURL: process.env.CALLBACK_URL, // Your callback URL
+    AccountReference: `Ref-${phoneNumber}`, // Reference for the transaction
+    TransactionDesc: `Payment to 5467572`, // Description of the transaction
+};
 
     try {
         const response = await axios.post(process.env.STK_PUSH_URL, payload, {
@@ -68,7 +66,7 @@ async function initiateSTKPush(token, phoneNumber, amount) {
         console.error('Error initiating STK Push:', error.response?.data || error.message);
         throw new Error('Failed to initiate STK Push.');
     }
-}
+
 
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
