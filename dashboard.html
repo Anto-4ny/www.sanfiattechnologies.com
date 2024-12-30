@@ -418,14 +418,13 @@ input {
                             payBtn.disabled = true;
                             payBtn.textContent = "Processing...";
 
-                            // Send the payment request to the server using POST
                             const response = await fetch('/api/pay', {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify(payload), // Send the payload as JSON
-                            });
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload), // Send the payload as JSON
+});
 
                             // Re-enable the button after processing
                             payBtn.disabled = false;
