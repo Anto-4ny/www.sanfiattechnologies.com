@@ -11,7 +11,7 @@ function getCurrentTimestamp() {
 // Helper: Generate STK push password
 function generatePassword() {
     const timestamp = getCurrentTimestamp();
-    const password = `${process.env.BUSINESS_SHORT_CODE}${process.env.LIVE_APP_PASSKEY}${timestamp}`;
+    const password = `${process.env.PARENT_SHORT_CODE}${process.env.LIVE_APP_PASSKEY}${timestamp}`;
     return Buffer.from(password).toString('base64');
 }
 
@@ -45,17 +45,17 @@ async function getAccessToken() {
 // Function: Initiate STK push
 async function initiateSTKPush(token, phoneNumber, amount) {
     const payload = {
-        BusinessShortCode: process.env.BUSINESS_SHORT_CODE,  // Use the actual Till number directly
+        BusinessShortCode: process.env.PARENT_SHORT_CODE,  // Use the actual parent shortcode (e.g., 5467572)
         Password: generatePassword(),
         Timestamp: getCurrentTimestamp(),
         TransactionType: 'CustomerBuyGoodsOnline', // Correct TransactionType for Till Numbers
         Amount: amount,
         PartyA: phoneNumber, // Customer phone number
-        PartyB: process.env.BUSINESS_SHORT_CODE, // Till Number
+        PartyB: process.env.TILL_NUMBER, // Till Number (child shortcode or actual till number)
         PhoneNumber: phoneNumber,
         CallBackURL: process.env.CALLBACK_URL, // Your callback URL
         AccountReference: `Ref-${phoneNumber}`, // Reference for the transaction
-        TransactionDesc: `Payment to ${process.env.BUSINESS_SHORT_CODE}`, // Description of the transaction
+        TransactionDesc: `Payment to ${process.env.TILL_NUMBER}`, // Description of the transaction
     };
 
     try {
@@ -99,7 +99,7 @@ module.exports = async (req, res) => {
         res.status(200).json({
             message: 'Payment initiated successfully',
             stkResponse,
-            businessShortCode: process.env.BUSINESS_SHORT_CODE, // Include BUSINESS_SHORT_CODE in the response
+            businessShortCode: process.env.PARENT_SHORT_CODE, // Include BUSINESS_SHORT_CODE in the response
         });
     } catch (error) {
         console.error('Error initiating payment:', error.message);
