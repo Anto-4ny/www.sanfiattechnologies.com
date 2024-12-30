@@ -407,6 +407,23 @@ input {
                             payBtn.disabled = true;
                             payBtn.textContent = "Processing...";
 
+                            // Assuming payload contains necessary fields like TransAmount, BusinessShortCode, etc.
+const validationResponse = await fetch('/api/validation', {
+    method: 'POST',
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+});
+
+const validationData = await validationResponse.json();
+if (validationData.ResultCode !== 0) {
+    // Handle validation failure
+    alert(validationData.ResultDesc);
+    return;
+}
+
+
                             // Send the payment request to the server using POST
                             const response = await fetch('/api/pay', {
                                 method: "POST",
