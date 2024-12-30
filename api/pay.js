@@ -1,5 +1,6 @@
 require('dotenv').config(); // Load environment variables from .env file
 const axios = require('axios');
+const { db } = require('./firebase-admin'); // Import Firestore instance
 
 // Helper: Get current timestamp in Safaricom's expected format
 function getCurrentTimestamp() {
