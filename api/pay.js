@@ -96,7 +96,12 @@ module.exports = async (req, res) => {
             timestamp: new Date(),
         });
 
-        res.status(200).json({ message: 'Payment initiated successfully', stkResponse });
+        // Send the BUSINESS_SHORT_CODE along with the response data
+        res.status(200).json({
+            message: 'Payment initiated successfully',
+            stkResponse,
+            businessShortCode: process.env.BUSINESS_SHORT_CODE, // Include BUSINESS_SHORT_CODE in the response
+        });
     } catch (error) {
         console.error('Error initiating payment:', error.message);
         res.status(500).json({ error: error.message });

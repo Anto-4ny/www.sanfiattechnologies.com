@@ -400,38 +400,23 @@ input {
                     if (user?.email) {
                         try {
                             console.log('Preparing payment payload...');
-                            
-                            // Prepare the full payload for validation
-                            const payload = {
-                                phoneNumber, // MSISDN
-                                email: user.email, // Email
-                                amount, // TransAmount
-                                TransactionType: "Till", // TransactionType set to "Till"
-                                TransID: "TXN" + new Date().getTime(), // Example TransID based on timestamp
-                                BusinessShortCode: process.env.BUSINESS_SHORT_CODE, // BusinessShortCode from environment variable
-                                InvoiceNumber: "INV" + new Date().getTime(), // Example InvoiceNumber based on timestamp
-                            };
+                            const payload = { phoneNumber, email: user.email, amount };
                             console.log('Payload:', payload);
+
+                            // Fetch the BUSINESS_SHORT_CODE from the backend
+                            const businessResponse = await fetch('/api/pay');
+                            const businessData = await businessResponse.json();
+
+                            if (!businessData.businessShortCode) {
+                                throw new Error("Business Short Code not found.");
+                            }
+
+                            // Include the BUSINESS_SHORT_CODE in the payload for validation
+                            payload.businessShortCode = businessData.businessShortCode;
 
                             // Disable the button to prevent multiple submissions
                             payBtn.disabled = true;
                             payBtn.textContent = "Processing...";
-
-                            // Send the validation request to the server using POST
-                            const validationResponse = await fetch('/api/validation', {
-                                method: 'POST',
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify(payload),
-                            });
-
-                            const validationData = await validationResponse.json();
-                            if (validationData.ResultCode !== 0) {
-                                // Handle validation failure
-                                alert(validationData.ResultDesc);
-                                return;
-                            }
 
                             // Send the payment request to the server using POST
                             const response = await fetch('/api/pay', {
@@ -456,28 +441,6 @@ input {
                             console.log('Payment Success:', data);
 
                             alert(data.message || "Payment initiated successfully. Check your phone for the STK push.");
-
-                            // Poll for payment status
-                            const checkPaymentStatus = setInterval(async () => {
-                                const statusResponse = await fetch(`/api/check-status?CheckoutRequestID=${data.stkResponse.CheckoutRequestID}`);
-                                const statusData = await statusResponse.json();
-
-                                if (statusData.status === "Success" || statusData.status === "Failed") {
-                                    clearInterval(checkPaymentStatus);
-
-                                    if (statusData.status === "Success") {
-                                        alert("Payment was successful! Your balance has been updated.");
-                                    } else {
-                                        alert("Payment failed. Please try again.");
-                                    }
-
-                                    localStorage.setItem("paymentStatus", statusData.status);
-                                    location.reload();
-                                }
-                            }, 5000);
-
-                            // Save the payment status in localStorage
-                            localStorage.setItem("paymentStatus", "not-paid");
                         } catch (error) {
                             console.error('Error during payment process:', error.message);
                             errorMessageDiv.textContent = `Payment Error: ${error.message}`;
