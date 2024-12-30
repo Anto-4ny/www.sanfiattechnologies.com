@@ -400,29 +400,38 @@ input {
                     if (user?.email) {
                         try {
                             console.log('Preparing payment payload...');
-                            const payload = { phoneNumber, email: user.email, amount };
+                            
+                            // Prepare the full payload for validation
+                            const payload = {
+                                phoneNumber, // MSISDN
+                                email: user.email, // Email
+                                amount, // TransAmount
+                                TransactionType: "Till", // TransactionType set to "Till"
+                                TransID: "TXN" + new Date().getTime(), // Example TransID based on timestamp
+                                BusinessShortCode: process.env.BUSINESS_SHORT_CODE, // BusinessShortCode from environment variable
+                                InvoiceNumber: "INV" + new Date().getTime(), // Example InvoiceNumber based on timestamp
+                            };
                             console.log('Payload:', payload);
 
                             // Disable the button to prevent multiple submissions
                             payBtn.disabled = true;
                             payBtn.textContent = "Processing...";
 
-                            // Assuming payload contains necessary fields like TransAmount, BusinessShortCode, etc.
-const validationResponse = await fetch('/api/validation', {
-    method: 'POST',
-    headers: {
-        "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-});
+                            // Send the validation request to the server using POST
+                            const validationResponse = await fetch('/api/validation', {
+                                method: 'POST',
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify(payload),
+                            });
 
-const validationData = await validationResponse.json();
-if (validationData.ResultCode !== 0) {
-    // Handle validation failure
-    alert(validationData.ResultDesc);
-    return;
-}
-
+                            const validationData = await validationResponse.json();
+                            if (validationData.ResultCode !== 0) {
+                                // Handle validation failure
+                                alert(validationData.ResultDesc);
+                                return;
+                            }
 
                             // Send the payment request to the server using POST
                             const response = await fetch('/api/pay', {

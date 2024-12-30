@@ -17,7 +17,24 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Implement your validation logic here
+        // Ensure the transaction type is "Till" (you can adjust this if necessary)
+        if (TransactionType !== 'Till') {
+            return res.status(400).json({
+                ResultCode: 1, // Reject transaction
+                ResultDesc: 'Invalid TransactionType. Only "Till" is supported.',
+            });
+        }
+
+        // Ensure that the phone number (MSISDN) is in a valid format (e.g., starting with 254)
+        const isValidMSISDN = MSISDN.match(/^254\d{9}$/); // Validates Kenyan phone numbers starting with 254
+        if (!isValidMSISDN) {
+            return res.status(400).json({
+                ResultCode: 1, // Reject transaction
+                ResultDesc: 'Invalid phone number format. Please use a valid 254 number.',
+            });
+        }
+
+        // Implement the business logic to validate the transaction
         const isValidTransaction = TransAmount >= 250 && BusinessShortCode === process.env.BUSINESS_SHORT_CODE;
 
         if (!isValidTransaction) {
@@ -27,7 +44,7 @@ module.exports = async (req, res) => {
             });
         }
 
-        // If validation succeeds
+        // If validation succeeds, return a success response
         return res.status(200).json({
             ResultCode: 0, // Accept transaction
             ResultDesc: 'Validation successful.',
