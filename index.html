@@ -157,15 +157,25 @@ button:hover {
                 </form>
             </div>
         
-            <div id="forgot-password-section" class="hidden">
-                <h2>Reset Password</h2>
-                <label for="reset-email">Enter your email address:</label>
-                <input type="email" id="reset-email" placeholder="Enter your email" required>
-                <button id="send-reset-email">Send Reset Email</button>
-                <div id="reset-message" class="message"></div>
-                <button id="back-to-login">Back to Login</button>
+            <div id="forgot-password-section" class="hidden" style="max-width: 400px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #333;">Reset Password</h2>
+                
+                <label for="reset-email" style="display: block; margin-bottom: 10px; color: #333; font-size: 14px;">Enter your email address:</label>
+                <input type="email" id="reset-email" placeholder="Enter your email" required 
+                    style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+                
+                <button id="send-reset-email" 
+                    style="width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-bottom: 20px;">
+                    Send Reset Email
+                </button>
+            
+                <div id="reset-message" class="message" style="text-align: center; margin-bottom: 10px; color: #ff0000; font-size: 14px;"></div>
+            
+                <button id="back-to-login" 
+                    style="width: 100%; padding: 10px; background-color: #008CBA; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+                    Back to Login
+                </button>
             </div>            
-        </div>
         
     </main>
         <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
