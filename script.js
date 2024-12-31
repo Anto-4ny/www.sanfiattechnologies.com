@@ -432,9 +432,12 @@ const hamburgerIcon = document.getElementById("hamburger-icon");
 const mobileNav = document.getElementById("mobile-nav");
 const overlay = document.getElementById("overlay");
 
-// Toggle Mobile Navigation
+// Toggle Mobile Navigation when hamburger icon is clicked
 hamburgerIcon.addEventListener("click", () => {
+  // Toggle 'open' class to show or hide the mobile navigation
   mobileNav.classList.toggle("open");
+  
+  // Toggle overlay visibility
   overlay.style.display = mobileNav.classList.contains("open") ? "block" : "none";
 
   // Add animation order to links
@@ -443,16 +446,21 @@ hamburgerIcon.addEventListener("click", () => {
   });
 });
 
+// Close mobile navigation when clicking on overlay (outside of the menu)
 document.addEventListener("DOMContentLoaded", () => {
+    // Ensure the elements are loaded before trying to attach event listeners
     const overlay = document.getElementById("overlay");
-    const mobileNav = document.querySelector(".mobile-nav");
+    const mobileNav = document.getElementById("mobile-nav");
 
     // Check if overlay exists before adding event listeners
     if (overlay) {
         overlay.addEventListener("click", () => {
+            // Remove 'open' class and hide the mobile navigation
             if (mobileNav) {
                 mobileNav.classList.remove("open");
             }
+
+            // Hide the overlay
             overlay.style.display = "none";
         });
     }
