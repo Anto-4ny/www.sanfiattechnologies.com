@@ -209,6 +209,24 @@ button:hover {
     <script type="module" src="script.js"></script>
 
     <script>
+        // Switch between forms
+document.getElementById("show-login").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("signup-section").classList.add("hidden");
+    document.getElementById("login-section").classList.remove("hidden");
+});
+
+document.getElementById("show-signup").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("login-section").classList.add("hidden");
+    document.getElementById("signup-section").classList.remove("hidden");
+});
+
+document.getElementById("forgot-password").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("login-section").classList.add("hidden");
+    document.getElementById("forgot-password-section").classList.remove("hidden");
+});
         // Auto-fill referral code from URL if provided
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);

@@ -38,12 +38,6 @@ const storage = getStorage(app);
 // Exporting firebase-related modules for use elsewhere in the app
 export { auth, db, doc, getDoc, query, collection, where, getDocs, storage };
 
-document.getElementById("forgot-password").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("login-section").classList.add("hidden");
-    document.getElementById("forgot-password-section").classList.remove("hidden");
-});
-
 // Send reset password email
 document.getElementById("send-reset-email").addEventListener("click", () => {
     const email = document.getElementById("reset-email").value;
