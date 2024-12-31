@@ -36,29 +36,7 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 // Exporting firebase-related modules for use elsewhere in the app
-export { auth, db, doc, getDoc, query, collection, where, getDocs, storage };
-
-// Send reset password email
-document.getElementById("send-reset-email").addEventListener("click", () => {
-    const email = document.getElementById("reset-email").value;
-
-    sendPasswordResetEmail(auth, email)
-        .then(() => {
-            document.getElementById("reset-message").innerText =
-                "Password reset email sent! Check your inbox.";
-        })
-        .catch((error) => {
-            document.getElementById("reset-message").innerText =
-                `Error: ${error.message}`;
-        });
-});
-
-// Back to login after resetting password
-document.getElementById("back-to-login").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("forgot-password-section").classList.add("hidden");
-    document.getElementById("login-section").classList.remove("hidden");
-});
+export { auth, db, doc, getDoc, query, collection, where, getDocs, storage, sendPasswordResetEmail };
 
 // Ensure user is authenticated
 export const ensureAuthenticated = () => {

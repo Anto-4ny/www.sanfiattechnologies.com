@@ -207,26 +207,52 @@ button:hover {
     
     <!-- Your custom script using Firebase -->
     <script type="module" src="script.js"></script>
+    <script type="module">
+        // Import the Firebase methods from script.js
+        import { auth, sendPasswordResetEmail } from './script.js';
 
-    <script>
         // Switch between forms
-document.getElementById("show-login").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("signup-section").classList.add("hidden");
-    document.getElementById("login-section").classList.remove("hidden");
-});
+        document.getElementById("show-login").addEventListener("click", (e) => {
+            e.preventDefault();
+            document.getElementById("signup-section").classList.add("hidden");
+            document.getElementById("login-section").classList.remove("hidden");
+        });
 
-document.getElementById("show-signup").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("login-section").classList.add("hidden");
-    document.getElementById("signup-section").classList.remove("hidden");
-});
+        document.getElementById("show-signup").addEventListener("click", (e) => {
+            e.preventDefault();
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("signup-section").classList.remove("hidden");
+        });
 
-document.getElementById("forgot-password").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("login-section").classList.add("hidden");
-    document.getElementById("forgot-password-section").classList.remove("hidden");
-});
+        document.getElementById("forgot-password").addEventListener("click", (e) => {
+            e.preventDefault();
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("forgot-password-section").classList.remove("hidden");
+        });
+
+        // Send reset password email
+        document.getElementById("send-reset-email").addEventListener("click", () => {
+            const email = document.getElementById("reset-email").value;
+
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    document.getElementById("reset-message").innerText =
+                        "Password reset email sent! Check your inbox.";
+                })
+                .catch((error) => {
+                    document.getElementById("reset-message").innerText =
+                        `Error: ${error.message}`;
+                });
+        });
+
+        // Back to login after resetting password
+        document.getElementById("back-to-login").addEventListener("click", (e) => {
+            e.preventDefault();
+            document.getElementById("forgot-password-section").classList.add("hidden");
+            document.getElementById("login-section").classList.remove("hidden");
+        });
+    </script>
+<script>
         // Auto-fill referral code from URL if provided
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
