@@ -443,11 +443,21 @@ hamburgerIcon.addEventListener("click", () => {
   });
 });
 
-// Close Navigation on Overlay Click
-overlay.addEventListener("click", () => {
-  mobileNav.classList.remove("open");
-  overlay.style.display = "none";
+document.addEventListener("DOMContentLoaded", () => {
+    const overlay = document.getElementById("overlay");
+    const mobileNav = document.querySelector(".mobile-nav");
+
+    // Check if overlay exists before adding event listeners
+    if (overlay) {
+        overlay.addEventListener("click", () => {
+            if (mobileNav) {
+                mobileNav.classList.remove("open");
+            }
+            overlay.style.display = "none";
+        });
+    }
 });
+
 
 // Handle Submenu Toggle
 document.querySelectorAll(".has-submenu").forEach((submenuToggle) => {
