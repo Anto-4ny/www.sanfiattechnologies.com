@@ -38,19 +38,6 @@ const storage = getStorage(app);
 // Exporting firebase-related modules for use elsewhere in the app
 export { auth, db, doc, getDoc, query, collection, where, getDocs, storage };
 
-// Switch between forms
-document.getElementById("show-login").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("signup-section").classList.add("hidden");
-    document.getElementById("login-section").classList.remove("hidden");
-});
-
-document.getElementById("show-signup").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("login-section").classList.add("hidden");
-    document.getElementById("signup-section").classList.remove("hidden");
-});
-
 document.getElementById("forgot-password").addEventListener("click", (e) => {
     e.preventDefault();
     document.getElementById("login-section").classList.add("hidden");
