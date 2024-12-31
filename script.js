@@ -38,6 +38,19 @@ const storage = getStorage(app);
 // Exporting firebase-related modules for use elsewhere in the app
 export { auth, db, doc, getDoc, query, collection, where, getDocs, storage };
 
+// Switch between forms
+document.getElementById("show-login").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("signup-section").classList.add("hidden");
+    document.getElementById("login-section").classList.remove("hidden");
+});
+
+document.getElementById("show-signup").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("login-section").classList.add("hidden");
+    document.getElementById("signup-section").classList.remove("hidden");
+});
+
 document.getElementById("forgot-password").addEventListener("click", (e) => {
     e.preventDefault();
     document.getElementById("login-section").classList.add("hidden");
@@ -48,7 +61,6 @@ document.getElementById("forgot-password").addEventListener("click", (e) => {
 document.getElementById("send-reset-email").addEventListener("click", () => {
     const email = document.getElementById("reset-email").value;
 
-    // Correct modular Firebase SDK syntax
     sendPasswordResetEmail(auth, email)
         .then(() => {
             document.getElementById("reset-message").innerText =
@@ -67,18 +79,18 @@ document.getElementById("back-to-login").addEventListener("click", (e) => {
     document.getElementById("login-section").classList.remove("hidden");
 });
 
-
-// Define the ensureAuthenticated function to verify if the user is logged in
+// Ensure user is authenticated
 export const ensureAuthenticated = () => {
     const userEmail = localStorage.getItem("userEmail");
 
     if (!userEmail) {
-        // If no user is authenticated, redirect to the login page
         window.location.href = "index.html"; // Redirect to login page (adjust URL if necessary)
     } else {
         console.log("User is authenticated");
     }
 };
+
+// DOM Content Loaded Event Listener
 document.addEventListener("DOMContentLoaded", () => {
     const loginSection = document.getElementById("login-section");
     const signupSection = document.getElementById("signup-section");
@@ -200,6 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
 
 // Display referral link and handle sharing
 const referralLinkElement = document.getElementById("referral-link");
