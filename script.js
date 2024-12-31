@@ -38,48 +38,35 @@ const storage = getStorage(app);
 export { auth, db, doc, getDoc, query, collection, where, getDocs, storage };
 
 // Switch between forms
-document.getElementById("forgot-password").addEventListener("click", () => {
+document.getElementById("show-login").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("signup-section").classList.add("hidden");
+    document.getElementById("login-section").classList.remove("hidden");
+});
+
+document.getElementById("show-signup").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("login-section").classList.add("hidden");
+    document.getElementById("signup-section").classList.remove("hidden");
+});
+
+document.getElementById("forgot-password").addEventListener("click", (e) => {
+    e.preventDefault();
     document.getElementById("login-section").classList.add("hidden");
     document.getElementById("forgot-password-section").classList.remove("hidden");
 });
 
+// Send reset password email
 document.getElementById("send-reset-email").addEventListener("click", () => {
     const email = document.getElementById("reset-email").value;
 
     auth.sendPasswordResetEmail(email)
         .then(() => {
             document.getElementById("reset-message").innerText =
-                "Reset email sent! Check your inbox.";
+                "Password reset email sent! Check your inbox.";
         })
         .catch((error) => {
             document.getElementById("reset-message").innerText =
-                `Error: ${error.message}`;
-        });
-});
-
-// Handle setting new password
-document.getElementById("set-new-password").addEventListener("click", () => {
-    const newPassword = document.getElementById("new-password").value;
-    const confirmPassword = document.getElementById("confirm-new-password").value;
-
-    if (newPassword !== confirmPassword) {
-        document.getElementById("reset-password-message").innerText =
-            "Passwords do not match!";
-        return;
-    }
-
-    const user = firebase.auth().currentUser;
-    user.updatePassword(newPassword)
-        .then(() => {
-            document.getElementById("reset-password-message").innerText =
-                "Password reset successfully!";
-            setTimeout(() => {
-                document.getElementById("reset-password-section").classList.add("hidden");
-                document.getElementById("login-section").classList.remove("hidden");
-            }, 2000);
-        })
-        .catch((error) => {
-            document.getElementById("reset-password-message").innerText =
                 `Error: ${error.message}`;
         });
 });

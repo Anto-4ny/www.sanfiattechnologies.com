@@ -882,22 +882,19 @@ button:hover {
 }
 .auth-container {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     padding: 20px;
-    background-color: #f4f4f4;
 }
 
 .form-box {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 400px;
-    margin: 20px;
 }
 
 form h2 {
@@ -932,6 +929,16 @@ button {
 
 button:hover {
     background-color: #1e8e4f;
+}
+
+.link {
+    color: #25d366;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.link:hover {
+    text-decoration: underline;
 }
 
 .hidden {
