@@ -79,27 +79,6 @@ button:hover {
     display: none;
 }
 
-.mobile-nav {
-    display: none; /* Initially hidden */
-    /* Add other styling like position, background color, etc. */
-}
-
-.mobile-nav.open {
-    display: block; /* Visible when the menu is open */
-    /* Add animation or transition if needed */
-}
-
-#overlay {
-    display: none; /* Initially hidden */
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    /* Add other styling for the overlay */
-}
-
         /* Basic styling, adjust as needed */
         .hidden { display: none; }
         .show { display: block; }
@@ -107,37 +86,6 @@ button:hover {
         #payment-section { margin-top: 20px; }
         .message { color: red; }
     </style>
-      <div id="deposit-header" onclick="window.location.href='#'">
-        <div id="current-date"></div>
-    </div>
-   
-</head>
-<header>
-    <a href="index.html">
-        <img id="logo" src="images/Photo_1723191951676.png" alt="Logo">
-    </a>
-</header>
-
-<div id="overlay" style="display: none;"></div>
-
-<button id="hamburger-icon" class="hamburger-menu">
-    <i class="fas fa-bars" style="font-size: 30px;"></i>
-</button>
-
-<nav id="mobile-nav" class="mobile-nav">
-    <a href="index.html">
-        <i class="fas fa-home"></i> Home
-    </a>
-    <a href="https://www.antocapteknologies.com/">
-        <i class="fas fa-info-circle"></i> About Us
-    </a>
-    <a href="https://www.antocapteknologies.com/about.html">
-        <i class="fas fa-cogs"></i> Features
-    </a>
-    <a href="https://www.antocapteknologies.com/contact.html">
-        <i class="fas fa-envelope"></i> Contact Us
-    </a>
-</nav>
 <body id="home-page">
     
     <main>
@@ -273,22 +221,6 @@ button:hover {
             document.getElementById("forgot-password-section").classList.add("hidden");
             document.getElementById("login-section").classList.remove("hidden");
         });
-         // Get the DOM elements
-    const hamburgerIcon = document.getElementById("hamburger-icon");
-    const mobileNav = document.getElementById("mobile-nav");
-    const overlay = document.getElementById("overlay");
-
-    // Toggle Mobile Navigation
-    hamburgerIcon.addEventListener("click", () => {
-        mobileNav.classList.toggle("open");
-        overlay.style.display = mobileNav.classList.contains("open") ? "block" : "none";
-    });
-
-    // Close the navigation when the overlay is clicked
-    overlay.addEventListener("click", () => {
-        mobileNav.classList.remove("open");
-        overlay.style.display = "none";
-    });
     </script>
 <script>
         // Auto-fill referral code from URL if provided
