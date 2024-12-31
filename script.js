@@ -37,6 +37,54 @@ const storage = getStorage(app);
 // Exporting firebase-related modules for use elsewhere in the app
 export { auth, db, doc, getDoc, query, collection, where, getDocs, storage };
 
+// Switch between forms
+document.getElementById("forgot-password").addEventListener("click", () => {
+    document.getElementById("login-section").classList.add("hidden");
+    document.getElementById("forgot-password-section").classList.remove("hidden");
+});
+
+document.getElementById("send-reset-email").addEventListener("click", () => {
+    const email = document.getElementById("reset-email").value;
+
+    auth.sendPasswordResetEmail(email)
+        .then(() => {
+            document.getElementById("reset-message").innerText =
+                "Reset email sent! Check your inbox.";
+        })
+        .catch((error) => {
+            document.getElementById("reset-message").innerText =
+                `Error: ${error.message}`;
+        });
+});
+
+// Handle setting new password
+document.getElementById("set-new-password").addEventListener("click", () => {
+    const newPassword = document.getElementById("new-password").value;
+    const confirmPassword = document.getElementById("confirm-new-password").value;
+
+    if (newPassword !== confirmPassword) {
+        document.getElementById("reset-password-message").innerText =
+            "Passwords do not match!";
+        return;
+    }
+
+    const user = firebase.auth().currentUser;
+    user.updatePassword(newPassword)
+        .then(() => {
+            document.getElementById("reset-password-message").innerText =
+                "Password reset successfully!";
+            setTimeout(() => {
+                document.getElementById("reset-password-section").classList.add("hidden");
+                document.getElementById("login-section").classList.remove("hidden");
+            }, 2000);
+        })
+        .catch((error) => {
+            document.getElementById("reset-password-message").innerText =
+                `Error: ${error.message}`;
+        });
+});
+
+
 // Define the ensureAuthenticated function to verify if the user is logged in
 export const ensureAuthenticated = () => {
     const userEmail = localStorage.getItem("userEmail");

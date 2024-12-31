@@ -880,7 +880,6 @@ button:hover {
         padding: 8px 16px;
     }
 }
-/* General container */
 .auth-container {
     display: flex;
     flex-wrap: wrap;
@@ -891,54 +890,19 @@ button:hover {
     background-color: #f4f4f4;
 }
 
-/* Triangle Box */
-.triangle-box {
-    flex: 1 1 50%;
-    max-width: 400px;
-    background: linear-gradient(135deg, #25d366 50%, #ffffff 50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 30px;
-    border-radius: 10px 0 0 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.welcome-info {
-    text-align: center;
-    color: white;
-}
-
-.welcome-info h1 {
-    font-size: 1.8em;
-    margin-bottom: 10px;
-}
-
-.welcome-info p {
-    font-size: 1.2em;
-    line-height: 1.4;
-}
-
-/* Form Box */
 .form-box {
-    flex: 1 1 50%;
-    max-width: 400px;
     background-color: white;
     padding: 20px;
-    border-radius: 0 10px 10px 0;
+    border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    margin: 10px;
-}
-
-/* General Form Styling */
-form {
     width: 100%;
+    max-width: 400px;
+    margin: 20px;
 }
 
 form h2 {
     text-align: center;
     margin-bottom: 15px;
-    font-size: 1.5em;
 }
 
 label {
@@ -953,7 +917,6 @@ input {
     margin-bottom: 15px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    font-size: 0.9em;
 }
 
 button {
@@ -964,67 +927,13 @@ button {
     border-radius: 5px;
     cursor: pointer;
     font-size: 0.9em;
+    width: 100%;
 }
 
 button:hover {
     background-color: #1e8e4f;
 }
 
-/* Password Toggle */
-.password-container {
-    position: relative;
-}
-
-.password-toggle {
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    cursor: pointer;
-}
-
-/* Footer Styling */
-.form-footer {
-    text-align: center;
-    margin-top: 10px;
-}
-
-.form-footer span {
-    font-size: 0.9em;
-}
-
-.link-button {
-    background: none;
-    color: #25d366;
-    border: none;
-    cursor: pointer;
-    font-size: 0.9em;
-    text-decoration: underline;
-}
-
-.link-button:hover {
-    color: #1e8e4f;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .auth-container {
-        flex-direction: column;
-    }
-
-    .triangle-box,
-    .form-box {
-        flex: 1 1 100%;
-        max-width: 100%;
-        border-radius: 10px;
-        margin: 10px 0;
-    }
-
-    .welcome-info h1 {
-        font-size: 1.5em;
-    }
-
-    .welcome-info p {
-        font-size: 1em;
-    }
+.hidden {
+    display: none;
 }
