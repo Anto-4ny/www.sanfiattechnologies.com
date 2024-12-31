@@ -114,22 +114,20 @@
                     <div id="login-message" class="message"></div>
         
                     <div class="form-footer">
-                        <a href="#" id="show-signup" class="link">Signup</a> |
+                        <a href="#" id="show-signup" class="link">Signup here</a> |
                         <a href="#" id="forgot-password" class="link">Forgot Password?</a>
                     </div>
                 </form>
             </div>
         
-            <!-- Forgot Password Section -->
-            <div class="form-box hidden" id="forgot-password-section">
-                <form id="forgot-password-form">
-                    <h2>Reset Password</h2>
-                    <label for="reset-email">Enter your email:</label>
-                    <input type="email" id="reset-email" placeholder="Enter your email" required>
-                    <button type="button" id="send-reset-email" class="button">Send Reset Email</button>
-                    <div id="reset-message" class="message"></div>
-                </form>
-            </div>
+            <div id="forgot-password-section" class="hidden">
+                <h2>Reset Password</h2>
+                <label for="reset-email">Enter your email address:</label>
+                <input type="email" id="reset-email" placeholder="Enter your email" required>
+                <button id="send-reset-email">Send Reset Email</button>
+                <div id="reset-message" class="message"></div>
+                <button id="back-to-login">Back to Login</button>
+            </div>            
         </div>
         
     </main>

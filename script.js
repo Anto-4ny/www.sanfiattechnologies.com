@@ -3,6 +3,7 @@ import {
     getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    sendPasswordResetEmail,
     onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
@@ -37,19 +38,6 @@ const storage = getStorage(app);
 // Exporting firebase-related modules for use elsewhere in the app
 export { auth, db, doc, getDoc, query, collection, where, getDocs, storage };
 
-// Switch between forms
-document.getElementById("show-login").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("signup-section").classList.add("hidden");
-    document.getElementById("login-section").classList.remove("hidden");
-});
-
-document.getElementById("show-signup").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("login-section").classList.add("hidden");
-    document.getElementById("signup-section").classList.remove("hidden");
-});
-
 document.getElementById("forgot-password").addEventListener("click", (e) => {
     e.preventDefault();
     document.getElementById("login-section").classList.add("hidden");
@@ -60,7 +48,8 @@ document.getElementById("forgot-password").addEventListener("click", (e) => {
 document.getElementById("send-reset-email").addEventListener("click", () => {
     const email = document.getElementById("reset-email").value;
 
-    auth.sendPasswordResetEmail(email)
+    // Correct modular Firebase SDK syntax
+    sendPasswordResetEmail(auth, email)
         .then(() => {
             document.getElementById("reset-message").innerText =
                 "Password reset email sent! Check your inbox.";
@@ -69,6 +58,13 @@ document.getElementById("send-reset-email").addEventListener("click", () => {
             document.getElementById("reset-message").innerText =
                 `Error: ${error.message}`;
         });
+});
+
+// Back to login after resetting password
+document.getElementById("back-to-login").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("forgot-password-section").classList.add("hidden");
+    document.getElementById("login-section").classList.remove("hidden");
 });
 
 
