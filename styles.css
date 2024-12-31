@@ -886,19 +886,22 @@ button:hover {
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    padding: 20px;
     background-color: #f4f4f4;
 }
 
 /* Triangle Box */
 .triangle-box {
-    flex: 1 1 40%;
-    position: relative;
+    flex: 1 1 50%;
+    max-width: 400px;
     background: linear-gradient(135deg, #25d366 50%, #ffffff 50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px;
+    padding: 30px;
+    border-radius: 10px 0 0 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .welcome-info {
@@ -907,22 +910,24 @@ button:hover {
 }
 
 .welcome-info h1 {
-    font-size: 2em;
-    margin-bottom: 20px;
+    font-size: 1.8em;
+    margin-bottom: 10px;
 }
 
 .welcome-info p {
     font-size: 1.2em;
+    line-height: 1.4;
 }
 
 /* Form Box */
 .form-box {
-    flex: 1 1 40%;
-    max-width: 500px;
+    flex: 1 1 50%;
+    max-width: 400px;
     background-color: white;
-    padding: 30px;
-    border-radius: 10px;
+    padding: 20px;
+    border-radius: 0 10px 10px 0;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin: 10px;
 }
 
 /* General Form Styling */
@@ -932,31 +937,33 @@ form {
 
 form h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
 }
 
 label {
+    font-size: 0.9em;
+    margin-bottom: 5px;
     display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
 }
 
 input {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ddd;
     border-radius: 5px;
+    font-size: 0.9em;
 }
 
 button {
     background-color: #25d366;
     color: white;
-    padding: 12px;
+    padding: 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    width: 100%;
+    font-size: 0.9em;
 }
 
 button:hover {
@@ -971,37 +978,53 @@ button:hover {
 .password-toggle {
     position: absolute;
     top: 50%;
-    right: 15px;
+    right: 10px;
     transform: translateY(-50%);
     cursor: pointer;
 }
 
 /* Footer Styling */
 .form-footer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 15px;
+    text-align: center;
+    margin-top: 10px;
 }
 
 .form-footer span {
-    margin-right: 10px;
+    font-size: 0.9em;
 }
 
-.form-footer button {
-    background-color: transparent;
+.link-button {
+    background: none;
     color: #25d366;
     border: none;
-    font-size: 1em;
-    text-decoration: underline;
     cursor: pointer;
+    font-size: 0.9em;
+    text-decoration: underline;
 }
 
-.form-footer button:hover {
+.link-button:hover {
     color: #1e8e4f;
 }
 
-/* Hidden Class */
-.hidden {
-    display: none;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .auth-container {
+        flex-direction: column;
+    }
+
+    .triangle-box,
+    .form-box {
+        flex: 1 1 100%;
+        max-width: 100%;
+        border-radius: 10px;
+        margin: 10px 0;
+    }
+
+    .welcome-info h1 {
+        font-size: 1.5em;
+    }
+
+    .welcome-info p {
+        font-size: 1em;
+    }
 }
