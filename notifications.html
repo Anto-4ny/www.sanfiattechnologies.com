@@ -92,7 +92,106 @@
     </div>
     <!-- You can add more notifications here -->
 <div id="notifications-container"></div>
+ <!-- Referral Link Section -->
+ <div style="
+ display: flex; 
+ align-items: center; 
+ margin-bottom: 20px;
+">
+ <h3 style="
+   margin-right: 10px; 
+   font-size: 16px; 
+   color: #333; 
+   flex-shrink: 0;
+ ">
+   Your Link:
+ </h3>
+ <p id="referral-link" style="
+   flex-grow: 1; 
+   white-space: nowrap; 
+   overflow: hidden; 
+   text-overflow: ellipsis; 
+   margin: 0; 
+   padding: 5px 10px; 
+   border: 1px solid #ddd; 
+   border-radius: 5px; 
+   background: #fff;
+   font-size: 14px; 
+   color: #555;
+ ">
+   <!-- Referral link goes here -->
+ </p>
+ <button id="copy-link-button" style="
+   margin-left: 10px; 
+   padding: 5px 10px; 
+   font-size: 14px; 
+   color: #fff; 
+   background: #007bff; 
+   border: none; 
+   border-radius: 5px; 
+   cursor: pointer;
+ ">
+   Copy
+ </button>
+ <a id="whatsapp-share-button" class="button" target="_blank" style="
+   margin-left: 10px; 
+   display: inline-block; 
+   padding: 5px 10px; 
+   background: #25D366; 
+   border-radius: 5px; 
+   text-decoration: none; 
+   color: #fff;
+ ">
+   <i class="fab fa-whatsapp" style="
+     font-size: 18px; 
+   "></i>
+ </a>
+</div>
 
+<!-- Referred Friends Section -->
+<h3 style="
+ margin-bottom: 10px; 
+ font-size: 16px; 
+ color: #333; 
+ text-align: center;
+">
+ Your Referred Friends
+</h3>
+<div style="
+ overflow-x: auto;
+">
+ <table style="
+   width: 100%; 
+   border-collapse: collapse; 
+   font-size: 14px; 
+   text-align: left;
+ ">
+   <thead>
+     <tr>
+       <th style="
+         padding: 10px; 
+         border-bottom: 2px solid #ddd;
+         background: #f1f1f1;
+         color: #555;
+       ">
+         Email
+       </th>
+       <th style="
+         padding: 10px; 
+         border-bottom: 2px solid #ddd;
+         background: #f1f1f1;
+         color: #555;
+       ">
+         Status
+       </th>
+     </tr>
+   </thead>
+   <tbody id="referred-users-list">
+     <!-- Referred users will be dynamically inserted here -->
+   </tbody>
+ </table>
+</div>
+</div>              
 <script>
     const notificationsRef = firestore.collection('users').doc(userId).collection('notifications');
     

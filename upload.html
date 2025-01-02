@@ -76,7 +76,7 @@
     <a href="whatsapp-earnings.html"><i class="fab fa-whatsapp"></i> Earned</a>
     <a href="packages.html"><i class="fas fa-box"></i> WhatsApp Packages</a>
     <a href="product.html"><i class="fas fa-box"></i> Daily Product</a>
-    <a href="ipload.html"><i class="fab fa-whatsapp"></i> Screenshot Upload</a>
+    <a href="upload.html"><i class="fab fa-whatsapp"></i> Screenshot Upload</a>
     <a href="withdrawal.html"><i class="fas fa-money-check-alt"></i> Withdraw</a>
   </div>
   <a href="packages.html"><i class="fas fa-box"></i> WhatsApp Packages</a>
@@ -108,23 +108,107 @@
                         <button type="submit" id="upload-button" aria-label="Upload screenshot">Upload Screenshot</button>
                     </form>
                 </section>
-    <div id="referral-link-section">
-    <h3>Your Referral Link</h3>
-    <p id="referral-link"></p>
-    <button id="copy-link-button">Copy Link</button>
-    <a id="whatsapp-share-button" href="#" target="_blank" aria-label="Share on WhatsApp">
-        <img src="images/waicon.jpg" alt="Share on WhatsApp" style="width: 30px; vertical-align: middle;">
-        Share on WhatsApp
-    </a>
-    </div>
+  
+ <!-- Referral Link Section -->
+ <div style="
+ display: flex; 
+ align-items: center; 
+ margin-bottom: 20px;
+">
+ <h3 style="
+   margin-right: 10px; 
+   font-size: 16px; 
+   color: #333; 
+   flex-shrink: 0;
+ ">
+   Your Link:
+ </h3>
+ <p id="referral-link" style="
+   flex-grow: 1; 
+   white-space: nowrap; 
+   overflow: hidden; 
+   text-overflow: ellipsis; 
+   margin: 0; 
+   padding: 5px 10px; 
+   border: 1px solid #ddd; 
+   border-radius: 5px; 
+   background: #fff;
+   font-size: 14px; 
+   color: #555;
+ ">
+   <!-- Referral link goes here -->
+ </p>
+ <button id="copy-link-button" style="
+   margin-left: 10px; 
+   padding: 5px 10px; 
+   font-size: 14px; 
+   color: #fff; 
+   background: #007bff; 
+   border: none; 
+   border-radius: 5px; 
+   cursor: pointer;
+ ">
+   Copy
+ </button>
+ <a id="whatsapp-share-button" class="button" target="_blank" style="
+   margin-left: 10px; 
+   display: inline-block; 
+   padding: 5px 10px; 
+   background: #25D366; 
+   border-radius: 5px; 
+   text-decoration: none; 
+   color: #fff;
+ ">
+   <i class="fab fa-whatsapp" style="
+     font-size: 18px; 
+   "></i>
+ </a>
+</div>
 
-    <div id="referrals-section">
-    <h3>Referred Users</h3>
-    <ul id="referral-list">
-        <!-- Referred users will be listed here -->
-    </ul>
-    </div>
-                
+<!-- Referred Friends Section -->
+<h3 style="
+ margin-bottom: 10px; 
+ font-size: 16px; 
+ color: #333; 
+ text-align: center;
+">
+ Your Referred Friends
+</h3>
+<div style="
+ overflow-x: auto;
+">
+ <table style="
+   width: 100%; 
+   border-collapse: collapse; 
+   font-size: 14px; 
+   text-align: left;
+ ">
+   <thead>
+     <tr>
+       <th style="
+         padding: 10px; 
+         border-bottom: 2px solid #ddd;
+         background: #f1f1f1;
+         color: #555;
+       ">
+         Email
+       </th>
+       <th style="
+         padding: 10px; 
+         border-bottom: 2px solid #ddd;
+         background: #f1f1f1;
+         color: #555;
+       ">
+         Status
+       </th>
+     </tr>
+   </thead>
+   <tbody id="referred-users-list">
+     <!-- Referred users will be dynamically inserted here -->
+   </tbody>
+ </table>
+</div>
+</div>                      
 <footer>
     <div class="footer">
         <div class="footer-item">
