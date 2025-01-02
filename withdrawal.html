@@ -13,11 +13,11 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="dashboard.css">
     <link rel="icon" href="images/Photo_1723191951676.png" type="image/x-icon">
-        <!--< <script>
+        < <script>
     if (localStorage.getItem('paymentStatus') !== 'paid') {
     window.location.href = 'dashboard.html'; // Redirect to the payment page
 }
-</script>-->
+</script>
 <script type="module">
     import { ensureAuthenticated } from "./script.js";
 
@@ -25,15 +25,6 @@
         ensureAuthenticated();
     });
 </script>
-
-<style>
-        /* Basic styling, adjust as needed */
-        .hidden { display: none; }
-        .show { display: block; }
-        .password-toggle { cursor: pointer; }
-        #payment-section { margin-top: 20px; }
-        .message { color: red; }
-    </style>
 </head>
     <div id="deposit-header" onclick="window.location.href='deposit.html'">
     Deposit
@@ -67,24 +58,26 @@
 <div id="overlay"></div>
 
 <nav id="mobile-nav" class="mobile-nav">
-  <h3>Main Categories</h3>
-  <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-  <a href="#" class="has-submenu"><i class="fas fa-box-open"></i> Packages</a>
-  <div class="submenu">
-    <a href="packages.html"><i class="fas fa-box"></i> Basic</a>
-    <a href="packages.html"><i class="fas fa-boxes"></i> Premium</a>
-  </div>
-  <a href="deposit.html"><i class="fas fa-wallet"></i> Deposit</a>
-  <a href="withdrawal.html"><i class="fas fa-hand-holding-usd"></i> Withdraw</a>
-  <h3>Other Categories</h3>
-  <a href="product.html"><i class="fas fa-box"></i> Products</a>
-  <a href="whatsapp-earnings.html"><i class="fab fa-whatsapp"></i> WhatsApp Earnings</a>
-  <a href="welcome-bonuses.html"><i class="fas fa-gift"></i> Welcome Bonus</a>
-  <a href="cashback-bonuses.html"><i class="fas fa-coins"></i> Cashback Bonus</a>
-  <a href="loans.html"><i class="fas fa-money-check-alt"></i> Loans</a>
-  <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
-  <button type="button" id="logout-button"><i class="fas fa-sign-out-alt"></i> Log Out</button>
-</nav>
+    <h3>Browse Sanfiat</h3>
+    <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="#" class="has-submenu"><i class="fab fa-whatsapp"></i> WhatsApp Earnings</a>
+    <div class="submenu">
+      <a href="whatsapp-earnings.html"><i class="fab fa-whatsapp"></i> Earned</a>
+      <a href="packages.html"><i class="fas fa-box"></i> WhatsApp Packages</a>
+      <a href="product.html"><i class="fas fa-box"></i> Daily Product</a>
+      <a href="ipload.html"><i class="fab fa-whatsapp"></i> Screenshot Upload</a>
+      <a href="withdrawal.html"><i class="fas fa-money-check-alt"></i> Withdraw</a>
+    </div>
+    <a href="packages.html"><i class="fas fa-box"></i> WhatsApp Packages</a>
+    <a href="deposit.html"><i class="fas fa-wallet"></i> Deposit</a>
+    <a href="withdrawal.html"><i class="fas fa-hand-holding-usd"></i> Withdraw</a>
+    <a href="product.html"><i class="fas fa-box"></i> Products</a>
+    <a href="welcome-bonuses.html"><i class="fas fa-gift"></i> Welcome Bonus</a>
+    <a href="cashback-bonuses.html"><i class="fas fa-coins"></i> Cashback Bonus</a>
+    <a href="loans.html"><i class="fas fa-money-check-alt"></i> Loans</a>
+    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+    <button type="button" id="logout-button"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+    </nav>
     <body>
     <div class="container">
         <form id="withdraw-form">
@@ -109,39 +102,6 @@
  
 </body>
     <footer>
-    <div class="footer">
-        <div class="footer-item">
-            <a href="dashboard.html">
-                <i class="fas fa-home footer-icon"></i>
-                <span>Home</span>
-            </a>
-        </div>
-        <div class="footer-item">
-            <a href="deposit.html">
-                <i class="fas fa-money-bill-alt footer-icon"></i> <!-- Changed to a money icon for deposit -->
-                <span>Deposit</span>
-            </a>
-        </div>
-        <div class="footer-item">
-            <a href="packages.html">
-                <i class="fas fa-box-open footer-icon"></i> <!-- Changed to a box open icon for packages -->
-                <span>Packages</span>
-            </a>
-        </div>
-        <div class="footer-item">
-            <a href="dashboard.html">
-                <i class="fas fa-tachometer-alt footer-icon"></i>
-                <span>Dashboard</span>
-            </a>
-        </div>
-        <div class="footer-item">
-            <a href="profile.html">
-                <i class="fas fa-user-circle footer-icon"></i> <!-- Changed to a user circle icon for profile -->
-                <span>Profile</span>
-            </a>
-        </div>
-    </div>
-    
     <div class="Button">
         <a href="deposit.html">
             <p class="post-btn">
