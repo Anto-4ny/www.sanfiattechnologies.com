@@ -68,22 +68,22 @@
 
 /* Unique Box Colors */
 #name-box {
-    background-color: white;
+    background-color: #deec16;
 }
 #email-box {
-    background-color: white;
+    background-color: #90d3f1;
 }
 #referral-box {
-    background-color: white;
+    background-color: #14db1e;
 }
 #views-box {
-    background-color: white;
+    background-color: rgb(56, 130, 241);
 }
 #earnings-box {
-    background-color: whitesmoke;
+    background-color: #8e39f0b4;
 }
 #amount-box {
-    background-color: white;
+    background-color: #cbf70b;
 }
 #package-box {
     background-color: hsla(168, 97%, 49%, 0.643);
