@@ -24,7 +24,7 @@
     max-width: 300px;
     padding: 20px;
     border-radius: 10px;
-    color: white;
+    color: black;
     margin: 20px 0;
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -68,22 +68,22 @@
 
 /* Unique Box Colors */
 #name-box {
-    background-color: hsl(206, 30%, 95%);
+    background-color: white;
 }
 #email-box {
-    background-color: hwb(6 92% 4%);
+    background-color: white;
 }
 #referral-box {
-    background-color: hsl(144, 17%, 94%);
+    background-color: white;
 }
 #views-box {
-    background-color: hsl(36, 60%, 95%);
+    background-color: white;
 }
 #earnings-box {
-    background-color: hsl(283, 17%, 92%);
+    background-color: whitesmoke;
 }
 #amount-box {
-    background-color: hwb(26 95% 2%);
+    background-color: white;
 }
 #package-box {
     background-color: hsla(168, 97%, 49%, 0.643);
