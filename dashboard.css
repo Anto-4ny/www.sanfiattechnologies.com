@@ -68,25 +68,25 @@
 
 /* Unique Box Colors */
 #name-box {
-    background-color: #3498db;
+    background-color: hsl(206, 30%, 95%);
 }
 #email-box {
-    background-color: #e74c3c;
+    background-color: hwb(6 92% 4%);
 }
 #referral-box {
-    background-color: #2ecc71;
+    background-color: hsl(144, 17%, 94%);
 }
 #views-box {
-    background-color: #f39c12;
+    background-color: hsl(36, 60%, 95%);
 }
 #earnings-box {
-    background-color: #8e44ad;
+    background-color: hsl(283, 17%, 92%);
 }
 #amount-box {
-    background-color: #914809;
+    background-color: hwb(26 95% 2%);
 }
 #package-box {
-    background-color: #0eeec1a4;
+    background-color: hsla(168, 97%, 49%, 0.643);
 }
 
 /* Spinner Styles */
@@ -127,31 +127,7 @@
         justify-content: center;
     }
     }
-
 }
-
-
-            
-
-#upload-section {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin: 20px 0;
-}
-
-#upload-section input {
-    display: block;
-    margin-bottom: 10px;
-}
-
-#upload-section h3 {
-    font-size: 1.5em;
-    color: #333;
-    text-align: center;
-}
-
 
 
 /* Base styles for the boxes (before animation) */
@@ -163,65 +139,6 @@
 
 /* Visible state (triggered when the 'visible' or 'show' class is added) */
 .payment-box.visible, .confirmation-box.visible, .info-box.show {
-    opacity: 1;
-    transform: translateY(0); /* Move to original position */
-}
-
-#upload-section {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin: 20px 0;
-    max-width: 600px;
-    margin: auto;
-}
-
-#upload-section h3 {
-    margin-top: 0;
-    font-size: 1.5em;
-    color: #333;
-}
-
-#upload-section label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-}
-
-#upload-section input[type="number"], 
-#upload-section input[type="file"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-    margin-bottom: 15px;
-    }
-
-#upload-section input[type="number"] {
-    margin-bottom: 15px; /* Space between number input and file input */
-}
-
-#upload-section button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em;
-}
-
-#upload-section button:hover {
-    background-color: #0056b3;
-}
-
-#upload-status {
-    color: #333;
-    font-size: 1em;
-    margin-top: 10px;
-}
 
 
 /* Responsive Styles */
@@ -239,11 +156,6 @@
         width: 90%;
         max-width: 100%;
     }
-
-    #upload-section,  {
-        width: 90%;
-        max-width: 100%;
-    }
 }
 
 @media (max-width: 480px) {
@@ -258,49 +170,3 @@
         font-size: 1.2em;
     }
 }
-
-    /* Responsive Styles for Upload Section */
-@media (max-width: 768px) {
-    #upload-section {
-        padding: 15px; /* Reduce padding on smaller screens */
-        margin: 10px 0; /* Adjust margin for smaller screens */
-        max-width: 90%; 
-    }
-
-    #upload-section h3 {
-        font-size: 1.3em; 
-    }
-    #upload-section input[type="number"], 
-    #upload-section input[type="file"] {
-        padding: 8px; 
-    }
-    
-    #upload-section button {
-        padding: 8px 12px; 
-        font-size: 0.9em; 
-    }
-}
-
-@media (max-width: 480px) {
-    #upload-section {
-        padding: 10px; 
-        margin: 5px 0; 
-        max-width: 100%; 
-    }
-
-    #upload-section h3 {
-        font-size: 1.2em; 
-    }
-    
-    #upload-section input[type="number"], 
-    #upload-section input[type="file"] {
-        padding: 6px; 
-    }
-    
-    #upload-section button {
-        padding: 6px 10px; 
-        font-size: 0.8em; 
-    }
-}
-
-
