@@ -235,10 +235,10 @@ const checkAuthenticationAndPayment = async () => {
             const userData = userDoc.data();
 
             if (userData.paymentStatus) {
-                console.log("User has paid.");
+                console.log("You have paid.");
                 localStorage.setItem("paymentStatus", "paid");
             } else {
-                console.log("User has not paid. Redirecting to dashboard...");
+                console.log("You have not paid. Redirecting to payment pop-up...");
                 localStorage.setItem("paymentStatus", "not-paid");
                 if (!window.location.pathname.includes("dashboard.html")) {
                     window.location.href = "dashboard.html";
