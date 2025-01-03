@@ -82,19 +82,27 @@
 </div>
                <h2>Whatsapp Earnings</h2>     
                 </section>
-                
-                <div id="user-info">
-    <div class="info-box">
-        <p>Total Views: <span id="total-views"></span></p>
-    </div>
-    <div class="info-box">
-        <p>Whatsapp Total Earnings: <span id="total-earnings"></span> Ksh</p>
-    </div>
-    
-    <div class="info-box">
-        <p>Packages: <span id="package-status"></span></p> <!-- Added package status element -->
-    </div>
-                </div>
+                <section id="user-info"> 
+                  <div class="info-box" id="views-box">
+                      <p>Total Views: <span id="total-views"></span></p>
+                      <i class="fas fa-eye"></i>
+                      <div class="progress-bar" id="views-progress"></div>
+                  </div>
+                  <div class="info-box" id="earnings-box">
+                      <p>Total Earnings: <span id="total-earnings"></span> Ksh</p>
+                      <i class="fas fa-money-bill-wave"></i>
+                      <div class="progress-bar" id="earnings-progress"></div>
+                  </div>
+                  <div class="info-box" id="package-box">
+                      <p>Packages: <span id="package-status"></span></p>
+                      <i class="fas fa-box-open"></i>
+                      <div class="progress-bar" id="package-progress"></div>
+                  </div>
+                  <!-- Loading Spinner -->
+                  <div id="loading" style="display: none;">
+                      <div class="spinner"></div>
+                  </div>
+              </section>
  <!-- Referral Link Section -->
  <div style="
  display: flex; 
