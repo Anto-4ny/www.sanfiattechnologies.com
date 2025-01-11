@@ -43,7 +43,7 @@ export const ensureAuthenticated = () => {
     const userEmail = localStorage.getItem("userEmail");
 
     if (!userEmail) {
-        window.location.href = "index.html"; // Redirect to login page (adjust URL if necessary)
+        window.location.href = "index"; // Redirect to login page (adjust URL if necessary)
     } else {
         console.log("User is authenticated");
     }
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (user) {
                     localStorage.setItem("userEmail", email);
                     // Redirect to dashboard after login
-                    window.location.href = "dashboard.html";
+                    window.location.href = "dashboard";
                 }
             } catch (error) {
                 if (loginMessage) {
@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (user) {
                     // Generate unique referral link
-                    const referralLink = `${window.location.origin}/index.html?ref=${user.uid}`;
+                    const referralLink = `${window.location.origin}/index?ref=${user.uid}`;
 
                     // Save user data to Firestore
                     await setDoc(doc(db, "users", user.uid), {
@@ -220,8 +220,8 @@ const checkAuthenticationAndPayment = async () => {
 
     if (!userEmail) {
         // Redirect to login if no email is found in localStorage
-        if (!window.location.pathname.includes("index.html")) {
-            window.location.href = "index.html";
+        if (!window.location.pathname.includes("index")) {
+            window.location.href = "index";
         }
         return;
     }
@@ -240,8 +240,8 @@ const checkAuthenticationAndPayment = async () => {
             } else {
                 console.log("You have not paid. Redirecting to payment pop-up...");
                 localStorage.setItem("paymentStatus", "not-paid");
-                if (!window.location.pathname.includes("dashboard.html")) {
-                    window.location.href = "dashboard.html";
+                if (!window.location.pathname.includes("dashboard")) {
+                    window.location.href = "dashboard";
                 }
             }
         } else {
@@ -258,8 +258,8 @@ auth.onAuthStateChanged(async (user) => {
         localStorage.setItem("userEmail", user.email);
         await checkAuthenticationAndPayment();
     } else {
-        if (!window.location.pathname.includes("index.html")) {
-            window.location.href = "index.html";
+        if (!window.location.pathname.includes("index")) {
+            window.location.href = "index";
         }
     }
 });
@@ -571,7 +571,7 @@ notificationsRef.onSnapshot(snapshot => {
 
 // Function to generate a referral link based on package and user ID
 function generateReferralLink(packageName, userId) {
-    const baseUrl = "https://sanfiat.antocapteknologies.com/packages.html/";  // Replace with your actual base URL
+    const baseUrl = "https://sanfiat.antocapteknologies.com/packages/";  // Replace with your actual base URL
     const referralLink = `${baseUrl}?package=${packageName}&referrer=${userId}`;
     return referralLink;
 }
@@ -634,10 +634,7 @@ async function fetchUserPackages(userId) {
             <div class="package-price">Ksh ${packageData.price}</div>
             <div class="package-description">${packageData.description}</div>
             <div class="package-details">
-                <p>Referrals Required: ${packageData.numberOfReferralsRequired}</p>
-                <p>Referrals Made: ${packageData.referralsCount}</p>
                 <p>Pay Per View: ${packageData.payPerView} Ksh</p>
-                <progress value="${packageData.referralsCount}" max="${packageData.numberOfReferralsRequired}"></progress>
             </div>
             <button class="pay-button" onclick="requestPayment('${packageData.packageType}')">Pay via MPESA</button>
             <div class="package-referral-link">
@@ -655,7 +652,7 @@ async function fetchUserPackages(userId) {
 // Function to handle MPESA payment request
 function requestPayment(packageType) {
     // Redirect to deposit.html for payment processing
-    window.location.href = `deposit.html?package=${packageType}`;
+    window.location.href = `deposit?package=${packageType}`;
 }
 
 // Listen for the authenticated user and initialize the app
