@@ -673,3 +673,195 @@ firebase.auth().onAuthStateChanged(function(user) {
     }
 });
 });
+
+// Validate view count
+const validateViews = (views) => views >= 5 && views <= 20;
+
+// Check if a user has uploaded in the last 24 hours
+const checkUploadCooldown = async (userId) => {
+  const uploadsRef = collection(db, "uploads");
+  const oneDayAgo = Timestamp.fromDate(new Date(Date.now() - 86400000)); // 24 hours ago
+  const q = query(uploadsRef, where("userId", "==", userId), where("timestamp", ">", oneDayAgo));
+  const querySnapshot = await getDocs(q);
+  return !querySnapshot.empty; // Returns true if an upload was made in the last 24 hours
+};
+
+// File input, drag-and-drop, and upload preview logic
+const dropZone = document.getElementById("drop-zone");
+const fileInput = document.getElementById("file-input");
+const filePreview = document.getElementById("file-preview");
+
+// Trigger file input click when drop zone is clicked
+dropZone.addEventListener("click", () => {
+  fileInput.click(); // Programmatically open file dialog
+});
+
+// Handle file selection
+fileInput.addEventListener("change", (event) => {
+  const files = event.target.files;
+
+  if (files.length > 0) {
+    const file = files[0];
+
+    // Show file name as preview
+    filePreview.textContent = `Selected file: ${file.name}`;
+    filePreview.style.color = "#333"; // Change color to indicate success
+
+    // Optional: Check file type
+    if (!file.type.startsWith("image/")) {
+      filePreview.textContent = "Please upload a valid image file.";
+      filePreview.style.color = "red"; // Error indication
+    }
+  } else {
+    filePreview.textContent = "No file selected.";
+    filePreview.style.color = "#777"; // Default text color
+  }
+});
+
+// Drag and drop functionality
+dropZone.addEventListener("dragover", (event) => {
+  event.preventDefault(); // Prevent default behavior (e.g., opening the file)
+  dropZone.style.borderColor = "#007BFF"; // Highlight the drop zone
+});
+
+dropZone.addEventListener("dragleave", () => {
+  dropZone.style.borderColor = "#ccc"; // Reset border color
+});
+
+dropZone.addEventListener("drop", (event) => {
+  event.preventDefault();
+  dropZone.style.borderColor = "#ccc"; // Reset border color
+
+  const files = event.dataTransfer.files;
+
+  if (files.length > 0) {
+    const file = files[0];
+    fileInput.files = event.dataTransfer.files; // Assign dropped files to the input
+
+    // Show file name as preview
+    filePreview.textContent = `Selected file: ${file.name}`;
+    filePreview.style.color = "#333"; // Success indication
+
+    // Optional: Check file type
+    if (!file.type.startsWith("image/")) {
+      filePreview.textContent = "Please upload a valid image file.";
+      filePreview.style.color = "red"; // Error indication
+    }
+  }
+});
+
+// Handle form submission
+document.getElementById("upload-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const views = parseInt(document.getElementById("views").value, 10);
+  const fileInput = document.getElementById("file-input");
+  const screenshot = fileInput.files[0];
+
+  if (!validateViews(views)) {
+    alert("Number of views must be between 5 and 20.");
+    return;
+  }
+
+  if (!screenshot) {
+    alert("Please upload a screenshot.");
+    return;
+  }
+
+  // Check if the user is authenticated
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const userId = user.uid;
+
+      // Check if the user has an active package
+      const userDocRef = doc(db, "users", userId);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists() || !userDoc.data().packageStatus) {
+        alert("You must purchase a package to upload screenshots.");
+        return;
+      }
+
+      // Check if the user has uploaded in the last 24 hours
+      const hasUploaded = await checkUploadCooldown(userId);
+
+      if (hasUploaded) {
+        alert("You can only upload one screenshot every 24 hours.");
+        return;
+      }
+
+      // Upload screenshot and details to Firebase
+      const uploadsRef = collection(db, "uploads");
+      const uploadData = {
+        userId: userId,
+        views: views,
+        screenshotName: screenshot.name,
+        timestamp: Timestamp.now(),
+        approved: false, // Set to false initially until approved by admin
+      };
+
+      try {
+        await addDoc(uploadsRef, uploadData);
+        alert("Screenshot uploaded successfully! Awaiting admin approval.");
+      } catch (error) {
+        console.error("Error uploading screenshot:", error);
+        alert("Error uploading screenshot. Please try again.");
+      }
+    } else {
+      alert("You must be logged in to upload a screenshot.");
+    }
+  });
+});
+
+// Listen for admin approvals and update user data
+const listenForApprovals = () => {
+  const uploadsRef = collection(db, "uploads");
+  const q = query(uploadsRef, where("approved", "==", true));
+
+  onSnapshot(q, async (snapshot) => {
+    snapshot.docChanges().forEach(async (change) => {
+      if (change.type === "added") {
+        const approvedUpload = change.doc.data();
+        const userId = approvedUpload.userId;
+
+        // Update user data
+        const userDocRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const updatedData = {
+            totalViews: (userData.totalViews || 0) + approvedUpload.views,
+            totalEarnings: (userData.totalEarnings || 0) + 200, // Assuming 100 Ksh per approval
+            balance: (userData.balance || 0) + 200,
+          };
+
+          await updateDoc(userDocRef, updatedData);
+
+          // Notify user
+          addNotification("Your screenshot has been approved! Earnings and balance updated.");
+        }
+      }
+    });
+  });
+};
+
+// Add a notification
+const addNotification = (message) => {
+  const notificationsContainer = document.getElementById("notifications-container");
+  const notificationCount = document.getElementById("notification-count");
+
+  const notification = document.createElement("div");
+  notification.classList.add("notification-item");
+  notification.innerHTML = `
+    <p>${message}</p>
+    <span class="close-notification-btn" onclick="this.parentElement.remove()">&times;</span>
+  `;
+  notificationsContainer.appendChild(notification);
+
+  const currentCount = parseInt(notificationCount.textContent, 10);
+  notificationCount.textContent = currentCount + 1;
+};
+
+// Initialize listeners
+listenForApprovals();
