@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const { db } = require('./firebase-admin'); // Import Firestore instance
 
-const SALT_ROUNDS = 10; // Define a salt round value for bcrypt
+const SALT_ROUNDS = 5; // Define a salt round value for bcrypt
 
 /**
  * Generate a referral code based on the user's email
@@ -47,7 +47,7 @@ module.exports = async (req, res) => {
 
         // Generate new referral code and referral link
         const newReferralCode = generateReferralCode(email);
-        const referralLink = `${req.headers.origin}/index.html?ref=${newReferralCode}`;
+        const referralLink = `${req.headers.origin}/index?ref=${newReferralCode}`;
 
         // Hash the password before saving
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
