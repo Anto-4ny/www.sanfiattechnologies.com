@@ -120,16 +120,13 @@
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-
+}
 /* Responsive layout */
 @media (max-width: 768px) {
     #user-info {
         justify-content: center;
     }
     }
-}
-
-
 /* Base styles for the boxes (before animation) */
 .payment-box, .confirmation-box, .info-box {
     opacity: 0;
