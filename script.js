@@ -384,7 +384,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 10000); // Refresh every 10 seconds
 });
-             
+     
+
+// Function to update balance
+const updateBalance = async () => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userDocRef);
+  
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const balanceElement = document.querySelector("#balance-section span");
+          if (balanceElement) {
+            balanceElement.textContent = `Balance: ${userData.balance || 0} Ksh`;
+          }
+        }
+      }
+    });
+  };
+  
+  // Function to update notifications
+  const updateNotifications = async () => {
+    const notificationsContainer = document.getElementById("notifications-container");
+    const notificationCount = document.getElementById("notification-count");
+  
+    if (!notificationsContainer || !notificationCount) return;
+  
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userId = user.uid;
+        const notificationsRef = doc(db, "users", userId); // Assuming notifications are stored in user data
+        const userSnapshot = await getDoc(notificationsRef);
+  
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const notifications = userData.notifications || [];
+          notificationsContainer.innerHTML = ""; // Clear previous notifications
+  
+          notifications.forEach((notification, index) => {
+            const notificationItem = document.createElement("div");
+            notificationItem.classList.add("notification-item");
+            notificationItem.id = `notification-${index}`;
+            notificationItem.innerHTML = `
+              <p>${notification.message}</p>
+              <span class="close-notification-btn" onclick="document.getElementById('notification-${index}').remove()">&times;</span>
+            `;
+            notificationsContainer.appendChild(notificationItem);
+          });
+  
+          notificationCount.textContent = notifications.length;
+        }
+      }
+    });
+  };
+  
+  // Call these functions when the page loads
+  window.addEventListener("DOMContentLoaded", () => {
+    updateBalance();
+    updateNotifications();
+  });
 
 // Automatic pop-in effect on page load
 document.addEventListener('DOMContentLoaded', function () {

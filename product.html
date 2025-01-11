@@ -217,26 +217,28 @@ input {
                 <a id="whatsapp-share-1" target="_blank">Share to WhatsApp</a>
             </div>
         </div>
-        
-    <section id="upload-section">
-                    <h2>Upload Your Status Screenshot</h2>
-                    <form id="upload-form">
-                        <label for="views">Number of Views:</label>
-                        <input type="number" id="views" placeholder="Enter number of views" required>
-                        
-                        <label for="screenshot">Screenshot:</label>
-                        <div class="upload-container">
-                            <div id="drop-zone" class="drop-zone" aria-label="Drop files here or click to upload">
-                                <p>Drag and drop files here or click to upload.</p>
-                                <input type="file" id="file-input" accept="image/*" aria-label="Choose screenshot" required />
-                            </div>
-                            <div id="file-preview" class="file-preview">
-                                <!-- Preview of selected files will be shown here -->
-                            </div>
-                        </div>
-                        <button type="submit" id="upload-button" aria-label="Upload screenshot">Upload Screenshot</button>
-                    </form>
-    </section>
+        <section id="upload-section" style="width: 50%; margin: 50px auto; padding: 20px; background: #f9f9f9; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 12px; font-family: Arial, sans-serif;">
+          <h2 style="text-align: center; color: #333; font-size: 1.8em; margin-bottom: 20px;">Upload Your Status Screenshot below</h2>
+          <form id="upload-form" style="display: flex; flex-direction: column; gap: 15px;">
+              <label for="views" style="font-weight: bold; color: #555;">Number of Views:</label>
+              <input type="number" id="views" placeholder="Enter number of views" required style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1em; outline: none; transition: border-color 0.3s ease;">
+              
+              <label for="screenshot" style="font-weight: bold; color: #555;">Screenshot:</label>
+              <div class="upload-container" style="display: flex; flex-direction: column; align-items: center;">
+                  <div id="drop-zone" class="drop-zone" aria-label="Drop files here or click to upload" style="width: 100%; padding: 20px; border: 2px dashed #ccc; border-radius: 8px; text-align: center; color: #777; cursor: pointer; transition: border-color 0.3s ease, background-color 0.3s ease;">
+                      <p style="margin: 0; font-size: 1em;">Drag and drop files here or click to upload.</p>
+                      <input type="file" id="file-input" accept="image/*" aria-label="Choose screenshot" required style="opacity: 0; position: absolute; z-index: -1;">
+                  </div>
+                  <div id="file-preview" class="file-preview" style="margin-top: 15px; color: #777; font-size: 0.9em;">
+                      <!-- Preview of selected files will be shown here -->
+                  </div>
+              </div>
+              <button type="submit" id="upload-button" aria-label="Upload screenshot" style="padding: 12px 20px; background: #007BFF; color: white; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; transition: background-color 0.3s ease;">
+                  Upload Screenshot
+              </button>
+          </form>
+      </section>
+      
 
     <div style="
     display: flex; 

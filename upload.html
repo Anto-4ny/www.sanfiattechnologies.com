@@ -206,25 +206,28 @@ input {
   <button type="button" id="logout-button"><i class="fas fa-sign-out-alt"></i> Log Out</button>
   </nav>
   <body>
-<section id="upload-section">
-                    <h2 style="text-align: center;">Upload Your Status Screenshot below </h2>
-                    <form id="upload-form">
-                        <label for="views">Number of Views:</label>
-                        <input type="number" id="views" placeholder="Enter number of views" required>
-                        
-                        <label for="screenshot">Screenshot:</label>
-                        <div class="upload-container">
-                            <div id="drop-zone" class="drop-zone" aria-label="Drop files here or click to upload">
-                                <p>Drag and drop files here or click to upload.</p>
-                                <input type="file" id="file-input" accept="image/*" aria-label="Choose screenshot" required />
-                            </div>
-                            <div id="file-preview" class="file-preview">
-                                <!-- Preview of selected files will be shown here -->
-                            </div>
-                        </div>
-                        <button type="submit" id="upload-button" aria-label="Upload screenshot">Upload Screenshot</button>
-                    </form>
-                </section>
+    <section id="upload-section" style="width: 50%; margin: 50px auto; padding: 20px; background: #f9f9f9; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 12px; font-family: Arial, sans-serif;">
+      <h2 style="text-align: center; color: #333; font-size: 1.8em; margin-bottom: 20px;">Upload Your Status Screenshot below</h2>
+      <form id="upload-form" style="display: flex; flex-direction: column; gap: 15px;">
+          <label for="views" style="font-weight: bold; color: #555;">Number of Views:</label>
+          <input type="number" id="views" placeholder="Enter number of views" required style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1em; outline: none; transition: border-color 0.3s ease;">
+          
+          <label for="screenshot" style="font-weight: bold; color: #555;">Screenshot:</label>
+          <div class="upload-container" style="display: flex; flex-direction: column; align-items: center;">
+              <div id="drop-zone" class="drop-zone" aria-label="Drop files here or click to upload" style="width: 100%; padding: 20px; border: 2px dashed #ccc; border-radius: 8px; text-align: center; color: #777; cursor: pointer; transition: border-color 0.3s ease, background-color 0.3s ease;">
+                  <p style="margin: 0; font-size: 1em;">Drag and drop files here or click to upload.</p>
+                  <input type="file" id="file-input" accept="image/*" aria-label="Choose screenshot" required style="opacity: 0; position: absolute; z-index: -1;">
+              </div>
+              <div id="file-preview" class="file-preview" style="margin-top: 15px; color: #777; font-size: 0.9em;">
+                  <!-- Preview of selected files will be shown here -->
+              </div>
+          </div>
+          <button type="submit" id="upload-button" aria-label="Upload screenshot" style="padding: 12px 20px; background: #007BFF; color: white; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; transition: background-color 0.3s ease;">
+              Upload Screenshot
+          </button>
+      </form>
+  </section>
+  
 
                 <div style="
                 display: flex; 
@@ -382,8 +385,8 @@ input {
         </a>
     </div>
 </footer>
-    <script>
-        // Validate view count
+<script>
+// Validate view count
 const validateViews = (views) => views >= 5 && views <= 20;
 
 // Check if a user has uploaded in the last 24 hours
@@ -393,6 +396,26 @@ const checkUploadCooldown = async (userId) => {
   const q = query(uploadsRef, where("userId", "==", userId), where("timestamp", ">", oneDayAgo));
   const querySnapshot = await getDocs(q);
   return !querySnapshot.empty; // Returns true if an upload was made in the last 24 hours
+};
+
+// Function to update dashboard progress
+const updateDashboard = (userData) => {
+  const totalViewsElement = document.getElementById("total-views");
+  const totalEarningsElement = document.getElementById("total-earnings");
+  const viewsProgress = document.getElementById("views-progress");
+  const earningsProgress = document.getElementById("earnings-progress");
+  const balanceElement = document.getElementById("balance");
+
+  const totalViews = userData.totalViews || 0;
+  const totalEarnings = userData.totalEarnings || 0;
+  const balance = userData.balance || 0;
+
+  totalViewsElement.textContent = totalViews;
+  totalEarningsElement.textContent = totalEarnings;
+  balanceElement.textContent = balance;
+
+  viewsProgress.style.width = `${(totalViews / 100) * 100}%`;
+  earningsProgress.style.width = `${(totalEarnings / 1000) * 100}%`;
 };
 
 // Handle form submission
@@ -458,20 +481,6 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
   });
 });
 
-// Function to update the user dashboard
-const updateDashboard = (userData) => {
-  const totalViewsElement = document.getElementById("total-views");
-  const totalEarningsElement = document.getElementById("total-earnings");
-
-  if (totalViewsElement) {
-    totalViewsElement.textContent = userData.totalViews || 0;
-  }
-
-  if (totalEarningsElement) {
-    totalEarningsElement.textContent = userData.totalEarnings || 0;
-  }
-};
-
 // Monitor package purchase and update dashboard
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -484,8 +493,65 @@ onAuthStateChanged(auth, async (user) => {
     }
   }
 });
-    </script>
-    
+
+// Listen for admin approvals and update user data
+const listenForApprovals = () => {
+  const uploadsRef = collection(db, "uploads");
+  const q = query(uploadsRef, where("approved", "==", true));
+
+  onSnapshot(q, async (snapshot) => {
+    snapshot.docChanges().forEach(async (change) => {
+      if (change.type === "added") {
+        const approvedUpload = change.doc.data();
+        const userId = approvedUpload.userId;
+
+        // Update user data
+        const userDocRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const updatedData = {
+            totalViews: (userData.totalViews || 0) + approvedUpload.views,
+            totalEarnings: (userData.totalEarnings || 0) + 100, // Assuming 100 Ksh per approval
+            balance: (userData.balance || 0) + 100,
+          };
+
+          await updateDoc(userDocRef, updatedData);
+
+          // Update dashboard
+          if (auth.currentUser && auth.currentUser.uid === userId) {
+            updateDashboard(updatedData);
+          }
+
+          // Notify user
+          addNotification("Your screenshot has been approved! Earnings and balance updated.");
+        }
+      }
+    });
+  });
+};
+
+// Add a notification
+const addNotification = (message) => {
+  const notificationsContainer = document.getElementById("notifications-container");
+  const notificationCount = document.getElementById("notification-count");
+
+  const notification = document.createElement("div");
+  notification.classList.add("notification-item");
+  notification.innerHTML = `
+    <p>${message}</p>
+    <span class="close-notification-btn" onclick="this.parentElement.remove()">&times;</span>
+  `;
+  notificationsContainer.appendChild(notification);
+
+  const currentCount = parseInt(notificationCount.textContent, 10);
+  notificationCount.textContent = currentCount + 1;
+};
+
+// Initialize listeners
+listenForApprovals();
+</script>
     
         <p class="copyright-text">&copy; 2024 Sanfiat Technologies. All rights reserved.</p>
         <script type ="module" src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
