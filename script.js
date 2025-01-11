@@ -513,12 +513,12 @@ document.getElementById('current-date').textContent = `Date: ${formattedDate}`;
 
 // Product images URLs (can come from a backend or be hardcoded for now)
 const productImages = [
-    'images/product/Photo_1723191951676.png', // Day 1
-    'images/product/Photo_1723191951676.png', // Day 2
+    'images/product/Photo_1722099289583.png', // Day 1
+    'images/product/Photo_1722099967640.png', // Day 2
     'images/product/Photo_1723191951676.png', // Day 3
-    'images/product/Photo_1723191951676.png', // Day 4
+    'images/product/Photo_1722100171247.png', // Day 4
     'images/product/Photo_1723191951676.png', // Day 5
-    'images/product/Photo_1723191951676.png', // Day 6
+    'images/product/🚨 Join Our Team! Sanfiat Technologies is Hiring! 🚨 Position Sales & Marketing Professionals 📍 Work with a dynamic team and grow with us!.png', // Day 6
     'images/product/Photo_1723191951676.png'  // Day 7
 ];
 
