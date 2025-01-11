@@ -862,3 +862,30 @@ const addNotification = (message) => {
 
 // Initialize listeners
 listenForApprovals();
+
+const notificationsRef = firestore.collection('users').doc(userId).collection('notifications');
+    
+async function fetchNotifications() {
+    const notificationsSnapshot = await notificationsRef.get();
+    const notificationsContainer = document.getElementById('notifications-container');
+    
+    notificationsSnapshot.forEach(doc => {
+        const notificationData = doc.data();
+        const notificationElement = document.createElement('div');
+        notificationElement.classList.add('notification-item');
+        
+        notificationElement.innerHTML = `
+            <p>${notificationData.message}</p>
+            <button onclick="closeNotification('${doc.id}')">Close</button>
+        `;
+        
+        notificationsContainer.appendChild(notificationElement);
+    });
+}
+
+async function closeNotification(notificationId) {
+    await notificationsRef.doc(notificationId).delete();
+    location.reload(); // reload to reflect changes
+}
+
+fetchNotifications();

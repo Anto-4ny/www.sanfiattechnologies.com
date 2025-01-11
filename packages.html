@@ -238,14 +238,10 @@ input {
         <p>Click the button below to Purchase.</p>
     </div>
     <button class="pay-button" 
-        onclick="window.location.href='deposit.html?packageName=Basic&packagePrice=1000'" 
+        onclick="window.location.href='deposit?packageName=Basic&packagePrice=1000'" 
         aria-label="Pay for Basic Package via MPESA">
     Purchase package
     </button>
-    <div class="package-referral-link">
-        <p>Referral Link: <span id="basic-referral-link"></span></p>
-        <button onclick="copyReferralLink('basic', 'basic-referral-link')" aria-label="Copy Basic Package referral link">Copy</button>
-    </div>
 </div>
            <!-- Package 2 -->
                     <div class="package-box" style="background-color: #fff3e0; border-color: #ffb74d;">
@@ -258,14 +254,10 @@ input {
                             <p>purchase below.</p>
                         </div>
                          <button class="pay-button" 
-        onclick="window.location.href='deposit.html?packageName=Standard&packagePrice=2800'" 
+        onclick="window.location.href='deposit?packageName=Standard&packagePrice=2800'" 
         aria-label="Pay for standard Package via MPESA">
     Purchase Package
                          </button>
-                        <div class="package-referral-link">
-                            <p>Referral Link: <span id="standard-referral-link"></span></p>
-                            <button onclick="copyReferralLink('standard', 'standard-referral-link')" aria-label="Copy Standard Package referral link">Link</button>
-                        </div>
                     </div>
 
                     <!-- Package 3 -->
@@ -279,14 +271,10 @@ input {
                             <p>Click the button below to purchase.</p>
                         </div>
                         <button class="pay-button" 
-        onclick="window.location.href='deposit.html?packageName=Premium&packagePrice=4900'" 
+        onclick="window.location.href='deposit?packageName=Premium&packagePrice=4900'" 
         aria-label="Pay for Premium Package via MPESA">
     Purchase Package
                         </button>
-                        <div class="package-referral-link">
-                            <p>Referral Link: <span id="premium-referral-link"></span></p>
-                            <button onclick="copyReferralLink('premium', 'premium-refferal-link')" aria-label="Copy Premium Package referral link">Link</button>
-                        </div>
                     </div>
 
                     <!-- Package 4 -->
@@ -300,14 +288,10 @@ input {
                             <p>Payment Information: Click the button below to pay.</p>
                         </div>
                          <button class="pay-button" 
-        onclick="window.location.href='deposit.html?packageName=Ultimate&packagePrice=6000'" 
+        onclick="window.location.href='deposit?packageName=Ultimate&packagePrice=6000'" 
         aria-label="Pay for Ultimate Package via MPESA">
     Purchase Package
                          </button>
-                        <div class="package-referral-link">
-                            <p>Referral Link: <span id="ultimate-referral-link"></span></p>
-                            <button onclick="copyReferralLink('ultimate', 'ultimate-referral-link')" aria-label="Copy Ultimate Package referral link">Link</button>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -439,31 +423,31 @@ background: #f9f9f9;
 <footer>
     <div class="footer">
         <div class="footer-item">
-            <a href="dashboard.html">
+            <a href="dashboard">
                 <i class="fas fa-home footer-icon"></i>
                 <span>Home</span>
             </a>
         </div>
         <div class="footer-item">
-            <a href="deposit.html">
+            <a href="deposit">
                 <i class="fas fa-money-bill-alt footer-icon"></i> <!-- Changed to a money icon for deposit -->
                 <span>Deposit</span>
             </a>
         </div>
         <div class="footer-item">
-            <a href="packages.html">
+            <a href="packages">
                 <i class="fas fa-box-open footer-icon"></i> <!-- Changed to a box open icon for packages -->
                 <span>Packages</span>
             </a>
         </div>
         <div class="footer-item">
-            <a href="dashboard.html">
+            <a href="dashboard">
                 <i class="fas fa-tachometer-alt footer-icon"></i>
                 <span>Dashboard</span>
             </a>
         </div>
         <div class="footer-item">
-            <a href="profile.html">
+            <a href="profile">
                 <i class="fas fa-user-circle footer-icon"></i> <!-- Changed to a user circle icon for profile -->
                 <span>Profile</span>
             </a>
@@ -471,7 +455,7 @@ background: #f9f9f9;
     </div>
     
     <div class="Button">
-        <a href="deposit.html">
+        <a href="deposit">
             <p class="post-btn">
                 <i class="fa fa-plus-square"></i>
             </p>
