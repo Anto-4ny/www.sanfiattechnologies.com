@@ -505,23 +505,21 @@ document.querySelectorAll(".has-submenu").forEach((submenuToggle) => {
 });
 
 
-
 // Get current date
 const today = new Date();
 const formattedDate = today.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
 document.getElementById('current-date').textContent = `Date: ${formattedDate}`;
 
-// Product images URLs (can come from a backend or be hardcoded for now)
+// Product images URLs
 const productImages = [
     'images/product/Photo_1722099289583.png', // Day 1
     'images/product/Photo_1722099967640.png', // Day 2
     'images/product/Photo_1722099289583.png', // Day 3
     'images/product/Photo_1722100171247.png', // Day 4
     'images/product/Photo_1722099289583.png', // Day 5
-    'images/product/🚨 Join Our Team! Sanfiat Technologies is Hiring! 🚨 Position Sales & Marketing Professionals 📍 Work with a dynamic team and grow with us!.png', // Day 6
+    'images/product/Photo_1722099289583.png', // Day 6
     'images/product/Photo_1722099289583.png'  // Day 7
 ];
-
 
 // Logic to rotate product based on the current day
 const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
@@ -531,7 +529,7 @@ for (let i = 0; i < 7; i++) {
     const downloadLinkElement = document.getElementById(`download-image-${i+1}`);
     const whatsappShareElement = document.getElementById(`whatsapp-share-${i+1}`);
 
-    const productImageUrl = productImages[(dayOfWeek + i) % 7]; // Rotate images based on day of week
+    const productImageUrl = productImages[(dayOfWeek + i) % 7]; // Rotate images based on day of the week
 
     // Set image source
     productImageElement.src = productImageUrl;
@@ -539,10 +537,20 @@ for (let i = 0; i < 7; i++) {
     // Set download link
     downloadLinkElement.href = productImageUrl;
 
-    // Set WhatsApp share link
-    whatsappShareElement.href = `https://wa.me/?text=Check%20out%20this%20status%20image:%20${encodeURIComponent(productImageUrl)}`;
-}
+    // Set WhatsApp sharing functionality
+    whatsappShareElement.addEventListener("click", (e) => {
+        e.preventDefault();
 
+        // Provide a caption for the image
+        const caption = `Visit Sanfiat to earn with me by posting on WhatsApp: https://sanfiat.antocapteknologies.com/`;
+
+        // Notify the user to download and share the image manually
+        alert("To share this image on WhatsApp:\n1. Download the image.\n2. Open WhatsApp and upload the image.\n3. Add this caption:\n\n" + caption);
+
+        // Trigger download to make it easier for users
+        downloadLinkElement.click();
+    });
+}
 
 // Handling the notification close event
 document.getElementById('close-notification').addEventListener('click', function() {
@@ -563,7 +571,7 @@ notificationsRef.onSnapshot(snapshot => {
 
 // Function to generate a referral link based on package and user ID
 function generateReferralLink(packageName, userId) {
-    const baseUrl = "https://anto-4ny.github.io/www.sanfiattechnologies.com/packages.html/";  // Replace with your actual base URL
+    const baseUrl = "https://sanfiat.antocapteknologies.com/packages.html/";  // Replace with your actual base URL
     const referralLink = `${baseUrl}?package=${packageName}&referrer=${userId}`;
     return referralLink;
 }
