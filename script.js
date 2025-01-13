@@ -673,208 +673,238 @@ firebase.auth().onAuthStateChanged(function(user) {
     }
 });
 });
-
-// Validate view count
-const validateViews = (views) => views >= 5 && views <= 20;
-
-// Check if a user has uploaded in the last 24 hours
-const checkUploadCooldown = async (userId) => {
-  const uploadsRef = collection(db, "uploads");
-  const oneDayAgo = Timestamp.fromDate(new Date(Date.now() - 86400000)); // 24 hours ago
-  const q = query(uploadsRef, where("userId", "==", userId), where("timestamp", ">", oneDayAgo));
-  const querySnapshot = await getDocs(q);
-  return !querySnapshot.empty;
-};
-
-// Handle file input and drag-and-drop
-document.addEventListener("DOMContentLoaded", () => {
-  const dropZone = document.getElementById("drop-zone");
-  const fileInput = document.getElementById("file-input");
-  const filePreview = document.getElementById("file-preview");
-
-  if (dropZone && fileInput && filePreview) {
-    dropZone.addEventListener("click", () => fileInput.click());
-
-    fileInput.addEventListener("change", (event) => {
-      const files = event.target.files;
-      handleFileSelection(files, filePreview);
-    });
-
-    dropZone.addEventListener("dragover", (event) => {
-      event.preventDefault();
-      dropZone.style.borderColor = "#007BFF";
-    });
-
-    dropZone.addEventListener("dragleave", () => {
-      dropZone.style.borderColor = "#ccc";
-    });
-
-    dropZone.addEventListener("drop", (event) => {
-      event.preventDefault();
-      dropZone.style.borderColor = "#ccc";
-      const files = event.dataTransfer.files;
-      fileInput.files = files;
-      handleFileSelection(files, filePreview);
-    });
-  } else {
-    console.error("One or more required elements are missing in the DOM.");
-  }
-});
-
-// Handle file selection
-const handleFileSelection = (files, filePreview) => {
-  if (files.length > 0) {
-    const file = files[0];
-    filePreview.textContent = `Selected file: ${file.name}`;
-    filePreview.style.color = "#333";
-
-    if (!file.type.startsWith("image/")) {
-      filePreview.textContent = "Please upload a valid image file.";
-      filePreview.style.color = "red";
+// Function to display messages in the form
+const displayMessage = (message, type) => {
+    const messageContainer = document.getElementById("message-container");
+    
+    if (messageContainer) {
+      messageContainer.textContent = message;
+      messageContainer.style.display = "block";
+  
+      if (type === "success") {
+        messageContainer.style.color = "green";
+        messageContainer.style.backgroundColor = "#e0f8e0"; // Light green background
+      } else if (type === "error") {
+        messageContainer.style.color = "red";
+        messageContainer.style.backgroundColor = "#f8d7da"; // Light red background
+      } else {
+        messageContainer.style.color = "blue";
+        messageContainer.style.backgroundColor = "#d1ecf1"; // Light blue background
+      }
     }
-  } else {
-    filePreview.textContent = "No file selected.";
-    filePreview.style.color = "#777";
-  }
-};
-
-// Check user authentication and upload logic
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userId = user.uid;
-
-    // Check user package status
-    const userDocRef = doc(db, "users", userId);
-    const userDoc = await getDoc(userDocRef);
-
-    if (!userDoc.exists() || !userDoc.data().packageStatus) {
-      alert("You must purchase a package to upload screenshots.");
-      return;
-    }
-
-    // Check if the user has uploaded in the last 24 hours
-    const hasUploaded = await checkUploadCooldown(userId);
-
-    if (hasUploaded) {
-      alert("You can only upload one screenshot every 24 hours.");
-      return;
-    }
-
-    // Upload form submission logic
-    const uploadForm = document.getElementById("upload-form");
-    if (uploadForm) {
-      uploadForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const views = parseInt(document.getElementById("views").value, 10);
-        const screenshot = document.getElementById("file-input").files[0];
-
-        if (!validateViews(views)) {
-          alert("Number of views must be between 5 and 20.");
-          return;
-        }
-
-        if (!screenshot) {
-          alert("Please upload a screenshot.");
-          return;
-        }
-
-        const uploadData = {
-          userId,
-          views,
-          screenshotName: screenshot.name,
-          timestamp: Timestamp.now(),
-          approved: false,
-        };
-
-        try {
-          await addDoc(collection(db, "uploads"), uploadData);
-          alert("Screenshot uploaded successfully! Awaiting admin approval.");
-        } catch (error) {
-          console.error("Error uploading screenshot:", error);
-          alert("Error uploading screenshot. Please try again.");
-        }
-      });
-    }
-  } else {
-    alert("You must be logged in to upload a screenshot.");
-  }
-});
-
-// Listen for admin approvals and update user data
-const listenForApprovals = () => {
-  const uploadsRef = collection(db, "uploads");
-  const q = query(uploadsRef, where("approved", "==", true));
-
-  onSnapshot(q, async (snapshot) => {
-    snapshot.docChanges().forEach(async (change) => {
-      if (change.type === "added") {
-        const approvedUpload = change.doc.data();
-        const userId = approvedUpload.userId;
-
-        const userDocRef = doc(db, "users", userId);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const updatedData = {
-            totalViews: (userData.totalViews || 0) + approvedUpload.views,
-            totalEarnings: (userData.totalEarnings || 0) + 200,
-            balance: (userData.balance || 0) + 200,
-          };
-
-          await updateDoc(userDocRef, updatedData);
-          addNotification("Your screenshot has been approved! Earnings and balance updated.");
-        }
+  };
+  
+  // Check if the current page is upload.html
+  if (window.location.pathname.includes("upload.html")) {
+    // Validate view count
+    const validateViews = (views) => views >= 5 && views <= 20;
+  
+    // Check if a user has uploaded in the last 24 hours
+    const checkUploadCooldown = async (userId) => {
+      const uploadsRef = collection(db, "uploads");
+      const oneDayAgo = Timestamp.fromDate(new Date(Date.now() - 86400000)); // 24 hours ago
+      const q = query(uploadsRef, where("userId", "==", userId), where("timestamp", ">", oneDayAgo));
+      const querySnapshot = await getDocs(q);
+      return !querySnapshot.empty;
+    };
+  
+    // Handle file input and drag-and-drop
+    document.addEventListener("DOMContentLoaded", () => {
+      const dropZone = document.getElementById("drop-zone");
+      const fileInput = document.getElementById("file-input");
+      const filePreview = document.getElementById("file-preview");
+  
+      if (dropZone && fileInput && filePreview) {
+        dropZone.addEventListener("click", () => fileInput.click());
+  
+        fileInput.addEventListener("change", (event) => {
+          const files = event.target.files;
+          handleFileSelection(files, filePreview);
+        });
+  
+        dropZone.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          dropZone.style.borderColor = "#007BFF";
+        });
+  
+        dropZone.addEventListener("dragleave", () => {
+          dropZone.style.borderColor = "#ccc";
+        });
+  
+        dropZone.addEventListener("drop", (event) => {
+          event.preventDefault();
+          dropZone.style.borderColor = "#ccc";
+          const files = event.dataTransfer.files;
+          fileInput.files = files;
+          handleFileSelection(files, filePreview);
+        });
+      } else {
+        console.error("One or more required elements are missing in the DOM.");
       }
     });
-  });
-};
-
-// Add notification to the DOM
-const addNotification = (message) => {
-  const notificationsContainer = document.getElementById("notifications-container");
-  const notificationCount = document.getElementById("notification-count");
-
-  const notification = document.createElement("div");
-  notification.classList.add("notification-item");
-  notification.innerHTML = `
-    <p>${message}</p>
-    <span class="close-notification-btn" onclick="this.parentElement.remove()">&times;</span>
-  `;
-
-  notificationsContainer.appendChild(notification);
-
-  if (notificationCount) {
-    const currentCount = parseInt(notificationCount.textContent, 10) || 0;
-    notificationCount.textContent = currentCount + 1;
+  
+    // Handle file selection
+    const handleFileSelection = (files, filePreview) => {
+      if (files.length > 0) {
+        const file = files[0];
+        filePreview.textContent = `Selected file: ${file.name}`;
+        filePreview.style.color = "#333";
+  
+        if (!file.type.startsWith("image/")) {
+          filePreview.textContent = "Please upload a valid image file.";
+          filePreview.style.color = "red";
+        }
+      } else {
+        filePreview.textContent = "No file selected.";
+        filePreview.style.color = "#777";
+      }
+    };
+  
+    // Check user authentication and upload logic
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userId = user.uid;
+  
+        // Check user package status
+        const userDocRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userDocRef);
+  
+        if (!userDoc.exists() || !userDoc.data().packageStatus) {
+          displayMessage("You must purchase a package to upload screenshots.", "error");
+          return;
+        }
+  
+        // Check if the user has uploaded in the last 24 hours
+        const hasUploaded = await checkUploadCooldown(userId);
+  
+        if (hasUploaded) {
+          displayMessage("You can only upload one screenshot every 24 hours.", "error");
+          return;
+        }
+  
+        // Upload form submission logic
+        const uploadForm = document.getElementById("upload-form");
+        if (uploadForm) {
+          uploadForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+  
+            const views = parseInt(document.getElementById("views").value, 10);
+            const screenshot = document.getElementById("file-input").files[0];
+  
+            if (!validateViews(views)) {
+              displayMessage("Number of views must be between 5 and 20.", "error");
+              return;
+            }
+  
+            if (!screenshot) {
+              displayMessage("Please upload a screenshot.", "error");
+              return;
+            }
+  
+            const uploadData = {
+              userId,
+              views,
+              screenshotName: screenshot.name,
+              timestamp: Timestamp.now(),
+              approved: false,
+            };
+  
+            try {
+              await addDoc(collection(db, "uploads"), uploadData);
+              displayMessage("Screenshot uploaded successfully! Awaiting admin approval.", "success");
+            } catch (error) {
+              console.error("Error uploading screenshot:", error);
+              displayMessage("Error uploading screenshot. Please try again.", "error");
+            }
+          });
+        }
+      } else {
+        displayMessage("You must be logged in to upload a screenshot.", "error");
+      }
+    });
+  
+    // Listen for admin approvals and update user data
+    const listenForApprovals = () => {
+      const uploadsRef = collection(db, "uploads");
+      const q = query(uploadsRef, where("approved", "==", true));
+  
+      onSnapshot(q, async (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+          if (change.type === "added") {
+            const approvedUpload = change.doc.data();
+            const userId = approvedUpload.userId;
+  
+            const userDocRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userDocRef);
+  
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              const updatedData = {
+                totalViews: (userData.totalViews || 0) + approvedUpload.views,
+                totalEarnings: (userData.totalEarnings || 0) + 200,
+                balance: (userData.balance || 0) + 200,
+              };
+  
+              await updateDoc(userDocRef, updatedData);
+              addNotification("Your screenshot has been approved! Earnings and balance updated.");
+            }
+          }
+        });
+      });
+    };
+  
+    // Add notification to the DOM
+    const addNotification = (message) => {
+      const notificationsContainer = document.getElementById("notifications-container");
+      const notificationCount = document.getElementById("notification-count");
+  
+      const notification = document.createElement("div");
+      notification.classList.add("notification-item");
+      notification.innerHTML = `
+        <p>${message}</p>
+        <span class="close-notification-btn" onclick="this.parentElement.remove()">&times;</span>
+      `;
+  
+      notificationsContainer.appendChild(notification);
+  
+      if (notificationCount) {
+        const currentCount = parseInt(notificationCount.textContent, 10) || 0;
+        notificationCount.textContent = currentCount + 1;
+      }
+    };
+  
+    // Fetch notifications
+    const fetchNotifications = async (userId) => {
+      const notificationsRef = collection(doc(db, "users", userId), "notifications");
+      const notificationsSnapshot = await getDocs(notificationsRef);
+      const notificationsContainer = document.getElementById("notifications-container");
+  
+      notificationsSnapshot.forEach((doc) => {
+        const notificationData = doc.data();
+        const notificationElement = document.createElement("div");
+        notificationElement.classList.add("notification-item");
+        notificationElement.innerHTML = `
+          <p>${notificationData.message}</p>
+          <button onclick="closeNotification('${doc.id}')">Close</button>
+        `;
+        notificationsContainer.appendChild(notificationElement);
+      });
+    };
+  
+    // Close a notification
+    const closeNotification = async (notificationId) => {
+      const notificationsRef = doc(db, "users", userId, "notifications", notificationId);
+      await deleteDoc(notificationsRef);
+      location.reload();
+    };
+  
+    // Start listening for approvals
+    listenForApprovals();
+  } else {
+    // Ensure no message appears on non-upload pages
+    const messageContainer = document.getElementById("message-container");
+    if (messageContainer) {
+      messageContainer.style.display = "none";
+    }
   }
-};
-
-// Fetch notifications
-const fetchNotifications = async (userId) => {
-  const notificationsRef = collection(doc(db, "users", userId), "notifications");
-  const notificationsSnapshot = await getDocs(notificationsRef);
-  const notificationsContainer = document.getElementById("notifications-container");
-
-  notificationsSnapshot.forEach((doc) => {
-    const notificationData = doc.data();
-    const notificationElement = document.createElement("div");
-    notificationElement.classList.add("notification-item");
-    notificationElement.innerHTML = `
-      <p>${notificationData.message}</p>
-      <button onclick="closeNotification('${doc.id}')">Close</button>
-    `;
-    notificationsContainer.appendChild(notificationElement);
-  });
-};
-
-// Close a notification
-const closeNotification = async (notificationId) => {
-  const notificationsRef = doc(db, "users", userId, "notifications", notificationId);
-  await deleteDoc(notificationsRef);
-  location.reload();
-};
-
-// Start listening for approvals
-listenForApprovals();
+  
