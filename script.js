@@ -682,89 +682,93 @@ const checkUploadCooldown = async (userId) => {
   const querySnapshot = await getDocs(q);
   return !querySnapshot.empty; // Returns true if an upload was made in the last 24 hours
 };
-
-// File input, drag-and-drop, and upload preview logic
-const dropZone = document.getElementById("drop-zone");
-const fileInput = document.getElementById("file-input");
-const filePreview = document.getElementById("file-preview");
-
-// Trigger file input click when drop zone is clicked
-dropZone.addEventListener("click", () => {
-  fileInput.click(); // Programmatically open file dialog
-});
-
-// Handle file selection
-fileInput.addEventListener("change", (event) => {
-  const files = event.target.files;
-
-  if (files.length > 0) {
-    const file = files[0];
-
-    // Show file name as preview
-    filePreview.textContent = `Selected file: ${file.name}`;
-    filePreview.style.color = "#333"; // Change color to indicate success
-
-    // Optional: Check file type
-    if (!file.type.startsWith("image/")) {
-      filePreview.textContent = "Please upload a valid image file.";
-      filePreview.style.color = "red"; // Error indication
+document.addEventListener("DOMContentLoaded", () => {
+    const dropZone = document.getElementById("drop-zone");
+    const fileInput = document.getElementById("file-input");
+    const filePreview = document.getElementById("file-preview");
+  
+    if (dropZone && fileInput && filePreview) {
+      // Attach event listeners
+      dropZone.addEventListener("click", () => fileInput.click());
+  
+      fileInput.addEventListener("change", (event) => {
+        const files = event.target.files;
+  
+        if (files.length > 0) {
+          const file = files[0];
+  
+          // Show file name as preview
+          filePreview.textContent = `Selected file: ${file.name}`;
+          filePreview.style.color = "#333"; // Change color to indicate success
+  
+          // Optional: Check file type
+          if (!file.type.startsWith("image/")) {
+            filePreview.textContent = "Please upload a valid image file.";
+            filePreview.style.color = "red"; // Error indication
+          }
+        } else {
+          filePreview.textContent = "No file selected.";
+          filePreview.style.color = "#777"; // Default text color
+        }
+      });
+  
+      // Drag-and-drop functionality
+      dropZone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropZone.style.borderColor = "#007BFF"; // Highlight drop zone
+      });
+  
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.style.borderColor = "#ccc"; // Reset border color
+      });
+  
+      dropZone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        dropZone.style.borderColor = "#ccc"; // Reset border color
+  
+        const files = event.dataTransfer.files;
+  
+        if (files.length > 0) {
+          const file = files[0];
+          fileInput.files = event.dataTransfer.files; // Assign dropped files to input
+  
+          filePreview.textContent = `Selected file: ${file.name}`;
+          filePreview.style.color = "#333"; // Success indication
+  
+          if (!file.type.startsWith("image/")) {
+            filePreview.textContent = "Please upload a valid image file.";
+            filePreview.style.color = "red"; // Error indication
+          }
+        }
+      });
+  
+      const uploadForm = document.getElementById("upload-form");
+      if (uploadForm) {
+        uploadForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+  
+          const views = parseInt(document.getElementById("views").value, 10);
+          const screenshot = fileInput.files[0];
+  
+          if (!validateViews(views)) {
+            alert("Number of views must be between 5 and 20.");
+            return;
+          }
+  
+          if (!screenshot) {
+            alert("Please upload a screenshot.");
+            return;
+          }
+  
+          // Perform upload logic
+          console.log("Form submitted with screenshot:", screenshot.name);
+        });
+      }
+    } else {
+      console.error("One or more required elements are missing in the DOM.");
     }
-  } else {
-    filePreview.textContent = "No file selected.";
-    filePreview.style.color = "#777"; // Default text color
-  }
-});
-
-// Drag and drop functionality
-dropZone.addEventListener("dragover", (event) => {
-  event.preventDefault(); // Prevent default behavior (e.g., opening the file)
-  dropZone.style.borderColor = "#007BFF"; // Highlight the drop zone
-});
-
-dropZone.addEventListener("dragleave", () => {
-  dropZone.style.borderColor = "#ccc"; // Reset border color
-});
-
-dropZone.addEventListener("drop", (event) => {
-  event.preventDefault();
-  dropZone.style.borderColor = "#ccc"; // Reset border color
-
-  const files = event.dataTransfer.files;
-
-  if (files.length > 0) {
-    const file = files[0];
-    fileInput.files = event.dataTransfer.files; // Assign dropped files to the input
-
-    // Show file name as preview
-    filePreview.textContent = `Selected file: ${file.name}`;
-    filePreview.style.color = "#333"; // Success indication
-
-    // Optional: Check file type
-    if (!file.type.startsWith("image/")) {
-      filePreview.textContent = "Please upload a valid image file.";
-      filePreview.style.color = "red"; // Error indication
-    }
-  }
-});
-
-// Handle form submission
-document.getElementById("upload-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const views = parseInt(document.getElementById("views").value, 10);
-  const fileInput = document.getElementById("file-input");
-  const screenshot = fileInput.files[0];
-
-  if (!validateViews(views)) {
-    alert("Number of views must be between 5 and 20.");
-    return;
-  }
-
-  if (!screenshot) {
-    alert("Please upload a screenshot.");
-    return;
-  }
-
+  });
+  
   // Check if the user is authenticated
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -808,7 +812,6 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
       alert("You must be logged in to upload a screenshot.");
     }
   });
-});
 
 // Listen for admin approvals and update user data
 const listenForApprovals = () => {
