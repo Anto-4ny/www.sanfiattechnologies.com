@@ -10,13 +10,17 @@ import {
     getFirestore,
     doc,
     setDoc,
+    addDoc,
+    updateDoc,
     getDoc,
     query,
     onSnapshot,
     collection,
     where,
     getDocs,
+    Timestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { Timestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
 const firebaseConfig = {
@@ -680,102 +684,67 @@ const checkUploadCooldown = async (userId) => {
   const oneDayAgo = Timestamp.fromDate(new Date(Date.now() - 86400000)); // 24 hours ago
   const q = query(uploadsRef, where("userId", "==", userId), where("timestamp", ">", oneDayAgo));
   const querySnapshot = await getDocs(q);
-  return !querySnapshot.empty; // Returns true if an upload was made in the last 24 hours
+  return !querySnapshot.empty;
 };
 
+// Handle file input and drag-and-drop
 document.addEventListener("DOMContentLoaded", () => {
   const dropZone = document.getElementById("drop-zone");
   const fileInput = document.getElementById("file-input");
   const filePreview = document.getElementById("file-preview");
 
   if (dropZone && fileInput && filePreview) {
-    // Attach event listeners
     dropZone.addEventListener("click", () => fileInput.click());
 
     fileInput.addEventListener("change", (event) => {
       const files = event.target.files;
-
-      if (files.length > 0) {
-        const file = files[0];
-
-        // Show file name as preview
-        filePreview.textContent = `Selected file: ${file.name}`;
-        filePreview.style.color = "#333"; // Change color to indicate success
-
-        // Optional: Check file type
-        if (!file.type.startsWith("image/")) {
-          filePreview.textContent = "Please upload a valid image file.";
-          filePreview.style.color = "red"; // Error indication
-        }
-      } else {
-        filePreview.textContent = "No file selected.";
-        filePreview.style.color = "#777"; // Default text color
-      }
+      handleFileSelection(files, filePreview);
     });
 
-    // Drag-and-drop functionality
     dropZone.addEventListener("dragover", (event) => {
       event.preventDefault();
-      dropZone.style.borderColor = "#007BFF"; // Highlight drop zone
+      dropZone.style.borderColor = "#007BFF";
     });
 
     dropZone.addEventListener("dragleave", () => {
-      dropZone.style.borderColor = "#ccc"; // Reset border color
+      dropZone.style.borderColor = "#ccc";
     });
 
     dropZone.addEventListener("drop", (event) => {
       event.preventDefault();
-      dropZone.style.borderColor = "#ccc"; // Reset border color
-
+      dropZone.style.borderColor = "#ccc";
       const files = event.dataTransfer.files;
-
-      if (files.length > 0) {
-        const file = files[0];
-        fileInput.files = event.dataTransfer.files; // Assign dropped files to input
-
-        filePreview.textContent = `Selected file: ${file.name}`;
-        filePreview.style.color = "#333"; // Success indication
-
-        if (!file.type.startsWith("image/")) {
-          filePreview.textContent = "Please upload a valid image file.";
-          filePreview.style.color = "red"; // Error indication
-        }
-      }
+      fileInput.files = files;
+      handleFileSelection(files, filePreview);
     });
-
-    const uploadForm = document.getElementById("upload-form");
-    if (uploadForm) {
-      uploadForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const views = parseInt(document.getElementById("views").value, 10);
-        const screenshot = fileInput.files[0];
-
-        if (!validateViews(views)) {
-          alert("Number of views must be between 5 and 20.");
-          return;
-        }
-
-        if (!screenshot) {
-          alert("Please upload a screenshot.");
-          return;
-        }
-
-        // Perform upload logic
-        console.log("Form submitted with screenshot:", screenshot.name);
-      });
-    }
   } else {
     console.error("One or more required elements are missing in the DOM.");
   }
 });
 
-// Check if the user is authenticated
+// Handle file selection
+const handleFileSelection = (files, filePreview) => {
+  if (files.length > 0) {
+    const file = files[0];
+    filePreview.textContent = `Selected file: ${file.name}`;
+    filePreview.style.color = "#333";
+
+    if (!file.type.startsWith("image/")) {
+      filePreview.textContent = "Please upload a valid image file.";
+      filePreview.style.color = "red";
+    }
+  } else {
+    filePreview.textContent = "No file selected.";
+    filePreview.style.color = "#777";
+  }
+};
+
+// Check user authentication and upload logic
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const userId = user.uid;
 
-    // Check if the user has an active package
+    // Check user package status
     const userDocRef = doc(db, "users", userId);
     const userDoc = await getDoc(userDocRef);
 
@@ -792,22 +761,41 @@ onAuthStateChanged(auth, async (user) => {
       return;
     }
 
-    // Upload screenshot and details to Firebase
-    const uploadsRef = collection(db, "uploads");
-    const uploadData = {
-      userId: userId,
-      views: parseInt(document.getElementById("views").value, 10),
-      screenshotName: document.getElementById("file-input").files[0].name,
-      timestamp: Timestamp.now(),
-      approved: false, // Set to false initially until approved by admin
-    };
+    // Upload form submission logic
+    const uploadForm = document.getElementById("upload-form");
+    if (uploadForm) {
+      uploadForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    try {
-      await addDoc(uploadsRef, uploadData);
-      alert("Screenshot uploaded successfully! Awaiting admin approval.");
-    } catch (error) {
-      console.error("Error uploading screenshot:", error);
-      alert("Error uploading screenshot. Please try again.");
+        const views = parseInt(document.getElementById("views").value, 10);
+        const screenshot = document.getElementById("file-input").files[0];
+
+        if (!validateViews(views)) {
+          alert("Number of views must be between 5 and 20.");
+          return;
+        }
+
+        if (!screenshot) {
+          alert("Please upload a screenshot.");
+          return;
+        }
+
+        const uploadData = {
+          userId,
+          views,
+          screenshotName: screenshot.name,
+          timestamp: Timestamp.now(),
+          approved: false,
+        };
+
+        try {
+          await addDoc(collection(db, "uploads"), uploadData);
+          alert("Screenshot uploaded successfully! Awaiting admin approval.");
+        } catch (error) {
+          console.error("Error uploading screenshot:", error);
+          alert("Error uploading screenshot. Please try again.");
+        }
+      });
     }
   } else {
     alert("You must be logged in to upload a screenshot.");
@@ -825,7 +813,6 @@ const listenForApprovals = () => {
         const approvedUpload = change.doc.data();
         const userId = approvedUpload.userId;
 
-        // Update user data
         const userDocRef = doc(db, "users", userId);
         const userDoc = await getDoc(userDocRef);
 
@@ -833,13 +820,11 @@ const listenForApprovals = () => {
           const userData = userDoc.data();
           const updatedData = {
             totalViews: (userData.totalViews || 0) + approvedUpload.views,
-            totalEarnings: (userData.totalEarnings || 0) + 200, // Assuming 100 Ksh per approval
+            totalEarnings: (userData.totalEarnings || 0) + 200,
             balance: (userData.balance || 0) + 200,
           };
 
           await updateDoc(userDocRef, updatedData);
-
-          // Notify user
           addNotification("Your screenshot has been approved! Earnings and balance updated.");
         }
       }
@@ -847,10 +832,7 @@ const listenForApprovals = () => {
   });
 };
 
-// Start listening for admin approvals
-listenForApprovals();
-
-// Add a notification
+// Add notification to the DOM
 const addNotification = (message) => {
   const notificationsContainer = document.getElementById("notifications-container");
   const notificationCount = document.getElementById("notification-count");
@@ -861,38 +843,39 @@ const addNotification = (message) => {
     <p>${message}</p>
     <span class="close-notification-btn" onclick="this.parentElement.remove()">&times;</span>
   `;
+
   notificationsContainer.appendChild(notification);
 
-  const currentCount = parseInt(notificationCount.textContent, 10);
-  notificationCount.textContent = currentCount + 1;
+  if (notificationCount) {
+    const currentCount = parseInt(notificationCount.textContent, 10) || 0;
+    notificationCount.textContent = currentCount + 1;
+  }
 };
 
-// Initialize listeners
+// Fetch notifications
+const fetchNotifications = async (userId) => {
+  const notificationsRef = collection(doc(db, "users", userId), "notifications");
+  const notificationsSnapshot = await getDocs(notificationsRef);
+  const notificationsContainer = document.getElementById("notifications-container");
+
+  notificationsSnapshot.forEach((doc) => {
+    const notificationData = doc.data();
+    const notificationElement = document.createElement("div");
+    notificationElement.classList.add("notification-item");
+    notificationElement.innerHTML = `
+      <p>${notificationData.message}</p>
+      <button onclick="closeNotification('${doc.id}')">Close</button>
+    `;
+    notificationsContainer.appendChild(notificationElement);
+  });
+};
+
+// Close a notification
+const closeNotification = async (notificationId) => {
+  const notificationsRef = doc(db, "users", userId, "notifications", notificationId);
+  await deleteDoc(notificationsRef);
+  location.reload();
+};
+
+// Start listening for approvals
 listenForApprovals();
-
-const notificationsRef = firestore.collection('users').doc(userId).collection('notifications');
-    
-async function fetchNotifications() {
-    const notificationsSnapshot = await notificationsRef.get();
-    const notificationsContainer = document.getElementById('notifications-container');
-    
-    notificationsSnapshot.forEach(doc => {
-        const notificationData = doc.data();
-        const notificationElement = document.createElement('div');
-        notificationElement.classList.add('notification-item');
-        
-        notificationElement.innerHTML = `
-            <p>${notificationData.message}</p>
-            <button onclick="closeNotification('${doc.id}')">Close</button>
-        `;
-        
-        notificationsContainer.appendChild(notificationElement);
-    });
-}
-
-async function closeNotification(notificationId) {
-    await notificationsRef.doc(notificationId).delete();
-    location.reload(); // reload to reflect changes
-}
-
-fetchNotifications();
